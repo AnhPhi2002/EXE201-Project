@@ -1,10 +1,9 @@
-import { Button } from "@/components/ui/button"
+import React from 'react'
 
-function App() {
+const HomePage = () => {
   return (
-    <> 
-     <Button>Click me</Button>
-      <div className="bg-gray-100 flex items-center justify-center min-h-screen px-[10%]">
+    <div>
+       <div className="bg-gray-100 flex items-center justify-center min-h-screen px-[10%]">
         <div className="text-center">
           <h1 className="text-4xl font-semibold mb-4">Q&A for students</h1>
           <p className="text-lg mb-10">You can view and answer his question here</p>
@@ -44,8 +43,8 @@ function App() {
           </div>
         </div>
       </div>
-    </>
-  );
+    </div>
+  )
 }
 
-export default App;
+export default HomePage
