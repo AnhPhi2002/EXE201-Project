@@ -31,8 +31,8 @@ const LoginPage = () => {
   // useEffect để lắng nghe khi trạng thái isAuthenticated thay đổi
   useEffect(() => {
     if (isAuthenticated) {
-      console.log('Login success');  // Console log trạng thái success
-      navigate('/home');  // Chuyển hướng đến /home
+      console.log('Login successcccccccccccccc');  // Console log trạng thái success
+
     }
   }, [isAuthenticated, navigate]);
 
