@@ -32,7 +32,7 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({ onSearch }) => {
       <SearchIcon icon="search" className="text-gray-500 ml-2" />
       <input
         type="text"
-        placeholder="Search Class, Course"
+        placeholder="Tìm kiếm các câu hỏi"
         value={searchTerm}
         onChange={handleChange}
         onKeyPress={handleKeyPress}

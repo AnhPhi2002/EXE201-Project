@@ -16,6 +16,14 @@ import ResetPassword from './pages/reset-password';
 import RegisterPage from './pages/register';
 import VerifyPassword from './pages/reset-password/verifiy-password';
 import VideoPage from './pages/video-page';
+import ForumPage from './pages/video-page/detail';
+import QuestionPage from './pages/question-page';
+import QuestionDetailPage from './pages/question-page/detail';
+import { SubjectPage } from './pages/subject-page';
+import AccountOverview from './pages/profile-page';
+
+
+
 
 
 
@@ -47,7 +55,24 @@ const router = createBrowserRouter([
         path: '/video',
         element: <VideoPage />
       },
-
+      {
+        path: '/question',
+        element: <QuestionPage />
+      },
+      {
+        path: '/question-detail',
+        element: <QuestionDetailPage />
+      },
+      {
+        path: '/subject',
+        element: <SubjectPage />
+      },
+      {
+        path: '/profile',
+        element: (
+        <AccountOverview /> 
+        ),
+      },
     ]
   },
   {
@@ -74,6 +99,7 @@ const router = createBrowserRouter([
     <VerifyPassword /> 
     ),
   },
+
 ])
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

@@ -9,18 +9,16 @@ export const Filter = () => {
   };
 
   return (
-    <div className="flex items-center space-x-8 mb-16 py-10 px-[10%] bg-slate-300">
-      <div>
-        <SearchFilter onSearch={handleSearch} /> {/* Pass the required prop here */}
+    <div className="flex items-center justify-between mb-16 py-10 ">
+      <div className="w-2/4"> 
+        <SearchFilter onSearch={handleSearch} />
       </div>
-      <div>
-        <CreateFilter />
-      </div>
-      <div>
+
+      <div className="flex items-center space-x-4"> 
+        <CreateFilter /> 
         <SortFilter />
       </div>
     </div>
   );
 };
-
 export default Filter;

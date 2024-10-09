@@ -1,13 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SearchIcon from '../../../components/icons/action-icons';
 
 const NavLink: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    // Bind the event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownRef]);
 
   return (
     <div className="flex items-center space-x-6">
@@ -15,12 +32,12 @@ const NavLink: React.FC = () => {
       <Link to="/about" className="text-gray-700 hover:text-gray-900 font-semibold">GIỚI THIỆU</Link>
 
       {/* Custom Select-style Dropdown for "NỘI DUNG" */}
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <button
           onClick={toggleDropdown}
           className="text-gray-700 hover:text-gray-900 focus:outline-none flex items-center space-x-2"
         >
-          <span className='font-semibold'>NỘI DUNG</span>
+          <span className="font-semibold">NỘI DUNG</span>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
           </svg>
