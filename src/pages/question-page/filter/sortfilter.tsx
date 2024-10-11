@@ -14,11 +14,11 @@ export const SortFilter = () => {
   return (
       <Select>
         <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Select an option" />
+          <SelectValue placeholder="Sắp xếp bởi" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
-            <SelectLabel>Sorting Options</SelectLabel>
+            {/* <SelectLabel>Sorting Options</SelectLabel> */}
             <SelectItem value="price_asc">Price: Low to High</SelectItem>
             <SelectItem value="price_desc">Price: High to Low</SelectItem>
             <SelectItem value="popularity">Most Popular</SelectItem>

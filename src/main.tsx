@@ -1,4 +1,3 @@
-// index.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -10,23 +9,25 @@ import { store } from './lib/api/store';
 import HomePage from './pages/home-page';
 import ErrorPage from './pages/error-page';
 import Layout from './layouts';
-import { Toaster } from 'sonner';
 import LoginPage from './pages/login';
 import ResetPassword from './pages/reset-password';
 import RegisterPage from './pages/register';
 import VerifyPassword from './pages/reset-password/verifiy-password';
 import VideoPage from './pages/video-page';
+import QuestionPage from './pages/question-page';
+import QuestionDetailPage from './pages/question-page/detail';
+import SubjectPage from './pages/subject-page';
+import CommentSubject from './pages/subject-page/CommentSubject';
+import ProfilePage from './pages/profile-page';
+import ProfileDetail from './pages/profile-page/ProfileDetail';
 
-
-
+// Cấu hình router
 const router = createBrowserRouter([
   {
     path: '/',
     element: (
       <Layout>
-        
         <Outlet />
-  
       </Layout>
     ),
     errorElement: (
@@ -37,50 +38,70 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <HomePage />
+        element: <HomePage />,
       },
       {
         path: '/home',
-        element: <HomePage />
+        element: <HomePage />,
       },
       {
         path: '/video',
-        element: <VideoPage />
+        element: <VideoPage />,
       },
-
-    ]
+      {
+        path: '/question',
+        element: <QuestionPage />,
+      },
+      {
+        path: '/question/:id',
+        element: <QuestionDetailPage />,
+      },
+      {
+        path: '/subject',
+        element: <SubjectPage />,
+      },
+      {
+        path: '/subject/:courseId',  // Thêm route động cho subject
+        element: <SubjectPage />,
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+      {
+        path: '/profile-detail', // Sửa đường dẫn thành kebab-case
+        element: <ProfileDetail />,
+      },
+      {
+        path: '/comment',
+        element: <CommentSubject />,
+      },
+    ],
   },
+  // Các route bên ngoài layout chính
   {
     path: '/login',
-    element: (
-    <LoginPage /> 
-    ),
+    element: <LoginPage />,
   },
   {
     path: '/register',
-    element: (
-    <RegisterPage /> 
-    ),
+    element: <RegisterPage />,
   },
   {
     path: '/reset-password',
-    element: (
-    <ResetPassword /> 
-    ),
+    element: <ResetPassword />,
   },
   {
-    path: '/verifiy-password',
-    element: (
-    <VerifyPassword /> 
-    ),
+    path: '/verify-password',
+    element: <VerifyPassword />,
   },
-])
+]);
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
       <RouterProvider router={router} />
-      <ToastContainer autoClose={3000}  />
-      <Toaster closeButton position="top-right" richColors duration={1000} />
+      <ToastContainer autoClose={3000} /> {/* Nếu dùng react-toastify */}
     </Provider>
   </React.StrictMode>,
 );
