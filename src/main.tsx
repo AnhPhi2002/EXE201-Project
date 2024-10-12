@@ -20,6 +20,10 @@ import SubjectPage from './pages/subject-page';
 import CommentSubject from './pages/subject-page/CommentSubject';
 import ProfilePage from './pages/profile-page';
 import ProfileDetail from './pages/profile-page/ProfileDetail';
+import Dashboard from './pages/dashboard';
+import DashboardLayout from './layouts/dasboardlayout';
+import HomeDashboard from './pages/dashboard/home-dashboard';
+import AnalyticsDashboard from './pages/dashboard/analytics';
 
 // Cấu hình router
 const router = createBrowserRouter([
@@ -94,6 +98,26 @@ const router = createBrowserRouter([
   {
     path: '/verify-password',
     element: <VerifyPassword />,
+  },
+  // {
+  //   path: '/dashboard',
+  //   element: <Dashboard />,
+    
+  // },
+  {
+    path: '/dashboard', // Đường dẫn dashboard
+    element: <Dashboard />, // Layout chính cho Dashboard
+    children: [
+      {
+        index: true, // Đây là trang mặc định khi vào /dashboard
+        element: <HomeDashboard />, // Trang HomeDashboard mặc định
+      },
+      {
+        path: '/dashboard/analytics', // Đường dẫn cho trang Analytics
+        element: <AnalyticsDashboard />
+      },
+ 
+    ],
   },
 ]);
 
