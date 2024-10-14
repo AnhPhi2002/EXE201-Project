@@ -14,7 +14,7 @@ function AnalyticsDashboard() {
     <div>
       <section className="bg-white rounded-lg shadow-md p-6 mt-10">
 
-        <FliterDashboard selectedMetric={selectedMetric} setSelectedMetric={setSelectedMetric} />
+      
         <ul className="space-y-4">
           {recentActivities.map((activity) => (
             <li key={activity.id} className="flex justify-between items-center border-b pb-2">
