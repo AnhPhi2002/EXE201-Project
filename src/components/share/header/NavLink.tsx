@@ -8,8 +8,8 @@ const NavLink: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null); // Tham chiếu đến ô tìm kiếm
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+  const toggleDropdown = (state: boolean) => {
+    setIsDropdownOpen(state);
   };
 
   const toggleSearch = () => {
@@ -20,7 +20,6 @@ const NavLink: React.FC = () => {
   };
 
   const closeSearchWithDelay = () => {
-    // Thêm thời gian chờ trước khi đóng thanh tìm kiếm
     setTimeout(() => {
       setIsSearchVisible(false);
     }, 200);
@@ -32,9 +31,13 @@ const NavLink: React.FC = () => {
       <Link to="/about" className="text-gray-700 hover:text-gray-900 font-semibold">GIỚI THIỆU</Link>
 
       {/* Dropdown cho NỘI DUNG */}
-      <div className="relative" ref={dropdownRef}>
+      <div
+        className="relative"
+        ref={dropdownRef}
+        onMouseEnter={() => toggleDropdown(true)}  // Mở dropdown khi di chuột vào
+        
+      >
         <button
-          onClick={toggleDropdown}
           className="text-gray-700 hover:text-gray-900 focus:outline-none flex items-center space-x-2"
         >
           <span className="font-semibold">NỘI DUNG</span>
@@ -43,17 +46,18 @@ const NavLink: React.FC = () => {
           </svg>
         </button>
         {isDropdownOpen && (
-          <div className="absolute bg-white shadow-lg mt-2 py-2 rounded-md w-48 z-10">
-            <Link to="/blog" className="block px-4 py-2 text-gray-700 hover:bg-gray-200" onClick={() => setIsDropdownOpen(false)}>BÀI BLOG</Link>
-            <Link to="/subject" className="block px-4 py-2 text-gray-700 hover:bg-gray-200" onClick={() => setIsDropdownOpen(false)}>MÔN HỌC</Link>
-            <Link to="/document" className="block px-4 py-2 text-gray-700 hover:bg-gray-200" onClick={() => setIsDropdownOpen(false)}>TÀI LIỆU</Link>
-            <Link to="/question" className="block px-4 py-2 text-gray-700 hover:bg-gray-200" onClick={() => setIsDropdownOpen(false)}>GIẢI ĐÁP</Link>
-            <Link to="/room" className="block px-4 py-2 text-gray-700 hover:bg-gray-200" onClick={() => setIsDropdownOpen(false)}>PHÒNG</Link>
+          <div className="absolute bg-white shadow-lg mt-2 py-2 rounded-md w-48 z-10 " onMouseLeave={() => toggleDropdown(false)} >
+            <Link to="/blog" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">BÀI BLOG</Link>
+            <Link to="/subject" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">MÔN HỌC</Link>
+            <Link to="/document" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">TÀI LIỆU</Link>
+            <Link to="/question" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">GIẢI ĐÁP</Link>
+            <Link to="/room" className="block px-4 py-2 text-gray-700 hover:bg-gray-200">PHÒNG</Link>
           </div>
         )}
       </div>
 
-      <Link to="/sign-in" className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-black font-semibold">ĐĂNG NHẬP</Link>
+      
+      
 
       {/* Tích hợp Search Icon với hiệu ứng mở ô tìm kiếm */}
       <div
