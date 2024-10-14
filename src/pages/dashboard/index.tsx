@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, Home, BarChart2, Users, Settings, Package, Moon, Sun } from 'lucide-react';
+import { Menu, Home, BarChart2, Users, Settings, Package, Moon, Sun, UserRound, UsersRound } from 'lucide-react';
 import { Link, Outlet } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -22,21 +22,10 @@ const Dashboard: React.FC = () => {
     setDarkMode(!darkMode);
   };
 
-  // Áp dụng lớp CSS khi chế độ thay đổi
-  // useEffect(() => {
-  //   if (darkMode) {
-  //     document.body.classList.add('dark');
-  //     document.body.classList.remove('light');
-  //   } else {
-  //     document.body.classList.add('light');
-  //     document.body.classList.remove('dark');
-  //   }
-  // }, [darkMode]);
-
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <aside className={`${sidebarCollapsed ? 'w-16' : 'w-52'} bg-gray-800 text-white transition-all duration-300 ease-in-out`}>
+      <aside className={`${sidebarCollapsed ? 'w-16' : 'w-52'} bg-black text-white transition-all duration-300 ease-in-out`}>
         <div className="p-4">
           <button onClick={toggleSidebar} className="text-white focus:outline-none" aria-label="Toggle Sidebar">
             <Menu className="h-6 w-6" />
@@ -46,11 +35,11 @@ const Dashboard: React.FC = () => {
           <ul>
             <li className="mb-4">
               <Link
-                to="/dashboard" // Thay đổi đường dẫn thành /dashboard
+                to="/dashboard/home" // Thay đổi đường dẫn thành /dashboard
                 onClick={() => handleTabChange('home')}
                 className={`flex items-center p-2 py-3 w-full ${activeTab === 'home' ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
               >
-                <Home className="h-5 w-5 mr-5 ml-2" />
+                <Home className="h-5 w-5 mr-3 ml-2" />
                 {!sidebarCollapsed && <span>Home</span>}
               </Link>
 
@@ -59,8 +48,17 @@ const Dashboard: React.FC = () => {
                 onClick={() => handleTabChange('analytics')}
                 className={`flex items-center p-2 py-3 w-full ${activeTab === 'analytics' ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
               >
-                <BarChart2 className="h-5 w-5 mr-5 ml-2" />
+                <BarChart2 className="h-5 w-5 mr-3 ml-2" />
                 {!sidebarCollapsed && <span>Analytics</span>}
+              </Link>
+              
+              <Link
+                to="/dashboard/usermanagement" 
+                onClick={() => handleTabChange('usermanagement')}
+                className={`flex items-center p-2 py-3 w-full ${activeTab === 'usermanagement' ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
+              >
+                <UsersRound className="h-5 w-5 mr-3 ml-2" />
+                {!sidebarCollapsed && <span>User Management </span>}
               </Link>
             </li>
           </ul>

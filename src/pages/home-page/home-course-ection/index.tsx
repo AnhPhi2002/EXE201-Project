@@ -8,10 +8,10 @@ const CodingCourseSection = () => {
   const navigate = useNavigate(); // Khởi tạo useNavigate
 
   const majors = [
-    { id: "SS", name: "Software Systems" },
-    { id: "SA", name: "System Analysis" },
-    { id: "IB", name: "International Business" },
-    { id: "MKT", name: "Marketing" },
+      { id: "SS", name: "Software Systems" },
+      { id: "SA", name: "System Analysis" },
+      { id: "IB", name: "International Business" },
+      { id: "MKT", name: "Marketing" },
   ];
 
   const semesters = [

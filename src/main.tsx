@@ -21,9 +21,12 @@ import CommentSubject from './pages/subject-page/CommentSubject';
 import ProfilePage from './pages/profile-page';
 import ProfileDetail from './pages/profile-page/ProfileDetail';
 import Dashboard from './pages/dashboard';
-import DashboardLayout from './layouts/dasboardlayout';
-import HomeDashboard from './pages/dashboard/home-dashboard';
 import AnalyticsDashboard from './pages/dashboard/analytics';
+import { HomeDashboard } from './pages/dashboard/home-dashboard';
+import UserManagementDashboard from './pages/dashboard/usetmanagement';
+import BlogSection from './pages/blog/bloghome';
+import BlogDetail from './pages/blog/blogdetail';
+import ContactUs from './pages/contact-page';
 
 // Cấu hình router
 const router = createBrowserRouter([
@@ -73,14 +76,27 @@ const router = createBrowserRouter([
         element: <ProfilePage />,
       },
       {
-        path: '/profile-detail', // Sửa đường dẫn thành kebab-case
+        path: '/profile-detail', 
         element: <ProfileDetail />,
       },
       {
         path: '/comment',
         element: <CommentSubject />,
       },
+      {
+        path: '/blog',
+        element: <BlogSection />,
+      },
+      {
+        path: '/blog-detail',
+        element: <BlogDetail />,
+      },
+      {
+        path: '/contact',
+        element: <ContactUs />,
+      },
     ],
+    
   },
   // Các route bên ngoài layout chính
   {
@@ -99,22 +115,22 @@ const router = createBrowserRouter([
     path: '/verify-password',
     element: <VerifyPassword />,
   },
-  // {
-  //   path: '/dashboard',
-  //   element: <Dashboard />,
-    
-  // },
+
   {
     path: '/dashboard', // Đường dẫn dashboard
     element: <Dashboard />, // Layout chính cho Dashboard
     children: [
       {
-        index: true, // Đây là trang mặc định khi vào /dashboard
+        path: '/dashboard/home', // Đây là trang mặc định khi vào /dashboard
         element: <HomeDashboard />, // Trang HomeDashboard mặc định
       },
       {
         path: '/dashboard/analytics', // Đường dẫn cho trang Analytics
         element: <AnalyticsDashboard />
+      },
+      {
+        path: '/dashboard/usermanagement', 
+        element: <UserManagementDashboard />
       },
  
     ],
