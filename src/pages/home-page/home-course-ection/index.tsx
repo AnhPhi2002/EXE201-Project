@@ -1,88 +1,129 @@
-import React, { useState } from "react";
-import { ChevronDown, ChevronUp, Book } from "lucide-react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchDepartments, fetchSemesters, fetchSubjects, fetchResources } from '@/lib/api/redux/departmentSlice';
+import { RootState, AppDispatch } from '@/lib/api/store';  // Import AppDispatch
+import { ChevronDown, ChevronUp, Book } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const CodingCourseSection = () => {
+  const dispatch = useDispatch<AppDispatch>();  // Sử dụng AppDispatch
+  const navigate = useNavigate();
   const [expandedMajor, setExpandedMajor] = useState<string | null>(null);
-  const [expandedSemester, setExpandedSemester] = useState<number | null>(null);
-  const navigate = useNavigate(); // Khởi tạo useNavigate
+  const [expandedSemester, setExpandedSemester] = useState<string | null>(null);
+  const [expandedSubject, setExpandedSubject] = useState<string | null>(null);
 
-  const majors = [
-      { id: "SS", name: "Software Systems" },
-      { id: "SA", name: "System Analysis" },
-      { id: "IB", name: "International Business" },
-      { id: "MKT", name: "Marketing" },
-  ];
+  // Lấy dữ liệu từ Redux store
+  const { departments, semesters, subjects, resources, loading, error } = useSelector(
+    (state: RootState) => state.departments
+  );
 
-  const semesters = [
-    { id: 1, courses: ["SPW325", "SDW102", "ABC789", "DIS456", "WND123"] },
-    { id: 2, courses: ["SPW326", "SDW103", "ABC790", "DIS457", "WND124"] },
-    { id: 3, courses: ["SPW327", "SDW104", "ABC791", "DIS458", "WND125"] },
-  ];
+  // Gọi API lấy danh sách ngành học khi component mount
+  useEffect(() => {
+    dispatch(fetchDepartments());  // Sử dụng dispatch với kiểu AppDispatch
+  }, [dispatch]);
 
   const toggleMajor = (majorId: string) => {
     setExpandedMajor(expandedMajor === majorId ? null : majorId);
-    setExpandedSemester(null);
+    if (!semesters[majorId]) {
+      dispatch(fetchSemesters(majorId));  // Gọi fetchSemesters với dispatch
+    }
   };
 
-  const toggleSemester = (semesterId: number) => {
+  const toggleSemester = (semesterId: string) => {
     setExpandedSemester(expandedSemester === semesterId ? null : semesterId);
+    if (!subjects[semesterId]) {
+      dispatch(fetchSubjects(semesterId));  // Gọi fetchSubjects với dispatch
+    }
+  };
+
+  const toggleSubject = (subjectId: string) => {
+    setExpandedSubject(expandedSubject === subjectId ? null : subjectId);
+    if (!resources[subjectId]) {
+      dispatch(fetchResources({ subjectId }));  // Gọi fetchResources với dispatch
+    }
   };
 
   const handleCourseClick = (courseId: string) => {
-    // Điều hướng đến trang chi tiết môn học với courseId
     navigate(`/subject/${courseId}`);
   };
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error loading data: {error}</p>;
+  }
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+  
+  if (error) {
+    return <p>Error loading data: {error}</p>;
+  }
+  
+  if (!departments.length) {
+    return <p>No departments found.</p>;
+  }
 
   return (
     <div className="mx-auto">
       <h1 className="text-2xl font-bold mt-16 mb-8 text-black">Course Section</h1>
       <div className="space-y-2">
-        {majors.map((major) => (
-          <div key={major.id} className="bg-purple-300 rounded-lg overflow-hidden">
+        {departments.map((major) => (
+          <div key={major._id} className="bg-purple-300 rounded-lg overflow-hidden">
             <button
-              onClick={() => toggleMajor(major.id)}
+              onClick={() => toggleMajor(major._id)}
               className="w-full flex items-center justify-between p-3 bg-purple-400 text-white rounded-lg hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
-              aria-expanded={expandedMajor === major.id}
-              aria-controls={`major-${major.id}-semesters`}
+              aria-expanded={expandedMajor === major._id}
+              aria-controls={`major-${major._id}-semesters`}
             >
               <span className="text-lg font-semibold">
-                {major.id} ({major.name})
+                {major.code} ({major.name})
               </span>
-              {expandedMajor === major.id ? <ChevronUp /> : <ChevronDown />}
+              {expandedMajor === major._id ? <ChevronUp /> : <ChevronDown />}
             </button>
 
-            {expandedMajor === major.id && (
-              <div
-                id={`major-${major.id}-semesters`}
-                className="space-y-1 p-3 bg-gray-50 animate-fadeIn"
-              >
-                {semesters.map((semester) => (
-                  <div key={semester.id} className="bg-purple-100 rounded-lg overflow-hidden">
+            {expandedMajor === major._id && (
+              <div id={`major-${major._id}-semesters`} className="space-y-1 p-3 bg-gray-50">
+                {semesters[major._id]?.map((semester) => (
+                  <div key={semester._id} className="bg-purple-100 rounded-lg overflow-hidden">
                     <button
-                      onClick={() => toggleSemester(semester.id)}
+                      onClick={() => toggleSemester(semester._id)}
                       className="w-full flex items-center justify-between p-2 bg-purple-200 hover:bg-purple-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                      aria-expanded={expandedSemester === semester.id}
-                      aria-controls={`semester-${semester.id}-courses`}
+                      aria-expanded={expandedSemester === semester._id}
+                      aria-controls={`semester-${semester._id}-courses`}
                     >
-                      <span className="text-base font-medium">Semester {semester.id}</span>
-                      {expandedSemester === semester.id ? <ChevronUp /> : <ChevronDown />}
+                      <span className="text-base font-medium">{semester.name}</span>
+                      {expandedSemester === semester._id ? <ChevronUp /> : <ChevronDown />}
                     </button>
-                    {expandedSemester === semester.id && (
-                      <div
-                        id={`semester-${semester.id}-courses`}
-                        className="p-2 space-y-1 bg-purple-50 animate-fadeIn"
-                      >
-                        {semester.courses.map((course) => (
-                          <button
-                            key={course}
-                            onClick={() => handleCourseClick(course)} // Thêm sự kiện click
-                            className="w-full text-left p-1 rounded-md bg-white hover:bg-purple-100 transition-colors duration-200 flex items-center space-x-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                            aria-label={`Course ${course}`}
-                          >
-                            <Book className="text-purple-600" />
-                            <span>{course}</span>
-                          </button>
+
+                    {expandedSemester === semester._id && (
+                      <div id={`semester-${semester._id}-courses`} className="p-2 space-y-1 bg-purple-50">
+                        {subjects[semester._id]?.map((subject) => (
+                          <div key={subject._id} className="bg-purple-100 rounded-lg overflow-hidden">
+                            <button
+                              onClick={() => toggleSubject(subject._id)}
+                              className="w-full flex items-center justify-between p-2 bg-purple-200 hover:bg-purple-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                            >
+                              <Book className="text-purple-600" />
+                              <span>{subject.name}</span>
+                            </button>
+
+                            {expandedSubject === subject._id && (
+                              <div id={`subject-${subject._id}-resources`} className="p-2 space-y-1 bg-purple-50">
+                                {resources[subject._id]?.map((resource) => (
+                                  <div key={resource._id}>
+                                    <p>{resource.title}</p>
+                                    <a href={resource.fileUrls[0]} target="_blank" rel="noopener noreferrer">
+                                      {resource.description}
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         ))}
                       </div>
                     )}
