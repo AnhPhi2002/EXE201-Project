@@ -40,7 +40,7 @@ const LoginPage = () => {
   return (
     <LoginLayout>
       <div className="w-full max-w-md">
-      <h2 className="font-bold text-3xl text-center mb-6">LearnUp Welcome</h2>
+      <h2 className="font-bold text-3xl text-center mb-6">LearnUp Welcome.</h2>
       <p className="text-center text-gray-600 mb-16">Login to your account</p>
       <form className="space-y-6" onSubmit={handleSubmit}>
         <div>
