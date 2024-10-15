@@ -1,41 +1,40 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Home, ChevronRight, Star, Heart } from 'lucide-react'; // Import icon từ lucide.dev
-import CommentSection from './CommentSubject'; // Import phần comment
+import { useDispatch, useSelector } from 'react-redux';
+import { Home, ChevronRight, Star, Heart } from 'lucide-react';
+import { RootState, AppDispatch } from '@/lib/api/store';
+import { fetchResourcesBySubject, fetchSubjectById } from '@/lib/api/redux/resourcesSlice'; // Import fetchSubjectById
+import CommentSection from './CommentSubject';
 
-// Định nghĩa kiểu dữ liệu cho giảng viên
-interface Lecturer {
-  name: string;
-  role: string;
-  image: string;
-}
-
-// Trang chi tiết môn học
 const SubjectPage: React.FC = () => {
   const { courseId } = useParams<{ courseId: string }>(); // Lấy courseId từ URL
-  const subjectTitle = 'Advanced Web Development'; // Giả sử đây là tiêu đề của môn học, bạn có thể thay đổi tùy theo dữ liệu thực tế
+  const dispatch = useDispatch<AppDispatch>();
 
-  const lecturers: Lecturer[] = [
-    {
-      name: 'Dr. Jane Smith',
-      role: 'Lead Instructor',
-      image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-    {
-      name: 'Prof. John Doe',
-      role: 'Guest Lecturer',
-      image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60',
-    },
-  ];
+  // Lấy dữ liệu resources và subject từ store
+  const { resources, subject, loading, error } = useSelector((state: RootState) => state.resources);
 
+  // Trạng thái của rating và likes
   const [rating, setRating] = useState<number>(0);
   const [likes, setLikes] = useState<number>(0);
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
+  // Lấy role từ localStorage
+  const userRole = localStorage.getItem('role') || 'guest'; // Mặc định là 'guest' nếu không có role
+
+  // Gọi API để lấy dữ liệu resources và subject name
+  useEffect(() => {
+    if (courseId) {
+      dispatch(fetchResourcesBySubject(courseId));
+      dispatch(fetchSubjectById(courseId)); // Gọi thêm API để lấy thông tin môn học
+    }
+  }, [dispatch, courseId]);
+
+  // Xử lý khi đánh giá (rating) khóa học
   const handleRating = (value: number) => {
     setRating(value);
   };
 
+  // Xử lý khi người dùng click vào like
   const handleLike = () => {
     if (isLiked) {
       setLikes(likes - 1);
@@ -43,6 +42,17 @@ const SubjectPage: React.FC = () => {
       setLikes(likes + 1);
     }
     setIsLiked(!isLiked);
+  };
+
+  // Hàm kiểm tra quyền truy cập dựa trên allowedRoles và userRole
+  const canAccessResource = (allowedRoles: string[]): boolean => {
+    if (userRole === 'admin' || userRole === 'staff') {
+      return true; // Admin và staff có quyền truy cập tất cả tài liệu
+    }
+    if (userRole === 'member_premium') {
+      return true; // Member premium có thể truy cập tất cả tài liệu
+    }
+    return allowedRoles.includes(userRole); // Member free chỉ có thể truy cập tài liệu cho phép
   };
 
   return (
@@ -58,37 +68,44 @@ const SubjectPage: React.FC = () => {
                 <ChevronRight className="text-gray-400" />
                 <span className="text-gray-600">Subjects</span>
                 <ChevronRight className="text-gray-400" />
-                <span className="text-gray-800 font-medium">{courseId}</span> {/* courseId từ URL */}
+                <span className="text-gray-800 font-medium">{subject ? subject.name : 'Loading...'}</span>
               </div>
             </div>
           </nav>
 
           {/* Tiêu đề môn học */}
           <div className="mb-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-8 rounded-lg">
-            <h1 className="text-4xl font-bold mb-4">{subjectTitle}</h1>
-            <button className="bg-white text-blue-600 font-semibold py-2 px-6 rounded-full hover:bg-blue-100 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-105">
-              {courseId} {/* courseId từ URL */}
-            </button>
+            <h1 className="text-4xl font-bold mb-4">{subject ? subject.name : 'Loading...'}</h1> {/* Hiển thị tên môn học */}
           </div>
 
-          {/* Nội dung tổng quan môn học */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-4">
-              <h2 className="text-3xl font-semibold">Course Overview</h2>
-              <div className="bg-blue-100 text-blue-800 font-semibold py-1 px-3 rounded-full">{courseId}</div>
+          {/* Kiểm tra xem dữ liệu có đang được tải không */}
+          {loading ? (
+            <p>Loading resources...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : (
+            <div>
+              <h2 className="text-2xl font-semibold mb-4">Resources</h2>
+              {resources.length > 0 ? (
+                <ul className="list-disc pl-5">
+                  {resources.map((resource) => (
+                    <li key={resource._id} className="mb-2">
+                      {canAccessResource(resource.allowedRoles) ? (
+                        <a href={resource.fileUrls[0]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                          {resource.title}
+                        </a>
+                      ) : (
+                        <p className="text-red-500">Bạn phải mua premium để có thể xem tài liệu này</p>
+                      )}
+                      <p>{resource.description}</p>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No resources available for this subject.</p>
+              )}
             </div>
-          </div>
-          <p className="text-gray-700 leading-relaxed mb-4">
-            In this advanced web development course, students will dive deep into modern web technologies and best practices. The curriculum covers a wide range of topics including:
-          </p>
-          <ul className="list-disc list-inside text-gray-700 leading-relaxed mb-4">
-            <li>Responsive design techniques</li>
-            <li>Progressive Web Apps (PWAs)</li>
-            <li>Serverless architectures</li>
-            <li>Modern JavaScript frameworks and libraries</li>
-            <li>Performance optimization strategies</li>
-            <li>Web security best practices</li>
-          </ul>
+          )}
 
           {/* Phần đánh giá và yêu thích */}
           <div className="border-t pt-6">
@@ -122,25 +139,6 @@ const SubjectPage: React.FC = () => {
           </div>
         </div>
       </main>
-
-      {/* Phần giảng viên */}
-      <section className="bg-gray-100 py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-semibold mb-8 text-center">Meet Your Instructors</h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {lecturers.map((lecturer, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src={lecturer.image} alt={lecturer.name} className="w-full h-48 object-cover" />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold mb-1">{lecturer.name}</h3>
-                  <p className="text-sm text-gray-600">{lecturer.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

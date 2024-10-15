@@ -1,103 +1,71 @@
+// departmentSlice.ts
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Lấy token từ localStorage (hoặc Redux store)
-const token = localStorage.getItem('token'); // Kiểm tra cách bạn lưu trữ token
-
-// API base URL
 const API_URL = 'http://localhost:8080/api';
 
-// Interface cho các đối tượng dữ liệu
-export interface Department {
-  _id: string;
-  name: string;
-  code: string;
-}
+export const fetchDepartments = createAsyncThunk('departments/fetchDepartments', async (_, thunkAPI) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${API_URL}/departments`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue((error as Error).message || 'Something went wrong');
+  }
+});
 
-export interface Semester {
-  _id: string;
-  name: string;
-  subjects: string[];
-}
+export const fetchSemesters = createAsyncThunk('departments/fetchSemesters', async (_, thunkAPI) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${API_URL}/semesters`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    return thunkAPI.rejectWithValue((error as Error).message || 'Something went wrong');
+  }
+});
 
-export interface Subject {
-  _id: string;
-  name: string;
-}
+// Thêm Thunk để lấy danh sách môn học dựa vào `semesterId`
+export const fetchSubjects = createAsyncThunk('departments/fetchSubjects', async (semesterId: string, thunkAPI) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${API_URL}/subjects`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      params: {
+        semester: semesterId,  // Lọc theo semesterId
+      },
+    });
+    return response.data;  // Trả về danh sách môn học
+  } catch (error) {
+    return thunkAPI.rejectWithValue((error as Error).message || 'Something went wrong');
+  }
+});
 
-export interface Resource {
-  _id: string;
-  title: string;
-  description: string;
-  fileUrls: string[];
-  type: string;
-}
-
-// Khai báo kiểu dữ liệu cho state
-export interface DepartmentState {  // <-- Chú ý phần export
-  departments: Department[];
-  semesters: { [key: string]: Semester[] };
-  subjects: { [key: string]: Subject[] };
-  resources: { [key: string]: Resource[] };
+type DepartmentState = {
+  departments: any[];
+  semesters: any[];
+  subjects: any[];
   loading: boolean;
   error: string | null;
-}
+};
 
-// Trạng thái khởi tạo
 const initialState: DepartmentState = {
   departments: [],
-  semesters: {},
-  subjects: {},
-  resources: {},
+  semesters: [],
+  subjects: [],  // Thêm subjects vào state
   loading: false,
   error: null,
 };
 
-// Thiết lập instance của axios với headers bao gồm Authorization
-const axiosInstance = axios.create({
-    baseURL: API_URL,
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: token ? `Bearer ${token}` : '',  // Thêm token vào header
-    },
-  });
-
-// Async thunk để lấy danh sách ngành học
-export const fetchDepartments = createAsyncThunk('departments/fetchDepartments', async () => {
-    const response = await axiosInstance.get('/departments');  // Sử dụng axiosInstance
-    return response.data;
-  });
-  
-  // Async thunk để lấy danh sách học kỳ theo ngành học
-  export const fetchSemesters = createAsyncThunk(
-    'departments/fetchSemesters',
-    async (departmentId: string) => {
-      const response = await axiosInstance.get(`/semesters/${departmentId}`);  // Sử dụng axiosInstance
-      return { departmentId, semesters: response.data };
-    }
-  );
-  
-  // Async thunk để lấy danh sách môn học theo học kỳ
-  export const fetchSubjects = createAsyncThunk(
-    'departments/fetchSubjects',
-    async (semesterId: string) => {
-      const response = await axiosInstance.get(`/subjects/${semesterId}`);  // Sử dụng axiosInstance
-      return { semesterId, subjects: response.data };
-    }
-  );
-  
-  // Async thunk để lấy danh sách tài liệu cho môn học
-  export const fetchResources = createAsyncThunk(
-    'departments/fetchResources',
-    async ({ subjectId, page = 1, limit = 10 }: { subjectId: string; page?: number; limit?: number }) => {
-      const response = await axiosInstance.get(`/resources/${subjectId}/resources`, {
-        params: { page, limit },
-      });
-      return { subjectId, resources: response.data };
-    }
-  );
-
-// Tạo slice
 const departmentSlice = createSlice({
   name: 'departments',
   initialState,
@@ -106,7 +74,6 @@ const departmentSlice = createSlice({
     builder
       .addCase(fetchDepartments.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchDepartments.fulfilled, (state, action) => {
         state.loading = false;
@@ -114,19 +81,29 @@ const departmentSlice = createSlice({
       })
       .addCase(fetchDepartments.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch departments';
+        state.error = action.payload as string;
+      })
+      .addCase(fetchSemesters.pending, (state) => {
+        state.loading = true;
       })
       .addCase(fetchSemesters.fulfilled, (state, action) => {
-        const { departmentId, semesters } = action.payload;
-        state.semesters[departmentId] = semesters; // Sử dụng id ngành học để lưu học kỳ
+        state.loading = false;
+        state.semesters = action.payload;
+      })
+      .addCase(fetchSemesters.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchSubjects.pending, (state) => {
+        state.loading = true;
       })
       .addCase(fetchSubjects.fulfilled, (state, action) => {
-        const { semesterId, subjects } = action.payload;
-        state.subjects[semesterId] = subjects; // Sử dụng id học kỳ để lưu môn học
+        state.loading = false;
+        state.subjects = action.payload;  // Cập nhật subjects khi lấy được dữ liệu
       })
-      .addCase(fetchResources.fulfilled, (state, action) => {
-        const { subjectId, resources } = action.payload;
-        state.resources[subjectId] = resources; // Sử dụng id môn học để lưu tài liệu
+      .addCase(fetchSubjects.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
