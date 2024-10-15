@@ -1,29 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, Home, BarChart2, Users, Settings, Package, Moon, Sun, UserRound, UsersRound } from 'lucide-react';
-import { Link, Outlet } from 'react-router-dom';
+import { Menu, Home, BarChart2, Users, Moon, Sun } from 'lucide-react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Dashboard: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>('home');
+  const [activeTab, setActiveTab] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState<boolean>(false);
+  const { pathname } = useLocation();
+  console.log({ pathname });
+  console.log({ activeTab });
+  
+  
+  // Tabs list
+  const tabs = [
+    { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
+    { name: 'Analytics', icon: <BarChart2 className="h-5 w-5 mr-3 ml-2" />, path: 'analytics' },
+    { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'usermanagement' },
+  ];
+
+  // Cập nhật trạng thái activeTab dựa trên đường dẫn hiện tại
+  useEffect(() => {
+    const currentTab = pathname.split('/').pop() || 'home';
+    setActiveTab(currentTab);
+  }, [pathname]);
+
+  // Lưu trạng thái sidebar vào localStorage
+  useEffect(() => {
+    const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+    setSidebarCollapsed(isCollapsed);
+  }, []);
 
   const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
+    const newCollapsedState = !sidebarCollapsed;
+    setSidebarCollapsed(newCollapsedState);
+    localStorage.setItem('sidebarCollapsed', newCollapsedState.toString());
   };
 
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab); // Cập nhật trạng thái activeTab
-  };
+  // Toggle dark mode và lưu vào localStorage
+  useEffect(() => {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    setDarkMode(isDarkMode);
+    document.documentElement.classList.toggle('dark', isDarkMode);
+  }, []);
 
-  // Tạo chức năng chuyển đổi Dark Mode
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
+    const newDarkModeState = !darkMode;
+    setDarkMode(newDarkModeState);
+    localStorage.setItem('darkMode', newDarkModeState.toString());
+    document.documentElement.classList.toggle('dark', newDarkModeState);
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
       <aside className={`${sidebarCollapsed ? 'w-16' : 'w-52'} bg-black text-white transition-all duration-300 ease-in-out`}>
         <div className="p-4">
@@ -33,34 +63,17 @@ const Dashboard: React.FC = () => {
         </div>
         <nav className="mt-11">
           <ul>
-            <li className="mb-4">
-              <Link
-                to="/dashboard/home" // Thay đổi đường dẫn thành /dashboard
-                onClick={() => handleTabChange('home')}
-                className={`flex items-center p-2 py-3 w-full ${activeTab === 'home' ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
-              >
-                <Home className="h-5 w-5 mr-3 ml-2" />
-                {!sidebarCollapsed && <span>Home</span>}
-              </Link>
-
-              <Link
-                to="/dashboard/analytics" // Cập nhật đường dẫn cho Analytics
-                onClick={() => handleTabChange('analytics')}
-                className={`flex items-center p-2 py-3 w-full ${activeTab === 'analytics' ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
-              >
-                <BarChart2 className="h-5 w-5 mr-3 ml-2" />
-                {!sidebarCollapsed && <span>Analytics</span>}
-              </Link>
-              
-              <Link
-                to="/dashboard/usermanagement" 
-                onClick={() => handleTabChange('usermanagement')}
-                className={`flex items-center p-2 py-3 w-full ${activeTab === 'usermanagement' ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
-              >
-                <UsersRound className="h-5 w-5 mr-3 ml-2" />
-                {!sidebarCollapsed && <span>User Management </span>}
-              </Link>
-            </li>
+            {tabs.map((tab) => (
+              <li className="mb-4" key={tab.path}>
+                <Link
+                  to={`/dashboard/${tab.path}`}
+                  className={`flex items-center p-2 py-3 w-full ${activeTab === tab.path ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
+                >
+                  {tab.icon}
+                  {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">{tab.name}</span>}   
+                 </Link>  {/*Sử dụng whitespace-nowrap để ngăn text xuống dòng và overflow-hidden để tránh hiển thị text quá dài. */}
+              </li>
+            ))}
           </ul>
         </nav>
       </aside>
@@ -69,20 +82,19 @@ const Dashboard: React.FC = () => {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white dark:bg-gray-800 shadow-md ">
           <div className="flex items-center justify-end p-4">
-
-            <Button onClick={toggleDarkMode} className="mr-4">
+            <Button className="mr-4" onClick={toggleDarkMode}>
               {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
 
             <Avatar className="flex items-center mr-2">
               <AvatarImage src="https://your-avatar-url.com" alt="User Avatar" />
-              <AvatarFallback>AB</AvatarFallback> 
+              <AvatarFallback>AB</AvatarFallback>
             </Avatar>
           </div>
         </header>
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 px-6">
-          <Outlet /> {/* Sử dụng Outlet để render trang Home và Analytics */}
+          <Outlet /> {/* Sử dụng Outlet để render các trang */}
         </main>
       </div>
     </div>
