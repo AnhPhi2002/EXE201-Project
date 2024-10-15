@@ -1,16 +1,41 @@
-// KeyMetricsHeader.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Filter, Download, Search, ListFilter } from 'lucide-react';
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Download, Search, ListFilter, CirclePlus } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import UpdateUser, { CreateUser } from './CreateUser';
 
+// Định nghĩa kiểu props
 interface FliterDashboardProps {
   selectedMetric: string;
-  setSelectedMetric: (value: string) => void;
+  setSelectedMetric: React.Dispatch<React.SetStateAction<string>>;
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+  onExport: () => void; // Thêm prop onExport
 }
 
-const FliterDashboard: React.FC<FliterDashboardProps> = ({ selectedMetric, setSelectedMetric }) => {
+const FliterDashboard: React.FC<FliterDashboardProps> = ({
+  selectedMetric,
+  setSelectedMetric,
+  searchTerm,
+  setSearchTerm,
+  onExport, // Nhận prop onExport
+}) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
@@ -31,7 +56,10 @@ const FliterDashboard: React.FC<FliterDashboardProps> = ({ selectedMetric, setSe
               <DropdownMenuCheckboxItem>Archived</DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button className="flex items-center">
+
+           <CreateUser /> {/* Thêm component UpdateUser */}
+           
+          <Button className="flex items-center bg-green-600" onClick={onExport}>
             <Download className="h-5 w-5 mr-2" />
             <span>Export</span>
           </Button>
@@ -39,19 +67,30 @@ const FliterDashboard: React.FC<FliterDashboardProps> = ({ selectedMetric, setSe
       </div>
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center">
-          <Input type="text" placeholder="Search..." className="px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <Input
+            type="text"
+            value={searchTerm} // Thêm giá trị tìm kiếm
+            onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật giá trị tìm kiếm
+            placeholder="Search..."
+            className="px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <Button className="ml-2">
             <Search className="h-5 w-5" />
           </Button>
         </div>
-        <select
-          value={selectedMetric}
-          onChange={(e) => setSelectedMetric(e.target.value)}
-          className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="sales">Sales</option>
-          <option value="engagement">User Engagement</option>
-        </select>
+        <Select value={selectedMetric} onValueChange={(value) => setSelectedMetric(value)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="staff">Staff</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="user_premium">User Premium</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
