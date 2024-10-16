@@ -23,7 +23,7 @@ import ProfileDetail from './pages/profile-page/ProfileDetail';
 import Dashboard from './pages/dashboard';
 import AnalyticsDashboard from './pages/dashboard/analytics';
 import { HomeDashboard } from './pages/dashboard/home-dashboard';
-import UserManagementDashboard from './pages/dashboard/usetmanagement';
+import UserManagementDashboard from './pages/dashboard/usetmanagement/tab';
 import BlogSection from './pages/blog/bloghome';
 import BlogDetail from './pages/blog/blogdetail';
 import ContactUs from './pages/contact-page';

@@ -18,7 +18,8 @@ interface Resource {
   allowedRoles: string[];
 }
 
-interface ResourcesState {
+// Export kiểu ResourcesState để sử dụng ở nơi khác
+export interface ResourcesState {
   resources: Resource[];
   subject: Subject | null;
   loading: boolean;
@@ -119,4 +120,5 @@ const resourcesSlice = createSlice({
   },
 });
 
+// Export reducer và ResourcesState
 export default resourcesSlice.reducer;

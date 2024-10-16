@@ -1,95 +1,200 @@
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CirclePlus } from 'lucide-react';
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { sendHttp } from '@/lib/send-http';
+import { registerUser } from '@/lib/api/redux/authSlice';
 
-// Định nghĩa kiểu cho props (nếu có)
+const genderOptions = [
+  {
+    label: 'Male',
+    value: 'male',
+  },
+  {
+    label: 'Female',
+    value: 'female',
+  },
+  {
+    label: 'Others',
+    value: 'others',
+  },
+];
+
+const formSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  role: z.string().min(1, { message: 'Role is required' }),
+  email: z.string().min(1, { message: 'Email is required' }).email({ message: 'Invalid email address' }),
+  phone: z.string().min(10, { message: 'Invalid phone number.' }).max(10, { message: 'Invalid phone number.' }),
+  address: z.string().optional(),
+  gender: z.string().optional(),
+});
+
+type FormData = z.infer<typeof formSchema>;
+
+const defaultValues: FormData = {
+  name: '',
+  role: '',
+  email: '',
+  phone: '',
+  address: '',
+  gender: '',
+};
+
 interface UpdateUserProps {
-  // Nếu có các props khác bạn cần, bạn có thể thêm vào đây
-  userId?: string; // Ví dụ: truyền ID người dùng cần cập nhật (nếu có)
+  existingUser?: FormData;
+  userId?: string;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export const UpdateUser: React.FC<UpdateUserProps> = ({ userId }) => {
+const UpdateUser: React.FC<UpdateUserProps> = ({ existingUser, userId, open, setOpen }) => {
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: existingUser || defaultValues,
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const res = await sendHttp(registerUser, values);
+    if (res) {
+      setOpen(false); // Đóng Dialog sau khi cập nhật thành công
+    }
+  }
+
   return (
     <div>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="flex items-center">
-            <CirclePlus className="h-5 w-5 mr-2" />
-            Create User
-          </Button>
-        </DialogTrigger>
+      <Dialog open={open} onOpenChange={(openState) => setOpen(openState)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle> Create user</DialogTitle>
+            <DialogTitle>{existingUser ? 'Update User' : 'Create User'}</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Input id="name" defaultValue="Pedro Duarte" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Name
-              </Label>
-              <Select>
-                <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="admin">Admin</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="user_premium">User Premium</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Email
-              </Label>
-              <Input id="username" defaultValue="@peduarte" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Phone
-              </Label>
-              <Input id="username" defaultValue="@peduarte" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Address
-              </Label>
-              <Input id="username" defaultValue="@peduarte" className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Gender
-              </Label>
-              <Select>
-                <SelectTrigger className="w-[280px]">
-                  <SelectValue placeholder="Gender" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="Male">Mate</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Create Now</Button>
-          </DialogFooter>
+
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid gap-4 py-4">
+                {/* Tên */}
+                <FormField
+                  name="name"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter name" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Role */}
+                <FormField
+                  name="role"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Role</FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select role" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="staff">Staff</SelectItem>
+                              <SelectItem value="user">User</SelectItem>
+                              <SelectItem value="user_premium">User Premium</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Email */}
+                <FormField
+                  name="email"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter email" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Phone */}
+                <FormField
+                  name="phone"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Phone</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter phone number" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Address */}
+                <FormField
+                  name="address"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Address</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Enter address" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                {/* Gender */}
+                <FormField
+                  name="gender"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <FormControl>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              {genderOptions.map((gender, index) => (
+                                <SelectItem value={gender.value} key={index}>
+                                  {gender.label}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <DialogFooter>
+                <Button type="submit" className="mt-2">
+                  {existingUser ? 'Update Now' : 'Create Now'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </div>
