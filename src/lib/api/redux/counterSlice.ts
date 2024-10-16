@@ -1,6 +1,6 @@
 // counterSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { RootState } from '../api/store';
+import { RootState } from '../store';
 
 
 // Define a type for the slice state

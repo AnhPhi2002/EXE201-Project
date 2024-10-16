@@ -18,6 +18,7 @@ const Dashboard: React.FC = () => {
     { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
     { name: 'Analytics', icon: <BarChart2 className="h-5 w-5 mr-3 ml-2" />, path: 'analytics' },
     { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'usermanagement' },
+    
   ];
 
   // Cập nhật trạng thái activeTab dựa trên đường dẫn hiện tại
