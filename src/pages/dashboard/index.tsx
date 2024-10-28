@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, Home, BarChart2, Users, Moon, Sun } from 'lucide-react';
+import { Menu, Home, BarChart2, Users, Moon, Sun, Newspaper, MessageCircle, Presentation, TableProperties, SquareLibrary } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -17,8 +17,12 @@ const Dashboard: React.FC = () => {
   const tabs = [
     { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
     { name: 'Analytics', icon: <BarChart2 className="h-5 w-5 mr-3 ml-2" />, path: 'analytics' },
-    { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'usermanagement' },
-    
+    { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management' },
+    { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' },
+    { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management' },
+    { name: 'Comment Management', icon: <MessageCircle className="h-5 w-5 mr-3 ml-2" />, path: 'comment-management' },
+    { name: 'Meeting Management', icon: <Presentation className="h-5 w-5 mr-3 ml-2" />, path: 'meeting-management' },
+    { name: 'Permission Management', icon: <TableProperties className="h-5 w-5 mr-3 ml-2" />, path: 'permission-management' },
   ];
 
   // Cập nhật trạng thái activeTab dựa trên đường dẫn hiện tại
@@ -56,7 +60,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
-      <aside className={`${sidebarCollapsed ? 'w-16' : 'w-52'} bg-black text-white transition-all duration-300 ease-in-out`}>
+      <aside className={`${sidebarCollapsed ? 'w-16' : 'w-54'} bg-black text-white transition-all duration-300 ease-in-out`}>
         <div className="p-4">
           <button onClick={toggleSidebar} className="text-white focus:outline-none" aria-label="Toggle Sidebar">
             <Menu className="h-6 w-6" />
@@ -65,7 +69,7 @@ const Dashboard: React.FC = () => {
         <nav className="mt-11">
           <ul>
             {tabs.map((tab) => (
-              <li className="mb-4" key={tab.path}>
+              <li className="mb-2" key={tab.path}>
                 <Link
                   to={`/dashboard/${tab.path}`}
                   className={`flex items-center p-2 py-3 w-full ${activeTab === tab.path ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}

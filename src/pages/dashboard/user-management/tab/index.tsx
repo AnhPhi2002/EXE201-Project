@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent } from '@/components/ui/tabs';
-import FliterDashboard from '../FliterDashboard';
 import UserTable from './UserTable';
 import { PaginationDashboardPage } from '../../pagination';
+import FliterDashboard from '../FliterDashboard';
 import * as XLSX from 'xlsx';
-import UpdateUser from '../UpdateUser';
 
-// Định nghĩa kiểu dữ liệu cho người dùng
 type UserRole = 'admin' | 'staff' | 'member_free' | 'member_premium';
 
 interface User {
@@ -24,11 +21,10 @@ interface User {
   createdAt: string;
 }
 
-// Dữ liệu người dùng mẫu
 const mockUsers: User[] = [
   {
     _id: 1,
-    name: 'John 1 Doe',
+    name: 'John Doe',
     email: 'johndoe@example.com',
     password: 'password123',
     role: 'admin',
@@ -52,8 +48,6 @@ const UserManagementDashboard: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<string>('admin');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
   const itemsPerPage = 8;
   const totalPages = Math.ceil(mockUsers.length / itemsPerPage);
@@ -61,7 +55,7 @@ const UserManagementDashboard: React.FC = () => {
   const filteredUsers = mockUsers.filter(
     (user) =>
       (selectedMetric === 'all' ? true : user.role === selectedMetric) &&
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()),
+      user.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const currentUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -70,11 +64,6 @@ const UserManagementDashboard: React.FC = () => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
     }
-  };
-
-  const handleEdit = (userId: number) => {
-    setCurrentUserId(userId);
-    setIsDialogOpen(true); // Mở dialog
   };
 
   return (
@@ -87,30 +76,15 @@ const UserManagementDashboard: React.FC = () => {
           setSearchTerm={setSearchTerm}
           onExport={() => exportToExcel(mockUsers)}
         />
-        <Tabs defaultValue="all">
-          <TabsContent value="all">
-            <Card>
-              <CardContent>
-                <UserTable users={currentUsers} onEdit={handleEdit} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-
+        <Card>
+          <CardContent>
+            <UserTable users={currentUsers} onEdit={() => {}} />
+          </CardContent>
+        </Card>
         <div className="flex justify-end items-center mt-5">
           <PaginationDashboardPage totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
         </div>
       </section>
-
-      {/* Hiển thị component UpdateUser khi nhấn vào Update */}
-      {currentUserId !== null && (
-        <UpdateUser
-          existingUser={mockUsers.find((user) => user._id === currentUserId)}
-          userId={currentUserId.toString()}
-          open={isDialogOpen}
-          setOpen={setIsDialogOpen}
-        />
-      )}
     </div>
   );
 };
