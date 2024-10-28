@@ -23,10 +23,16 @@ import ProfileDetail from './pages/profile-page/ProfileDetail';
 import Dashboard from './pages/dashboard';
 import AnalyticsDashboard from './pages/dashboard/analytics';
 import { HomeDashboard } from './pages/dashboard/home-dashboard';
-import UserManagementDashboard from './pages/dashboard/usetmanagement/tab';
+import UserManagementDashboard from './pages/dashboard/user-management/tab';
 import BlogSection from './pages/blog/bloghome';
 import BlogDetail from './pages/blog/blogdetail';
 import ContactUs from './pages/contact-page';
+import PostManagementDashboard from './pages/dashboard/post-management';
+import CommentManagementDashboard from './pages/dashboard/comment-management';
+import MeetingManagementDashboard from './pages/dashboard/meeting-management';
+import PermissionManagementDashboard from './pages/dashboard/permission-management';
+import SemesterManagementDashboard from './pages/dashboard/semester-management';
+
 
 // Cấu hình router
 const router = createBrowserRouter([
@@ -125,14 +131,34 @@ const router = createBrowserRouter([
         element: <HomeDashboard />, // Trang HomeDashboard mặc định
       },
       {
-        path: '/dashboard/analytics', // Đường dẫn cho trang Analytics
+        path: '/dashboard/analytics',
         element: <AnalyticsDashboard />
       },
       {
-        path: '/dashboard/usermanagement', 
+        path: '/dashboard/user-management', 
         element: <UserManagementDashboard />
       },
- 
+      {
+        path: '/dashboard/post-management', 
+        element: <PostManagementDashboard />
+      },
+      {
+        path: '/dashboard/comment-management', 
+        element: <CommentManagementDashboard />
+      },
+      {
+        path: '/dashboard/meeting-management', 
+        element: <MeetingManagementDashboard />
+      },
+      {
+        path: '/dashboard/permission-management', 
+        element: <PermissionManagementDashboard />
+      },
+      {
+        path: '/dashboard/semester-management', 
+        element: <SemesterManagementDashboard />
+      },
+      
     ],
   },
 ]);
