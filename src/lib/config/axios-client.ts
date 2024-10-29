@@ -1,26 +1,26 @@
 import axios from 'axios';
 // const BASE_URL: string | undefined = import.meta.env.BACKEND_URL;
-// export const BASE_URL = '';
-const BASE_URL: string = import.meta.env.VITE_BACKEND_URL || 'http://localhost:9999';
-   
-      export const axiosClient = axios.create({
-        baseURL: BASE_URL,
-        headers: {
-          'Content-type': 'application/json',
-        },
-      });
+export const BASE_URL = 'http://www.learnup.work';
+// export const BASE_URL = 'http://localhost/:8888';
 
-      axiosClient.interceptors.request.use(
-        async (config) => {
-          const token = localStorage.getItem('accessToken');
-          if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-            config.headers.Accept = 'application/json';
-            config.headers['Content-Type'] = 'application/json';
-          }
-          return config;
-        },
-        (error) => {
-          Promise.reject(error);
-        },
-      );
+export const axiosClient = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-type': 'application/json',
+  },
+});
+
+axiosClient.interceptors.request.use(
+  async (config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+      config.headers.Accept = 'application/json';
+      config.headers['Content-Type'] = 'application/json';
+    }
+    return config;
+  },
+  (error) => {
+    Promise.reject(error);
+  },
+);
