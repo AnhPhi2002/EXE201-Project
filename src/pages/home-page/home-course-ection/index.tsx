@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDepartments, fetchSemesters, fetchSubjects } from '@/lib/api/redux/departmentSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
