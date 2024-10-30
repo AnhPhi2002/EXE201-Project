@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Search, ListFilter, CirclePlus } from 'lucide-react';
+import { Download, Search, ListFilter} from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import UpdateUser, { CreateUser } from './CreateUser';
+import { CreateUser } from './CreateUser';
 
 // Định nghĩa kiểu props
 interface FliterDashboardProps {

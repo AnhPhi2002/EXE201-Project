@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -9,9 +9,6 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CirclePlus } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { toast } from 'react-toastify';
-import { useAppDispatch } from '@/hooks/useRedux';
-
 import { sendHttp } from '@/lib/send-http';
 import { registerUser } from '@/lib/api/redux/authSlice';
 
@@ -67,7 +64,7 @@ interface CreateUserProps {
 }
 
 export const CreateUser: React.FC<CreateUserProps> = ({ existingUser}) => {
-  const dispatch = useAppDispatch();
+
   const [open, setOpen] = useState(false);
   
   const form = useForm<FormData>({

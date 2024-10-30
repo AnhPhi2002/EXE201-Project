@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import LoginBackgroundImage from "@/assets/images/learnup.png";
-import { Link } from "react-router-dom";
 
 type LoginLayoutProps = {
   children: ReactNode;

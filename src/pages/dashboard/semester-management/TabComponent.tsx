@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import DepartmentTable from "./DepartmentTable/DepartmentTable";
 import SemesterTable from "./SemesterTable/SemesterTable";
 import SubjectTable from "./SubjectTable/SubjectTable";
@@ -34,9 +34,6 @@ export interface Resource {
 
 const TabComponent: React.FC = () => {
   const [activeTab, setActiveTab] = useState("departments");
-  const [showDepartmentPopover, setShowDepartmentPopover] = useState(false);
-  const [showSemesterPopover, setShowSemesterPopover] = useState(false);
-  const [showSubjectPopover, setShowSubjectPopover] = useState(false);
   const [selectedDepartment, setSelectedDepartment] = useState("");
   const [selectedSemester, setSelectedSemester] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
@@ -65,7 +62,7 @@ const TabComponent: React.FC = () => {
     {
       id: "1",
       title: "Math-PDF",
-      description: "Mathematics course materialAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      description: "Mathematics course material",
       fileUrls: ["math.pdf"],
       type: "pdf",
       subject: "1",
@@ -112,30 +109,31 @@ const TabComponent: React.FC = () => {
       <div className="mt-6">
         {activeTab === "departments" && (
           <DepartmentTable
-            departments={departments}
-            setShowDepartmentPopover={setShowDepartmentPopover}
-          />
+          departments={departments}
+          setShowDepartmentPopover={() => {}}
+        />
+        
         )}
         {activeTab === "semesters" && (
-          <SemesterTable
-            departments={departments}
-            semesters={semesters}
-            selectedDepartment={selectedDepartment}
-            setSelectedDepartment={setSelectedDepartment}
-            setShowSemesterPopover={setShowSemesterPopover}
-          />
+         <SemesterTable
+         departments={departments}
+         semesters={semesters}
+         selectedDepartment={selectedDepartment}
+         setSelectedDepartment={setSelectedDepartment}
+         setShowSemesterPopover={() => {}}
+       />
         )}
         {activeTab === "subjects" && (
-          <SubjectTable
-            departments={departments}
-            semesters={semesters}
-            subjects={subjects}
-            selectedDepartment={selectedDepartment}
-            selectedSemester={selectedSemester}
-            setSelectedDepartment={setSelectedDepartment}
-            setSelectedSemester={setSelectedSemester}
-            setShowSubjectPopover={setShowSubjectPopover}
-          />
+         <SubjectTable
+         departments={departments}
+         semesters={semesters}
+         subjects={subjects}
+         selectedDepartment={selectedDepartment}
+         selectedSemester={selectedSemester}
+         setSelectedDepartment={setSelectedDepartment}
+         setSelectedSemester={setSelectedSemester}
+         setShowSubjectPopover={() => {}}
+       />
         )}
         {activeTab === "resources" && (
           <ResourceTable

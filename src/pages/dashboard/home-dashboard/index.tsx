@@ -22,12 +22,12 @@ import {
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Separator } from '@/components/ui/separator';
-import { useState } from 'react';
+
 
 export const description = 'A collection of health charts.';
 
 export function HomeDashboard() {
-  const [selectedMetric, setSelectedMetric] = useState<string>('sales');
+
   return (
     <section className="bg-white  p-6 mt-10 w-auto">
     <div className="chart-wrapper mx-auto flex max-w-6xl flex-col flex-wrap items-start justify-center gap-6 p-6 sm:flex-row sm:p-6">

@@ -1,7 +1,7 @@
 // KeyMetricsHeader.tsx
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Filter, Download, Search, ListFilter } from 'lucide-react';
+import { Download, Search, ListFilter } from 'lucide-react';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 

@@ -1,5 +1,14 @@
-import { useState } from "react";
-import { LucideSearch, LucideCalendar, LucideUser, LucideTag, LucideChevronDown, LucideChevronUp, LucideX, LucidePlus } from "lucide-react";
+import React, { useState } from "react";
+import {
+  LucideSearch,
+  LucideCalendar,
+  LucideUser,
+  LucideTag,
+  LucideChevronDown,
+  LucideChevronUp,
+  LucideX,
+  LucidePlus,
+} from "lucide-react";
 
 interface Post {
   id: number;
@@ -11,7 +20,7 @@ interface Post {
   image: string;
 }
 
-const PostDashboard = () => {
+const PostDashboard: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [sortBy, setSortBy] = useState<string>("date");
@@ -53,6 +62,14 @@ const PostDashboard = () => {
         return sortOrder === "desc"
           ? new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
           : new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+      } else if (sortBy === "title") {
+        return sortOrder === "desc"
+          ? b.title.localeCompare(a.title)
+          : a.title.localeCompare(b.title);
+      } else if (sortBy === "author") {
+        return sortOrder === "desc"
+          ? b.author.localeCompare(a.author)
+          : a.author.localeCompare(b.author);
       }
       return 0;
     });
@@ -96,6 +113,26 @@ const PostDashboard = () => {
             </div>
           </div>
 
+          {/* Sort By Dropdown */}
+          <div className="flex justify-between items-center mb-6">
+            <div className="flex items-center gap-4">
+              <label htmlFor="sortBy" className="text-gray-700 font-medium">Sort By:</label>
+              <select
+                id="sortBy"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="border border-gray-300 rounded-lg p-2"
+              >
+                <option value="date">Date</option>
+                <option value="title">Title</option>
+                <option value="author">Author</option>
+              </select>
+            </div>
+            <button onClick={toggleSort} className="flex items-center focus:outline-none" aria-label="Toggle sort order">
+              Sort Order: {sortOrder === "desc" ? <LucideChevronDown /> : <LucideChevronUp />}
+            </button>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="min-w-full" role="table">
               <thead>
@@ -103,18 +140,7 @@ const PostDashboard = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Post</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <button
-                      onClick={toggleSort}
-                      className="flex items-center focus:outline-none"
-                      aria-label="Sort by date"
-                    >
-                      Date
-                      {sortOrder === "desc" ? (
-                        <LucideChevronDown className="ml-1" />
-                      ) : (
-                        <LucideChevronUp className="ml-1" />
-                      )}
-                    </button>
+                    Date
                   </th>
                 </tr>
               </thead>

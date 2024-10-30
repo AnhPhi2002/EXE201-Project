@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function FooterCenter() {
+const FooterCenter: React.FC = () => {
   return (
     <div className="flex space-x-20">
       <div>
@@ -24,4 +24,6 @@ export default function FooterCenter() {
       </div>
     </div>
   );
-}
+};
+
+export default FooterCenter;

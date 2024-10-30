@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, Home, BarChart2, Users, Moon, Sun, Newspaper, MessageCircle, Presentation, TableProperties, SquareLibrary } from 'lucide-react';
+import { Menu, Home, Users, Moon, Sun, Newspaper, MessageCircle, Presentation, TableProperties, SquareLibrary } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -16,7 +16,6 @@ const Dashboard: React.FC = () => {
   // Tabs list
   const tabs = [
     { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
-    { name: 'Analytics', icon: <BarChart2 className="h-5 w-5 mr-3 ml-2" />, path: 'analytics' },
     { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management' },
     { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' },
     { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management' },

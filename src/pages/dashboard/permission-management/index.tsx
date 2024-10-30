@@ -1,14 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 
+const PermissionManagementDashboard: React.FC = () => {
 
-function PermissionManagementDashboard() {
-  const [selectedMetric, setSelectedMetric] = useState<string>('sales');
   return (
     <div>
       <section className="bg-white rounded-lg shadow-md p-6 mt-10">
-
-      
-    
+        {/* Dashboard content will go here */}
       </section>
     </div>
   );

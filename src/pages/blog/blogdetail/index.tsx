@@ -1,8 +1,7 @@
 import React, { useState, FormEvent } from "react";
-import { Facebook, Twitter, Linkedin, Search, Eye } from "lucide-react";
+import { Eye } from "lucide-react";
 import { format } from "date-fns";
 
-// Define TypeScript types for posts
 interface Post {
   id: number;
   title: string;
@@ -84,7 +83,21 @@ const BlogDetail: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
-      <article className="">
+      {/* Search Form */}
+      <form onSubmit={handleSearch} className="mb-8 flex justify-center">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search for a post..."
+          className="border border-gray-300 rounded-lg px-4 py-2 w-1/2"
+        />
+        <button type="submit" className="ml-2 bg-blue-500 text-white rounded-lg px-4 py-2">
+          Search
+        </button>
+      </form>
+
+      <article>
         <img
           src={selectedPost.image}
           alt={selectedPost.title}
@@ -117,7 +130,7 @@ const BlogDetail: React.FC = () => {
                 {tag}
               </span>
             ))}
-          </div>   
+          </div>
         </div>
       </article>
 

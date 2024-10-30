@@ -1,9 +1,10 @@
+import React from 'react';
 import LoginLayout from "@/layouts/LoginLayout";
-import { Button } from "@/components/ui/button";  // Assuming you have a Shadcn Button component
-import { Input } from "@/components/ui/input";    // Assuming you have a Shadcn Input component
-import { Label } from "@/components/ui/label";    // Assuming you have a Shadcn Label component
+import { Button } from "@/components/ui/button";  // Shadcn Button component
+import { Input } from "@/components/ui/input";    // Shadcn Input component
+import { Label } from "@/components/ui/label";    // Shadcn Label component
 
-const ResetPasswordPage = () => {
+const ResetPasswordPage: React.FC = () => {
   return (
     <LoginLayout>
       <div className="w-full max-w-md">

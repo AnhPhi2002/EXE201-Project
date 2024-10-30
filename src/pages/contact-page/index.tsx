@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import { Send, Phone, Mail, MapPin, Building } from "lucide-react"; // Sử dụng icon từ lucide-react
+import { Send, Phone, Mail, MapPin} from "lucide-react"; // Sử dụng icon từ lucide-react
 
 interface FormData {
   name: string;

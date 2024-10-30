@@ -21,7 +21,7 @@ import CommentSubject from './pages/subject-page/CommentSubject';
 import ProfilePage from './pages/profile-page';
 import ProfileDetail from './pages/profile-page/ProfileDetail';
 import Dashboard from './pages/dashboard';
-import AnalyticsDashboard from './pages/dashboard/analytics';
+
 import { HomeDashboard } from './pages/dashboard/home-dashboard';
 import UserManagementDashboard from './pages/dashboard/user-management/tab';
 import BlogSection from './pages/blog/bloghome';
@@ -131,10 +131,6 @@ const router = createBrowserRouter([
       {
         path: '/dashboard/home', // Đây là trang mặc định khi vào /dashboard
         element: <HomeDashboard />, // Trang HomeDashboard mặc định
-      },
-      {
-        path: '/dashboard/analytics',
-        element: <AnalyticsDashboard />
       },
       {
         path: '/dashboard/user-management', 

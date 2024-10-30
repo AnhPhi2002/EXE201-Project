@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
@@ -17,10 +17,9 @@ interface RegisterFormInputs {
 
 const RegisterPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);  // Không dùng isAuthenticated ở đây
+  const { loading, error } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  // Sử dụng useForm từ react-hook-form
   const methods = useForm<RegisterFormInputs>({
     defaultValues: {
       email: '',
@@ -31,11 +30,9 @@ const RegisterPage: React.FC = () => {
 
   const { handleSubmit, control, formState: { errors } } = methods;
 
-  // Xử lý form submit
   const onSubmit = (data: RegisterFormInputs) => {
     dispatch(registerUser(data)).then((action) => {
       if (registerUser.fulfilled.match(action)) {
-        // Khi đăng ký thành công, điều hướng đến trang đăng nhập
         navigate('/login');
       }
     });
@@ -47,10 +44,9 @@ const RegisterPage: React.FC = () => {
         <h2 className="font-bold text-3xl text-center mb-6">LearnUp Welcome</h2>
         <p className="text-center text-gray-600 mb-16">Register your account</p>
 
-        {/* Bao bọc form với FormProvider từ react-hook-form */}
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Field Email */}
+            {/* Email Field */}
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
@@ -71,7 +67,7 @@ const RegisterPage: React.FC = () => {
               {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
             </FormItem>
 
-            {/* Field Name */}
+            {/* Name Field */}
             <FormItem>
               <FormLabel>Full Name</FormLabel>
               <FormControl>
@@ -92,7 +88,7 @@ const RegisterPage: React.FC = () => {
               {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
             </FormItem>
 
-            {/* Field Password */}
+            {/* Password Field */}
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
@@ -124,7 +120,7 @@ const RegisterPage: React.FC = () => {
               </Button>
             </div>
 
-            {/* Hiển thị lỗi nếu có */}
+            {/* Display Error */}
             {error && <p className="text-red-500 text-center mt-2">{error}</p>}
           </form>
         </FormProvider>

@@ -1,8 +1,8 @@
-import { useState, KeyboardEvent, ChangeEvent } from 'react';
+import React, { useState, KeyboardEvent, ChangeEvent } from 'react';
 import SearchIcon from '../../../components/icons/action-icons';
 
 interface SearchFilterProps {
-  onSearch: (query: string) => void; // Define the type of the onSearch function
+  onSearch: (query: string) => void;
 }
 
 export const SearchFilter: React.FC<SearchFilterProps> = ({ onSearch }) => {
@@ -13,14 +13,13 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({ onSearch }) => {
   const handleKeyPress = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       setIsSubmitted(true);
-      setTimeout(() => setIsSubmitted(false), 500); // Pulse effect when search is submitted
+      setTimeout(() => setIsSubmitted(false), 500);
       onSearch(searchTerm);
     }
   };
 
-  
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value); // Update the search term when the input changes
+    setSearchTerm(event.target.value);
   };
 
   return (
@@ -43,3 +42,5 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({ onSearch }) => {
     </div>
   );
 };
+
+export default SearchFilter;

@@ -3,13 +3,12 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, Crown } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'; // Import Avatar từ shadcn/ui
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 
-// Zod schema for validation
 const schema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Email must be a valid email.' }),
@@ -47,20 +46,37 @@ const ProfileDetail: React.FC = () => {
     console.log(data);
   };
 
+  const handleUpgradeToPremium = () => {
+    setIsPremium(true);
+  };
+
+  const handleProfilePictureUpdate = () => {
+    setProfilePicture('https://images.unsplash.com/photo-1554151228-14d9def656e4?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18">
       <div className="max-w-7xl w-full p-8 bg-white rounded-lg shadow-lg mt-10">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
-            {/* Sử dụng Avatar từ shadcn */}
             <Avatar className="w-20 h-20 mr-4 border-4 border-indigo-500 shadow-lg">
               <AvatarImage src={profilePicture} alt="Profile" />
-              <AvatarFallback>JD</AvatarFallback> {/* Sử dụng chữ thay thế khi không có hình */}
+              <AvatarFallback>JD</AvatarFallback>
             </Avatar>
             <h1 className="text-3xl font-bold text-gray-900">
               Account Settings
               {isPremium && <Crown className="inline-block ml-2 text-yellow-500 w-6 h-6" />}
             </h1>
+          </div>
+          <div>
+            {!isPremium && (
+              <Button onClick={handleUpgradeToPremium} className="text-indigo-600">
+                Upgrade to Premium
+              </Button>
+            )}
+            <Button onClick={handleProfilePictureUpdate} className="text-indigo-600 ml-4">
+              Change Profile Picture
+            </Button>
           </div>
         </div>
 
@@ -87,7 +103,6 @@ const ProfileDetail: React.FC = () => {
               />
             </div>
 
-            {/* Email Field */}
             <FormField
               control={control}
               name="email"
@@ -107,7 +122,6 @@ const ProfileDetail: React.FC = () => {
               )}
             />
 
-            {/* Phone Field */}
             <FormField
               control={control}
               name="phone"
@@ -127,7 +141,6 @@ const ProfileDetail: React.FC = () => {
               )}
             />
 
-            {/* Gender Field */}
             <FormField
               control={control}
               name="gender"
@@ -150,7 +163,6 @@ const ProfileDetail: React.FC = () => {
               )}
             />
 
-            {/* Date of Birth Field */}
             <FormField
               control={control}
               name="dob"
@@ -169,7 +181,6 @@ const ProfileDetail: React.FC = () => {
               )}
             />
 
-            {/* About Field */}
             <FormField
               control={control}
               name="about"
@@ -189,7 +200,6 @@ const ProfileDetail: React.FC = () => {
               )}
             />
 
-            {/* Action Buttons */}
             <div className="col-span-2 flex justify-end space-x-4 mt-6">
               <Button
                 type="submit"

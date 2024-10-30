@@ -33,10 +33,16 @@ const SemesterTable = () => {
   const [showUpdatePopover, setShowUpdatePopover] = useState(false);
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null); // Update selectedSemester type
 
-  useEffect(() => {
-    dispatch(fetchDepartments());
-    dispatch(fetchSemesters());
-  }, [dispatch]);
+const SemesterTable: React.FC<SemesterTableProps> = ({
+  departments,
+  semesters,
+  setSelectedDepartment,
+  selectedDepartment,
+
+}) => {
+  const [showCreatePopover, setShowCreatePopover] = useState(false); // Quản lý hiển thị popover tạo học kỳ
+  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null); // Quản lý học kỳ đã chọn để cập nhật
+  const [showUpdatePopover, setShowUpdatePopover] = useState(false); // Quản lý hiển thị popover cập nhật học kỳ
 
   const handleCreateSemester = (data: { name: string; departmentId: string }) => {
     dispatch(createSemester(data))

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { User, Reply, Edit, Trash2, Image as ImageIcon, ThumbsUp, ThumbsDown } from 'lucide-react'; // Sử dụng Lucide icon
+import {  Reply, Edit, Trash2, Image as ImageIcon, ThumbsUp, ThumbsDown } from 'lucide-react'; // Sử dụng Lucide icon
 import { FormField, FormItem, FormControl, FormMessage } from '@/components/ui/form'; // Thêm các thành phần form
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'; // Sử dụng Select từ components
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';

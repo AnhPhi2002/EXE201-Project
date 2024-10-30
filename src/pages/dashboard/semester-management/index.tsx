@@ -1,18 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import TabComponent from './TabComponent';
 
-
-function SemesterManagementDashboard() {
-  const [selectedMetric, setSelectedMetric] = useState<string>('sales');
+const SemesterManagementDashboard: React.FC = () => {
   return (
     <div>
       <section className="bg-white rounded-lg shadow-md p-6 mt-10">
-
-      
-      <TabComponent />
+        <TabComponent />
       </section>
     </div>
   );
-}
+};
 
 export default SemesterManagementDashboard;
