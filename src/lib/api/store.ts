@@ -1,14 +1,17 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
-import counterReducer from './redux/counterSlice';
-import authReducer from './redux/authSlice';
 import departmentReducer from './redux/departmentSlice';
-import resourcesReducer from './redux/resourcesSlice';
+import semesterReducer from './redux/semesterSlice';
+import subjectReducer from './redux/subjectSlice';
+import resourceReducer from './redux/resourceSlice';
+import authReducer from './redux/authSlice';
+
 
 const rootReducer = combineReducers({
-  counter: counterReducer,
-  auth: authReducer,
   departments: departmentReducer,
-  resources: resourcesReducer,
+  semesters: semesterReducer,
+  subjects: subjectReducer,
+  resources: resourceReducer,
+  auth: authReducer
 });
 
 export const store = configureStore({

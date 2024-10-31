@@ -1,56 +1,57 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchDepartments, fetchSemesters, fetchSubjects } from '@/lib/api/redux/departmentSlice';
+import { fetchDepartments } from '@/lib/api/redux/departmentSlice';
+import { fetchSemesters } from '@/lib/api/redux/semesterSlice';
+import { fetchSubjects } from '@/lib/api/redux/subjectSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';  // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const CodingCourseSection = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();  // Khởi tạo useNavigate
+  const navigate = useNavigate();
   const [expandedMajor, setExpandedMajor] = useState<string | null>(null);
   const [expandedSemester, setExpandedSemester] = useState<string | null>(null);
 
-  const { departments, semesters, subjects, loading, error } = useSelector(
+  const { departments, loading: departmentsLoading, error: departmentsError } = useSelector(
     (state: RootState) => state.departments
+  );
+  const { semesters, loading: semestersLoading, error: semestersError } = useSelector(
+    (state: RootState) => state.semesters
+  );
+  const { subjects, loading: subjectsLoading, error: subjectsError } = useSelector(
+    (state: RootState) => state.subjects
   );
 
   useEffect(() => {
     dispatch(fetchDepartments());
+    dispatch(fetchSemesters()).then((response) => {
+      const semesters = response.payload;
+      semesters.forEach((semester: any) => {
+        dispatch(fetchSubjects(semester._id));
+      });
+    });
   }, [dispatch]);
 
   const toggleMajor = (departmentId: string) => {
     setExpandedMajor(expandedMajor === departmentId ? null : departmentId);
-
-    if (expandedMajor !== departmentId) {
-      dispatch(fetchSemesters()).then((response) => {
-        const filtered = response.payload.filter(
-          (semester: any) => semester.department === departmentId
-        );
-        setExpandedSemester(null);  // Reset trạng thái của kỳ học khi chọn ngành khác
-      });
-    }
+    setExpandedSemester(null); // Reset trạng thái của kỳ học khi chọn ngành khác
   };
 
   const toggleSemester = (semesterId: string) => {
     setExpandedSemester(expandedSemester === semesterId ? null : semesterId);
-
-    if (expandedSemester !== semesterId) {
-      dispatch(fetchSubjects(semesterId));
-    }
   };
 
-  // Hàm để điều hướng đến trang SubjectPage khi chọn môn học
   const handleSubjectClick = (subjectId: string) => {
     navigate(`/subject/${subjectId}`);
   };
 
-  if (loading) {
+  if (departmentsLoading || semestersLoading || subjectsLoading) {
     return <p>Loading...</p>;
   }
 
-  if (error) {
-    return <p>Error loading data: {error}</p>;
+  if (departmentsError || semestersError || subjectsError) {
+    return <p>Error loading data: {departmentsError || semestersError || subjectsError}</p>;
   }
 
   return (
@@ -58,45 +59,44 @@ const CodingCourseSection = () => {
       <h1 className="text-2xl font-bold mt-16 mb-8 text-black">Course Section</h1>
       <div className="space-y-2">
         {departments.map((major) => (
-          <div key={major._id} className="bg-purple-300 rounded-lg overflow-hidden">
+          <div key={major.id} className="bg-purple-300 rounded-lg overflow-hidden">
             <button
-              onClick={() => toggleMajor(major._id)}
+              onClick={() => toggleMajor(major.id)}
               className="w-full flex items-center justify-between p-3 bg-purple-400 text-white rounded-lg hover:bg-purple-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
-              aria-expanded={expandedMajor === major._id}
+              aria-expanded={expandedMajor === major.id}
             >
               <span className="text-lg font-semibold">
                 {major.code} ({major.name})
               </span>
-              {expandedMajor === major._id ? <ChevronUp /> : <ChevronDown />}
+              {expandedMajor === major.id ? <ChevronUp /> : <ChevronDown />}
             </button>
 
-            {expandedMajor === major._id && (
+            {expandedMajor === major.id && (
               <div className="p-3 bg-gray-50">
                 {semesters
-                  .filter((semester) => semester.department === major._id)
+                  .filter((semester) => semester.department === major.id)
                   .map((semester) => (
-                    <div key={semester._id} className="bg-purple-100 p-2 mb-2 rounded-lg">
+                    <div key={semester.id} className="bg-purple-100 p-2 mb-2 rounded-lg">
                       <button
-                        onClick={() => toggleSemester(semester._id)}
+                        onClick={() => toggleSemester(semester.id)}
                         className="w-full flex items-center justify-between p-2 bg-purple-200 hover:bg-purple-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
                       >
                         {semester.name}
                       </button>
 
-                      {expandedSemester === semester._id && (
+                      {expandedSemester === semester.id && (
                         <div className="p-2 bg-purple-50">
                           {subjects.length > 0 ? (
                             subjects
-                              .filter((subject) => subject.semester === semester._id)
+                              .filter((subject) => subject.semester === semester.id)
                               .map((subject) => (
                                 <div key={subject._id} className="p-2">
                                   <button
-                                    onClick={() => handleSubjectClick(subject._id)}  // Điều hướng khi click vào subject
+                                    onClick={() => handleSubjectClick(subject._id)} 
                                     className="text-left text-blue-600 hover:underline"
                                   >
                                     {subject.name}
                                   </button>
-                                  
                                 </div>
                               ))
                           ) : (

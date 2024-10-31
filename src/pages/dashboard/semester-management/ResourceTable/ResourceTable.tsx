@@ -1,15 +1,15 @@
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { File, PlayCircle, Edit2, Trash2, Plus } from 'lucide-react';
-import { Department, Resource, Semester, Subject } from '../TabComponent';
-
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/lib/api/store';
+import { fetchAllResources, createResource, updateResource, deleteResource } from '@/lib/api/redux/resourceSlice';
+import { fetchDepartments } from '@/lib/api/redux/departmentSlice';
+import { fetchSemesters } from '@/lib/api/redux/semesterSlice';
+import { fetchSubjects } from '@/lib/api/redux/subjectSlice';
 import CreateResource from './CreateResource';
 import UpdateResource from './UpdateResource';
 
 interface ResourceTableProps {
-  departments: Department[];
-  semesters: Semester[];
-  subjects: Subject[];
-  resources: Resource[];
   selectedDepartment: string;
   selectedSemester: string;
   selectedSubject: string;
@@ -19,10 +19,6 @@ interface ResourceTableProps {
 }
 
 const ResourceTable: React.FC<ResourceTableProps> = ({
-  departments,
-  semesters,
-  subjects,
-  resources,
   selectedDepartment,
   selectedSemester,
   selectedSubject,
@@ -30,33 +26,71 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
   setSelectedSemester,
   setSelectedSubject,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { departments } = useSelector((state: RootState) => state.departments);
+  const { semesters } = useSelector((state: RootState) => state.semesters);
+  const { subjects } = useSelector((state: RootState) => state.subjects);
+  const { resources } = useSelector((state: RootState) => state.resources);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
-  const [resourceList, setResourceList] = useState(resources);
+  const [selectedResource, setSelectedResource] = useState(null);
 
-  const handleCreate = (resource: Resource) => {
-    setResourceList([...resourceList, resource]);
+  useEffect(() => {
+    dispatch(fetchAllResources());
+    dispatch(fetchDepartments());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (selectedDepartment) {
+      dispatch(fetchSemesters(selectedDepartment));
+    }
+  }, [dispatch, selectedDepartment]);
+
+  useEffect(() => {
+    if (selectedSemester) {
+      dispatch(fetchSubjects(selectedSemester));
+    }
+  }, [dispatch, selectedSemester]);
+
+  const handleCreate = (resourceData) => {
+    if (resourceData.subject) {
+      dispatch(createResource({ subjectId: resourceData.subject, resourceData }))
+        .unwrap()
+        .then(() => setShowCreateModal(false))
+        .catch((error) => console.error('Error creating resource:', error));
+    }
   };
 
-  const handleEditClick = (resource: Resource) => {
+  const handleEditClick = (resource) => {
     setSelectedResource(resource);
     setShowEditModal(true);
   };
 
-  const handleEdit = (updatedResource: Resource) => {
-    setResourceList(resourceList.map((res) => (res.id === updatedResource.id ? updatedResource : res)));
+  const handleEdit = (updatedResourceData) => {
+    if (selectedResource) {
+      dispatch(updateResource({ id: selectedResource.id, resourceData: updatedResourceData }))
+        .unwrap()
+        .then(() => setShowEditModal(false))
+        .catch((error) => console.error('Error updating resource:', error));
+    }
   };
 
-  const handleDelete = (resourceId: string) => {
-    setResourceList(resourceList.filter((res) => res.id !== resourceId));
+  const handleDelete = (resourceId) => {
+    dispatch(deleteResource(resourceId))
+      .unwrap()
+      .catch((error) => console.error('Error deleting resource:', error));
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center mb-4">
         <div className="flex gap-4">
-          <select className="border p-2 rounded-md" value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
+          <select
+            className="border p-2 rounded-md"
+            value={selectedDepartment}
+            onChange={(e) => setSelectedDepartment(e.target.value)}
+          >
             <option value="">Select Department</option>
             {departments.map((dept) => (
               <option key={dept.id} value={dept.id}>
@@ -65,10 +99,15 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
             ))}
           </select>
 
-          <select className="border p-2 rounded-md" value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)}>
+          <select
+            className="border p-2 rounded-md"
+            value={selectedSemester}
+            onChange={(e) => setSelectedSemester(e.target.value)}
+            disabled={!selectedDepartment}
+          >
             <option value="">Select Semester</option>
             {semesters
-              .filter((sem) => !selectedDepartment || sem.departmentId === selectedDepartment)
+              .filter((sem) => sem.department === selectedDepartment)
               .map((sem) => (
                 <option key={sem.id} value={sem.id}>
                   {sem.name}
@@ -76,10 +115,15 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
               ))}
           </select>
 
-          <select className="border p-2 rounded-md" value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)}>
+          <select
+            className="border p-2 rounded-md"
+            value={selectedSubject}
+            onChange={(e) => setSelectedSubject(e.target.value)}
+            disabled={!selectedSemester}
+          >
             <option value="">Select Subject</option>
             {subjects
-              .filter((sub) => !selectedSemester || sub.semesterId === selectedSemester)
+              .filter((sub) => sub.semester === selectedSemester)
               .map((sub) => (
                 <option key={sub.id} value={sub.id}>
                   {sub.name}
@@ -87,13 +131,16 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
               ))}
           </select>
         </div>
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={() => setShowCreateModal(true)}>
+        <button
+          className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
+          onClick={() => setShowCreateModal(true)}
+        >
           <Plus /> Add Resource
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {resourceList
+        {resources
           .filter((res) => !selectedSubject || res.subject === selectedSubject)
           .map((resource) => (
             <div key={resource.id} className="bg-white p-6 rounded-lg shadow-md space-y-4">
@@ -102,12 +149,13 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
                 <h3 className="text-lg font-semibold">{resource.title}</h3>
               </div>
 
-              {/* Description with ellipsis truncation */}
-              <p className="text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap w-full">{resource.description}</p>
+              <p className="text-gray-600 overflow-hidden text-ellipsis whitespace-nowrap w-full">
+                {resource.description}
+              </p>
 
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{resource.type.toUpperCase()}</span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{resource.allowedRoles[0]}</span>
+                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{resource.type?.toUpperCase()}</span>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{resource.allowedRoles?.[0]}</span>
               </div>
 
               <div className="flex gap-2">
@@ -122,14 +170,15 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
           ))}
       </div>
 
-      {showCreateModal && <CreateResource departments={departments} semesters={semesters} subjects={subjects} onCreate={handleCreate} onClose={() => setShowCreateModal(false)} />}
+      {showCreateModal && (
+        <CreateResource
+          onClose={() => setShowCreateModal(false)}
+        />
+      )}
 
       {showEditModal && selectedResource && (
         <UpdateResource
           resource={selectedResource}
-          departments={departments}
-          semesters={semesters}
-          subjects={subjects}
           onUpdate={handleEdit}
           onClose={() => setShowEditModal(false)}
         />

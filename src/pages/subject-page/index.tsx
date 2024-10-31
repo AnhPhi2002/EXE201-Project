@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Home, ChevronRight, Star, Heart } from 'lucide-react';
 import { RootState, AppDispatch } from '@/lib/api/store';
-import { fetchResourcesBySubject, fetchSubjectById } from '@/lib/api/redux/resourcesSlice'; // Import fetchSubjectById
+import { fetchResourcesBySubject, fetchSubjectById } from '@/lib/api/redux/resourceSlice'; // Import fetchSubjectById
 import CommentSection from './CommentSubject';
 
 const SubjectPage: React.FC = () => {

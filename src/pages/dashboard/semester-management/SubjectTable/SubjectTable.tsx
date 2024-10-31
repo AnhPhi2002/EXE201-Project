@@ -1,54 +1,80 @@
+import React, { useState, useEffect } from "react";
 import { Edit2, Trash2, Plus } from "lucide-react";
-import { useState } from "react";
 import CreateSubject from "./CreateSubject";
 import UpdateSubject from "./UpdateSubject";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/lib/api/store";
+import { fetchDepartments } from "@/lib/api/redux/departmentSlice";
+import { fetchSemesters } from "@/lib/api/redux/semesterSlice";
+import { fetchSubjects, createSubject, updateSubject, deleteSubject } from "@/lib/api/redux/subjectSlice";
 
-interface Department {
-  id: string;
-  name: string;
-}
+const SubjectTable = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { departments } = useSelector((state: RootState) => state.departments);
+  const { semesters } = useSelector((state: RootState) => state.semesters);
+  const { subjects } = useSelector((state: RootState) => state.subjects);
 
-interface Semester {
-  id: string;
-  name: string;
-  departmentId: string;
-}
-
-interface Subject {
-  id: string;
-  name: string;
-  semesterId: string;
-}
-
-interface SubjectTableProps {
-  departments: Department[];
-  semesters: Semester[];
-  subjects: Subject[];
-  selectedDepartment: string;
-  selectedSemester: string;
-  setSelectedDepartment: (value: string) => void;
-  setSelectedSemester: (value: string) => void;
-  setShowSubjectPopover: (value: boolean) => void;
-}
-
-const SubjectTable: React.FC<SubjectTableProps> = ({
-  departments,
-  semesters,
-  subjects,
-  selectedDepartment,
-  selectedSemester,
-  setSelectedDepartment,
-  setSelectedSemester,
-  setShowSubjectPopover,
-}) => {
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [selectedSemester, setSelectedSemester] = useState<string>("");
   const [showCreatePopover, setShowCreatePopover] = useState(false);
   const [showUpdatePopover, setShowUpdatePopover] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<null | { id: string; name: string; semesterId: string }>(null);
 
-  const handleShowUpdate = (subject: Subject) => {
-    setSelectedSubject(subject);
-    setShowUpdatePopover(true);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchDepartments()).unwrap();
+        await dispatch(fetchSemesters()).unwrap();
+        await dispatch(fetchSubjects()).unwrap();
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    fetchData();
+  }, [dispatch]);
+
+  const handleCreateSubject = (data: { name: string; semesterId: string }) => {
+    dispatch(createSubject(data))
+      .unwrap()
+      .then(() => setShowCreatePopover(false))
+      .catch((error) => console.error("Error creating subject:", error));
   };
+
+  const handleUpdateSubject = (data: { name: string; semesterId: string }) => {
+    if (selectedSubject) {
+      dispatch(updateSubject({ id: selectedSubject.id, ...data }))
+        .unwrap()
+        .then(() => setShowUpdatePopover(false))
+        .catch((error) => console.error("Error updating subject:", error));
+    }
+  };
+
+  const handleDeleteSubject = (subjectId: string) => {
+    dispatch(deleteSubject(subjectId))
+      .unwrap()
+      .catch((error) => console.error("Error deleting subject:", error));
+  };
+
+  const getSemesterName = (semesterId: string) => {
+    const semester = semesters.find((s) => s.id === semesterId);
+    return semester ? semester.name : "N/A";
+  };
+  
+  const getDepartmentNameBySemester = (semesterId: string) => {
+    const semester = semesters.find((s) => s.id === semesterId);
+    if (semester) {
+      const department = departments.find((d) => d.id === semester.department);
+      return department ? department.name : "N/A";
+    }
+    return "N/A";
+  };
+
+  const filteredSubjects = subjects.filter(
+    (subject) =>
+      (!selectedSemester || subject.semester === selectedSemester) &&
+      (!selectedDepartment ||
+        semesters.find((s) => s.id === subject.semester)?.department === selectedDepartment)
+  );
 
   return (
     <div className="w-full overflow-x-auto">
@@ -74,10 +100,7 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
           >
             <option value="">Select Semester</option>
             {semesters
-              .filter(
-                (sem) =>
-                  !selectedDepartment || sem.departmentId === selectedDepartment
-              )
+              .filter((sem) => !selectedDepartment || sem.department === selectedDepartment)
               .map((sem) => (
                 <option key={sem.id} value={sem.id}>
                   {sem.name}
@@ -93,78 +116,73 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
           <Plus /> Add Subject
         </button>
       </div>
+
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr className="bg-gray-50">
             <th className="px-6 py-3 border-b text-left">ID</th>
             <th className="px-6 py-3 border-b text-left">Name</th>
             <th className="px-6 py-3 border-b text-left">Semester</th>
+            <th className="px-6 py-3 border-b text-left">Department</th>
             <th className="px-6 py-3 border-b text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {subjects
-            .filter(
-              (subject) =>
-                (!selectedSemester || subject.semesterId === selectedSemester) &&
-                (!selectedDepartment ||
-                  semesters.find((s) => s.id === subject.semesterId)
-                    ?.departmentId === selectedDepartment)
-            )
-            .map((subject) => (
-              <tr key={subject.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 border-b">{subject.id}</td>
-                <td className="px-6 py-4 border-b">{subject.name}</td>
-                <td className="px-6 py-4 border-b">
-                  {semesters.find((s) => s.id === subject.semesterId)?.name}
-                </td>
-                <td className="px-6 py-4 border-b">
-                  <div className="flex gap-2">
-                    <button
-                      className="text-blue-500 hover:text-blue-700"
-                      onClick={() => handleShowUpdate(subject)}
-                    >
-                      <Edit2 />
-                    </button>
-                    <button className="text-red-500 hover:text-red-700">
-                      <Trash2 />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+          {filteredSubjects.map((subject) => (
+            <tr key={subject.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4 border-b">{subject.id}</td>
+              <td className="px-6 py-4 border-b">{subject.name}</td>
+              <td className="px-6 py-4 border-b">
+                {getSemesterName(subject.semester)}
+              </td>
+              <td className="px-6 py-4 border-b">
+                {getDepartmentNameBySemester(subject.semester)}
+              </td>
+              <td className="px-6 py-4 border-b">
+                <div className="flex gap-2">
+                  <button
+                    className="text-blue-500 hover:text-blue-700"
+                    onClick={() => {
+                      setSelectedSubject(subject);
+                      setShowUpdatePopover(true);
+                    }}
+                  >
+                    <Edit2 />
+                  </button>
+                  <button
+                    className="text-red-500 hover:text-red-700"
+                    onClick={() => handleDeleteSubject(subject.id)}
+                  >
+                    <Trash2 />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
         </tbody>
       </table>
 
-      {/* Popover tạo môn học */}
       {showCreatePopover && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
             <CreateSubject
-              departments={departments} // Truyền thêm departments
+              departments={departments}
               semesters={semesters}
-              onCreate={(data) => {
-                console.log("Tạo môn học mới:", data);
-                setShowCreatePopover(false);
-              }}
+              onCreate={handleCreateSubject}
               onClose={() => setShowCreatePopover(false)}
             />
           </div>
         </div>
       )}
 
-      {/* Popover cập nhật môn học */}
       {showUpdatePopover && selectedSubject && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
             <UpdateSubject
-              departments={departments} // Truyền thêm departments
               subject={selectedSubject}
+              departments={departments}
               semesters={semesters}
-              onUpdate={(data) => {
-                console.log("Cập nhật môn học:", data);
-                setShowUpdatePopover(false);
-              }}
+              onUpdate={handleUpdateSubject}
               onClose={() => setShowUpdatePopover(false)}
             />
           </div>

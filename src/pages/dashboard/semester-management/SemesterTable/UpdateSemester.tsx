@@ -3,33 +3,27 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-interface Department {
-  id: string;
-  name: string;
-}
-
 interface Semester {
   id: string;
   name: string;
   departmentId: string;
 }
 
-// Định nghĩa schema xác thực với Zod
 const semesterSchema = z.object({
-  name: z.string().min(2, "Tên học kỳ phải có ít nhất 2 ký tự").max(50, "Tên học kỳ quá dài"),
-  departmentId: z.string().min(1, "Vui lòng chọn phòng ban"),
+  name: z.enum(['Kỳ 1', 'Kỳ 2', 'Kỳ 3', 'Kỳ 4', 'Kỳ 5', 'Kỳ 6', 'Kỳ 7', 'Kỳ 8', 'Kỳ 9'], {
+    required_error: "Vui lòng chọn tên học kỳ",
+  }),
 });
 
 type SemesterFormData = z.infer<typeof semesterSchema>;
 
 interface UpdateSemesterProps {
-  departments: Department[];
   semester: Semester;
-  onUpdate: (data: SemesterFormData) => void;
+  onUpdate: (data: { name: SemesterFormData['name']; departmentId: string }) => void;
   onClose: () => void;
 }
 
-const UpdateSemester: React.FC<UpdateSemesterProps> = ({ departments, semester, onUpdate, onClose }) => {
+const UpdateSemester: React.FC<UpdateSemesterProps> = ({ semester, onUpdate, onClose }) => {
   const {
     register,
     handleSubmit,
@@ -37,13 +31,12 @@ const UpdateSemester: React.FC<UpdateSemesterProps> = ({ departments, semester, 
   } = useForm<SemesterFormData>({
     resolver: zodResolver(semesterSchema),
     defaultValues: {
-      name: semester.name,
-      departmentId: semester.departmentId,
+      name: semester.name as SemesterFormData['name'],
     },
   });
 
   const onSubmit = (data: SemesterFormData) => {
-    onUpdate(data);
+    onUpdate({ ...data, departmentId: semester.departmentId });
     onClose();
   };
 
@@ -53,24 +46,18 @@ const UpdateSemester: React.FC<UpdateSemesterProps> = ({ departments, semester, 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Tên học kỳ</label>
-          <input
-            type="text"
+          <select
             {...register("name")}
             className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-          />
-          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Chọn phòng ban</label>
-          <select {...register("departmentId")} className="mt-1 p-2 border border-gray-300 rounded-md w-full">
-            <option value="">Chọn phòng ban</option>
-            {departments.map((dept) => (
-              <option key={dept.id} value={dept.id}>
-                {dept.name}
+          >
+            <option value="">Chọn tên học kỳ</option>
+            {['Kỳ 1', 'Kỳ 2', 'Kỳ 3', 'Kỳ 4', 'Kỳ 5', 'Kỳ 6', 'Kỳ 7', 'Kỳ 8', 'Kỳ 9'].map((term) => (
+              <option key={term} value={term}>
+                {term}
               </option>
             ))}
           </select>
-          {errors.departmentId && <p className="text-red-500 text-sm">{errors.departmentId.message}</p>}
+          {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
         </div>
         <div className="flex justify-end space-x-4">
           <button

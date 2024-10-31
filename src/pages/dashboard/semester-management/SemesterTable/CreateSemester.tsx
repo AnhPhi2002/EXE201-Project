@@ -1,3 +1,4 @@
+// CreateSemester.tsx
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,7 +11,17 @@ interface Department {
 
 // Định nghĩa schema xác thực với Zod
 const semesterSchema = z.object({
-  name: z.string().min(2, "Tên học kỳ phải có ít nhất 2 ký tự").max(50, "Tên học kỳ quá dài"),
+  name: z.enum([
+    "Kỳ 1",
+    "Kỳ 2",
+    "Kỳ 3",
+    "Kỳ 4",
+    "Kỳ 5",
+    "Kỳ 6",
+    "Kỳ 7",
+    "Kỳ 8",
+    "Kỳ 9",
+  ]),
   departmentId: z.string().min(1, "Vui lòng chọn phòng ban"),
 });
 
@@ -22,7 +33,11 @@ interface CreateSemesterProps {
   onClose: () => void;
 }
 
-const CreateSemester: React.FC<CreateSemesterProps> = ({ departments, onCreate, onClose }) => {
+const CreateSemester: React.FC<CreateSemesterProps> = ({
+  departments,
+  onCreate,
+  onClose,
+}) => {
   const {
     register,
     handleSubmit,
@@ -42,13 +57,17 @@ const CreateSemester: React.FC<CreateSemesterProps> = ({ departments, onCreate, 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700">Tên học kỳ</label>
-          <input
-            type="text"
-            {...register("name")}
-            className="mt-1 p-2 border border-gray-300 rounded-md w-full"
-          />
+          <select {...register("name")} className="mt-1 p-2 border border-gray-300 rounded-md w-full">
+            <option value="">Chọn kỳ học</option>
+            {["Kỳ 1", "Kỳ 2", "Kỳ 3", "Kỳ 4", "Kỳ 5", "Kỳ 6", "Kỳ 7", "Kỳ 8", "Kỳ 9"].map((semesterName) => (
+              <option key={semesterName} value={semesterName}>
+                {semesterName}
+              </option>
+            ))}
+          </select>
           {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
         </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700">Chọn phòng ban</label>
           <select {...register("departmentId")} className="mt-1 p-2 border border-gray-300 rounded-md w-full">
@@ -61,6 +80,7 @@ const CreateSemester: React.FC<CreateSemesterProps> = ({ departments, onCreate, 
           </select>
           {errors.departmentId && <p className="text-red-500 text-sm">{errors.departmentId.message}</p>}
         </div>
+
         <div className="flex justify-end space-x-4">
           <button
             type="button"

@@ -1,70 +1,90 @@
-// departmentSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api';
+interface Department {
+  id: string;
+  name: string;
+  code: string;
+}
 
-export const fetchDepartments = createAsyncThunk('departments/fetchDepartments', async (_, thunkAPI) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/departments`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue((error as Error).message || 'Something went wrong');
-  }
-});
-
-export const fetchSemesters = createAsyncThunk('departments/fetchSemesters', async (_, thunkAPI) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/semesters`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    return thunkAPI.rejectWithValue((error as Error).message || 'Something went wrong');
-  }
-});
-
-// Thêm Thunk để lấy danh sách môn học dựa vào `semesterId`
-export const fetchSubjects = createAsyncThunk('departments/fetchSubjects', async (semesterId: string, thunkAPI) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/subjects`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: {
-        semester: semesterId,  // Lọc theo semesterId
-      },
-    });
-    return response.data;  // Trả về danh sách môn học
-  } catch (error) {
-    return thunkAPI.rejectWithValue((error as Error).message || 'Something went wrong');
-  }
-});
-
-type DepartmentState = {
-  departments: any[];
-  semesters: any[];
-  subjects: any[];
+interface DepartmentState {
+  departments: Department[];
   loading: boolean;
   error: string | null;
-};
+}
 
 const initialState: DepartmentState = {
   departments: [],
-  semesters: [],
-  subjects: [],  // Thêm subjects vào state
   loading: false,
   error: null,
 };
+
+const API_URL = 'http://localhost:8080/api/departments';
+
+// Thunk để lấy danh sách phòng ban
+export const fetchDepartments = createAsyncThunk('departments/fetchDepartments', async (_, { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(API_URL, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue('Error fetching departments');
+  }
+});
+
+// Thunk để tạo phòng ban mới
+export const createDepartment = createAsyncThunk(
+  'departments/createDepartment',
+  async ({ name, code }: { name: string; code: string }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        API_URL,
+        { name, code },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error creating department');
+    }
+  }
+);
+
+// Thunk để cập nhật phòng ban
+export const updateDepartment = createAsyncThunk(
+  'departments/updateDepartment',
+  async ({ id, name, code }: { id: string; name: string; code: string }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `${API_URL}/${id}`,
+        { name, code },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error updating department');
+    }
+  }
+);
+
+// Thunk để xóa phòng ban
+export const deleteDepartment = createAsyncThunk(
+  'departments/deleteDepartment',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return id;
+    } catch (error) {
+      return rejectWithValue('Error deleting department');
+    }
+  }
+);
 
 const departmentSlice = createSlice({
   name: 'departments',
@@ -75,7 +95,7 @@ const departmentSlice = createSlice({
       .addCase(fetchDepartments.pending, (state) => {
         state.loading = true;
       })
-      .addCase(fetchDepartments.fulfilled, (state, action) => {
+      .addCase(fetchDepartments.fulfilled, (state, action: PayloadAction<Department[]>) => {
         state.loading = false;
         state.departments = action.payload;
       })
@@ -83,26 +103,25 @@ const departmentSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-      .addCase(fetchSemesters.pending, (state) => {
-        state.loading = true;
+      .addCase(createDepartment.fulfilled, (state, action: PayloadAction<Department>) => {
+        state.departments.push(action.payload);
       })
-      .addCase(fetchSemesters.fulfilled, (state, action) => {
-        state.loading = false;
-        state.semesters = action.payload;
-      })
-      .addCase(fetchSemesters.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(createDepartment.rejected, (state, action) => {
         state.error = action.payload as string;
       })
-      .addCase(fetchSubjects.pending, (state) => {
-        state.loading = true;
+      .addCase(updateDepartment.fulfilled, (state, action: PayloadAction<Department>) => {
+        const index = state.departments.findIndex(dept => dept.id === action.payload.id);
+        if (index !== -1) {
+          state.departments[index] = action.payload;
+        }
       })
-      .addCase(fetchSubjects.fulfilled, (state, action) => {
-        state.loading = false;
-        state.subjects = action.payload;  // Cập nhật subjects khi lấy được dữ liệu
+      .addCase(updateDepartment.rejected, (state, action) => {
+        state.error = action.payload as string;
       })
-      .addCase(fetchSubjects.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(deleteDepartment.fulfilled, (state, action: PayloadAction<string>) => {
+        state.departments = state.departments.filter(dept => dept.id !== action.payload);
+      })
+      .addCase(deleteDepartment.rejected, (state, action) => {
         state.error = action.payload as string;
       });
   },

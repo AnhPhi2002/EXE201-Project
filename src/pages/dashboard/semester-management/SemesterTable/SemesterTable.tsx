@@ -1,7 +1,16 @@
+import React, { useState, useEffect } from "react";
 import { Edit2, Trash2, Plus } from "lucide-react";
-import { useState } from "react";
 import CreateSemester from "./CreateSemester";
 import UpdateSemester from "./UpdateSemester";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/lib/api/store";
+import {
+  fetchSemesters,
+  createSemester,
+  updateSemester,
+  deleteSemester,
+} from "@/lib/api/redux/semesterSlice";
+import { fetchDepartments } from "@/lib/api/redux/departmentSlice";
 
 interface Department {
   id: string;
@@ -11,33 +20,57 @@ interface Department {
 interface Semester {
   id: string;
   name: string;
-  departmentId: string;
+  departmentId: string; // Đổi thành departmentId
 }
 
-interface SemesterTableProps {
-  departments: Department[];
-  semesters: Semester[];
-  selectedDepartment: string;
-  setSelectedDepartment: (value: string) => void;
-  setShowSemesterPopover: (value: boolean) => void; // Thêm prop này vào
-}
+const SemesterTable = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { departments } = useSelector((state: RootState) => state.departments);
+  const { semesters } = useSelector((state: RootState) => state.semesters);
 
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [showCreatePopover, setShowCreatePopover] = useState(false);
+  const [showUpdatePopover, setShowUpdatePopover] = useState(false);
+  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null); // Update selectedSemester type
 
-const SemesterTable: React.FC<SemesterTableProps> = ({
-  departments,
-  semesters,
-  selectedDepartment,
-  setSelectedDepartment,
-  setShowSemesterPopover, // Thêm prop này
-}) => {
-  const [showCreatePopover, setShowCreatePopover] = useState(false); // Quản lý hiển thị popover tạo học kỳ
-  const [showUpdatePopover, setShowUpdatePopover] = useState(false); // Quản lý hiển thị popover cập nhật học kỳ
-  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null); // Quản lý học kỳ đã chọn để cập nhật
+  useEffect(() => {
+    dispatch(fetchDepartments());
+    dispatch(fetchSemesters());
+  }, [dispatch]);
 
-  // Hàm này sẽ được gọi khi người dùng bấm vào nút "Edit"
-  const handleShowUpdate = (semester: Semester) => {
-    setSelectedSemester(semester); // Lưu học kỳ được chọn vào state
-    setShowUpdatePopover(true); // Hiển thị popover cập nhật
+  const handleCreateSemester = (data: { name: string; departmentId: string }) => {
+    dispatch(createSemester(data))
+      .unwrap()
+      .then(() => {
+        setShowCreatePopover(false);
+        dispatch(fetchSemesters());
+      })
+      .catch((error) => {
+        console.error("Error creating semester:", error);
+      });
+  };
+
+  const handleUpdateSemester = (data: { name: string; departmentId: string }) => {
+    if (selectedSemester) {
+      dispatch(updateSemester({ id: selectedSemester.id, ...data }))
+        .unwrap()
+        .then(() => {
+          setShowUpdatePopover(false);
+          dispatch(fetchSemesters());
+        })
+        .catch((error) => {
+          console.error("Error updating semester:", error);
+        });
+    }
+  };
+
+  const handleDeleteSemester = (semesterId: string) => {
+    dispatch(deleteSemester(semesterId))
+      .unwrap()
+      .then(() => dispatch(fetchSemesters()))
+      .catch((error) => {
+        console.error("Error deleting semester:", error);
+      });
   };
 
   return (
@@ -55,81 +88,82 @@ const SemesterTable: React.FC<SemesterTableProps> = ({
             </option>
           ))}
         </select>
-
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
-          onClick={() => setShowCreatePopover(true)} // Hiển thị popover tạo học kỳ mới
+          onClick={() => setShowCreatePopover(true)}
         >
           <Plus /> Add Semester
         </button>
       </div>
+
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr className="bg-gray-50">
             <th className="px-6 py-3 border-b text-left">ID</th>
             <th className="px-6 py-3 border-b text-left">Semester</th>
             <th className="px-6 py-3 border-b text-left">Department</th>
-            <th className="px-6 py-3 border-b text-left">Action</th>
+            <th className="px-6 py-3 border-b text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
           {semesters
             .filter((semester) =>
-              selectedDepartment ? semester.departmentId === selectedDepartment : true
+              selectedDepartment ? semester.department === selectedDepartment : true
             )
-            .map((semester) => (
-              <tr key={semester.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 border-b">{semester.id}</td>
-                <td className="px-6 py-4 border-b">{semester.name}</td>
-                <td className="px-6 py-4 border-b">
-                  {departments.find((d) => d.id === semester.departmentId)?.name}
-                </td>
-                <td className="px-6 py-4 border-b">
-                  <div className="flex gap-2">
-                    <button
-                      className="text-blue-500 hover:text-blue-700"
-                      onClick={() => handleShowUpdate(semester)} // Gọi hàm khi bấm Edit
-                    >
-                      <Edit2 />
-                    </button>
-                    <button className="text-red-500 hover:text-red-700">
-                      <Trash2 />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            .map((semester) => {
+              const departmentName = departments.find((dept) => dept.id === semester.department)?.name || "N/A";
+              console.log("Semester ID:", semester.id, "Department ID:", semester.department, "Department Name:", departmentName);
+
+              return (
+                <tr key={semester.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 border-b">{semester.id}</td>
+                  <td className="px-6 py-4 border-b">{semester.name}</td>
+                  <td className="px-6 py-4 border-b">{departmentName}</td>
+                  <td className="px-6 py-4 border-b">
+                    <div className="flex gap-2">
+                      <button
+                        className="text-blue-500 hover:text-blue-700"
+                        onClick={() => {
+                          setSelectedSemester(semester);
+                          setShowUpdatePopover(true);
+                        }}
+                      >
+                        <Edit2 />
+                      </button>
+                      <button
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => handleDeleteSemester(semester.id)}
+                      >
+                        <Trash2 />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
         </tbody>
+
       </table>
 
-      {/* Popover tạo học kỳ */}
       {showCreatePopover && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
             <CreateSemester
               departments={departments}
-              onCreate={(data) => {
-                console.log("Tạo học kỳ mới:", data);
-                setShowCreatePopover(false); // Đóng popover sau khi tạo thành công
-              }}
-              onClose={() => setShowCreatePopover(false)} // Đóng popover
+              onCreate={handleCreateSemester}
+              onClose={() => setShowCreatePopover(false)}
             />
           </div>
         </div>
       )}
 
-      {/* Popover cập nhật học kỳ */}
       {showUpdatePopover && selectedSemester && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
             <UpdateSemester
-              departments={departments}
-              semester={selectedSemester} // Truyền thông tin học kỳ được chọn
-              onUpdate={(data) => {
-                console.log("Cập nhật học kỳ:", data);
-                setShowUpdatePopover(false); // Đóng popover sau khi cập nhật thành công
-              }}
-              onClose={() => setShowUpdatePopover(false)} // Đóng popover khi nhấn Cancel
+              semester={selectedSemester}
+              onUpdate={handleUpdateSemester}
+              onClose={() => setShowUpdatePopover(false)}
             />
           </div>
         </div>
