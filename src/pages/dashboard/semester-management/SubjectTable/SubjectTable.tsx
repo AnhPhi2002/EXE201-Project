@@ -40,19 +40,14 @@ const SubjectTable = () => {
       .catch((error) => console.error("Error creating subject:", error));
   };
 
-const SubjectTable: React.FC<SubjectTableProps> = ({
-  departments,
-  semesters,
-  subjects,
-  selectedSemester,
-  selectedDepartment,
-  setSelectedDepartment,
-  setSelectedSemester,
-
-}) => {
-  const [showCreatePopover, setShowCreatePopover] = useState(false);
-  const [showUpdatePopover, setShowUpdatePopover] = useState(false);
-  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
+  const handleUpdateSubject = (data: { name: string; semesterId: string }) => {
+    if (selectedSubject) {
+      dispatch(updateSubject({ id: selectedSubject.id, ...data }))
+        .unwrap()
+        .then(() => setShowUpdatePopover(false))
+        .catch((error) => console.error("Error updating subject:", error));
+    }
+  };
 
   const handleDeleteSubject = (subjectId: string) => {
     dispatch(deleteSubject(subjectId))

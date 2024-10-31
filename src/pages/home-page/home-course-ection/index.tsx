@@ -12,40 +12,24 @@ const CodingCourseSection = () => {
   const navigate = useNavigate();
   const [expandedMajor, setExpandedMajor] = useState<string | null>(null);
   const [expandedSemester, setExpandedSemester] = useState<string | null>(null);
-  const [filteredSemesters, setFilteredSemesters] = useState<any[]>([]);
 
-  const { departments, subjects, loading, error } = useSelector(
-    (state: RootState) => state.departments
-  );
-  const { semesters, loading: semestersLoading, error: semestersError } = useSelector(
-    (state: RootState) => state.semesters
-  );
-  const { subjects, loading: subjectsLoading, error: subjectsError } = useSelector(
-    (state: RootState) => state.subjects
-  );
+  const { departments, loading: departmentsLoading, error: departmentsError } = useSelector((state: RootState) => state.departments);
+  const { semesters, loading: semestersLoading, error: semestersError } = useSelector((state: RootState) => state.semesters);
+  const { subjects, loading: subjectsLoading, error: subjectsError } = useSelector((state: RootState) => state.subjects);
 
   useEffect(() => {
     dispatch(fetchDepartments());
     dispatch(fetchSemesters()).then((response) => {
       const semesters = response.payload;
       semesters.forEach((semester: any) => {
-        dispatch(fetchSubjects(semester._id));
+        dispatch(fetchSubjects(semester.id));
       });
     });
   }, [dispatch]);
 
   const toggleMajor = (departmentId: string) => {
     setExpandedMajor(expandedMajor === departmentId ? null : departmentId);
-
-    if (expandedMajor !== departmentId) {
-      dispatch(fetchSemesters()).then((response) => {
-        const filtered = response.payload.filter(
-        );
-          (semester: any) => semester.department === departmentId
-        setFilteredSemesters(filtered);  // Lưu các học kỳ được lọc vào state
-        setExpandedSemester(null);  // Reset trạng thái của kỳ học khi chọn ngành khác
-      });
-    }
+    setExpandedSemester(null); // Reset trạng thái của kỳ học khi chọn ngành khác
   };
 
   const toggleSemester = (semesterId: string) => {
@@ -80,40 +64,38 @@ const CodingCourseSection = () => {
               </span>
               {expandedMajor === major.id ? <ChevronUp /> : <ChevronDown />}
             </button>
-
             {expandedMajor === major.id && (
               <div className="p-3 bg-gray-50">
-                {filteredSemesters.map((semester) => (
-                    <button
-                  <div key={semester._id} className="bg-purple-100 p-2 mb-2 rounded-lg">
-                      onClick={() => toggleSemester(semester._id)}
-                    </button>
-                      className="w-full flex items-center justify-between p-2 bg-purple-200 hover:bg-purple-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
-                    >
-                      {semester.name}
+                {semesters
+                  .filter((semester) => semester.department === major.id)
+                  .map((semester) => (
+                    <div key={semester.id} className="bg-purple-100 p-2 mb-2 rounded-lg">
+                      <button
+                        onClick={() => toggleSemester(semester.id)}
+                        className="w-full flex items-center justify-between p-2 bg-purple-200 hover:bg-purple-300 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                      >
+                        {semester.name}
+                      </button>
 
-                ))}
-                  </div>
-                    )}
-                        )}
-                      </div>
-                          <p>No subjects available for this semester.</p>
-                              </div>
-                                </button>
-                                  {subject.name}
-                                >
-                                  className="text-left text-blue-600 hover:underline"
-                                  onClick={() => handleSubjectClick(subject._id)}
-                                <button
-                        ) : (
-                            ))
-                            .map((subject) => (
-                              <div key={subject._id} className="p-2">
-                            .filter((subject) => subject.semester === semester._id)
-                          subjects
-                      <div className="p-2 bg-purple-50">
-                    {expandedSemester === semester._id && (
-                        {subjects.length > 0 ? (
+                      {expandedSemester === semester.id && (
+                        <div className="p-2 bg-purple-50">
+                          {subjects.length > 0 ? (
+                            subjects
+                              .filter((subject) => subject.semester === semester.id)
+                              .map((subject) => (
+                                <div key={subject.id} className="p-2">
+                                  <button onClick={() => handleSubjectClick(subject.id)} className="text-left text-blue-600 hover:underline">
+                                    {subject.name}
+                                  </button>
+                                </div>
+                              ))
+                          ) : (
+                            <p>No subjects available for this semester.</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
               </div>
             )}
           </div>
