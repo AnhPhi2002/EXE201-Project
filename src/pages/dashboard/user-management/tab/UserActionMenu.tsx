@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
+import UpdateUser from '../UpdateUser';
 
 interface UserActionMenuProps {
   onUpdate: () => void;  // Callback để mở dialog UpdateUser
@@ -20,7 +21,7 @@ interface UserActionMenuProps {
   onRoleChange: (role: string) => void;
 }
 
-const UserActionMenu: React.FC<UserActionMenuProps> = ({ onUpdate, userTypeOptions, onRoleChange }) => {
+const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRoleChange }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,11 +31,12 @@ const UserActionMenu: React.FC<UserActionMenuProps> = ({ onUpdate, userTypeOptio
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem
+        <UpdateUser />
+        {/* <DropdownMenuItem
           onClick={onUpdate}  // Gọi hàm onUpdate để mở dialog UpdateUser
         >
           Update
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
             <span>Change role</span>

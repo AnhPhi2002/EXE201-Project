@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -25,7 +25,7 @@ const formSchema = z.object({
   gender: z.string().optional(),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type FormData = z.infer<typeof formSchema>; 
 
 const defaultValues: FormData = {
   name: '',
@@ -39,8 +39,9 @@ const defaultValues: FormData = {
 interface UpdateUserProps {
   existingUser?: FormData;
   userId?: string;
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>; // Nhận trạng thái từ component cha
+  open?: boolean;
+  handleUpdate?: () => void
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>; // Nhận trạng thái từ component cha
 }
 
 const UpdateUser: React.FC<UpdateUserProps> = ({ existingUser, open, setOpen }) => {
@@ -52,17 +53,32 @@ const UpdateUser: React.FC<UpdateUserProps> = ({ existingUser, open, setOpen }) 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     const res = await sendHttp(registerUser, values);
     if (res) {
-      setOpen(false); // Đóng dialog sau khi cập nhật thành công
+      setOpen?.(false); // Đóng dialog sau khi cập nhật thành công
     }
   }
 
+
+  // const handleUpdate(id: string) => {
+  //   // handle action
+  // }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <DialogHeader>
+        <DialogTrigger>
+          Update
+
+        </DialogTrigger>
+        <DialogTrigger>
+          Update
+          
+        </DialogTrigger>
+      </DialogHeader>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle> Update user </DialogTitle>
         </DialogHeader>
-
+         
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid gap-4 py-4">
@@ -181,6 +197,10 @@ const UpdateUser: React.FC<UpdateUserProps> = ({ existingUser, open, setOpen }) 
             <DialogFooter>
               <Button type="submit" className="mt-2">
                 Update now
+              </Button>
+
+              <Button onClick={() => setOpen?.  (!open)}>
+                Cancel
               </Button>
             </DialogFooter>
           </form>
