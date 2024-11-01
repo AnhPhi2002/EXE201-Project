@@ -29,15 +29,15 @@ const CodingCourseSection = () => {
 
   const toggleMajor = (departmentId: string) => {
     setExpandedMajor(expandedMajor === departmentId ? null : departmentId);
-    setExpandedSemester(null); // Reset trạng thái của kỳ học khi chọn ngành khác
+    setExpandedSemester(null);
   };
 
   const toggleSemester = (semesterId: string) => {
     setExpandedSemester(expandedSemester === semesterId ? null : semesterId);
   };
 
-  const handleSubjectClick = (subjectId: string) => {
-    navigate(`/subject/${subjectId}`);
+  const handleSubjectClick = (subjectId: string, subjectName: string) => {
+    navigate(`/subject/${subjectName}?id=${subjectId}`);
   };
 
   if (departmentsLoading || semestersLoading || subjectsLoading) {
@@ -84,7 +84,10 @@ const CodingCourseSection = () => {
                               .filter((subject) => subject.semester === semester.id)
                               .map((subject) => (
                                 <div key={subject.id} className="p-2">
-                                  <button onClick={() => handleSubjectClick(subject.id)} className="text-left text-blue-600 hover:underline">
+                                  <button
+                                    onClick={() => handleSubjectClick(subject.id, subject.name)}
+                                    className="text-left text-blue-600 hover:underline"
+                                  >
                                     {subject.name}
                                   </button>
                                 </div>

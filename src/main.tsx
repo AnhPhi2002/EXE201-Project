@@ -66,18 +66,18 @@ const router = createBrowserRouter([
         element: <QuestionPage />,
       }
       ,
-      // {
-      //   path: '/question/:id',
-      //   element: <QuestionDetailPage />,
-      // },
-      // {
-      //   path: '/subject',
-      //   element: <SubjectPage />,
-      // },
-      // {
-      //   path: '/subject/:courseId',  // Thêm route động cho subject
-      //   element: <SubjectPage />,
-      // }
+      {
+        path: '/question/:id',
+        element: <QuestionDetailPage />,
+      },
+      {
+        path: '/subject',
+        element: <SubjectPage />,
+      },
+      {
+        path: '/subject/:courseId',  // Thêm route động cho subject
+        element: <SubjectPage />,
+      },
       
       {
         path: '/profile',

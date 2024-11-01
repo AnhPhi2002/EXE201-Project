@@ -10,18 +10,21 @@ interface Subject {
 
 interface SubjectState {
   subjects: Subject[];
+  subject: Subject | null;
   loading: boolean;
   error: string | null;
 }
 
 const initialState: SubjectState = {
   subjects: [],
+  subject: null,
   loading: false,
   error: null,
 };
 
 const API_URL = 'http://localhost:8080/api';
 
+// Fetch all subjects or by semester ID
 export const fetchSubjects = createAsyncThunk(
   'subjects/fetchSubjects',
   async (semesterId: string | null = null, { rejectWithValue }) => {
@@ -41,6 +44,36 @@ export const fetchSubjects = createAsyncThunk(
   }
 );
 
+// Fetch subject by ID
+export const fetchSubjectById = createAsyncThunk(
+  'subjects/fetchSubjectById',
+  async (subjectId: string, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/subjects/${subjectId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error fetching subject by ID');
+    }
+  }
+);
+
+// Fetch subject by name
+export const fetchSubjectByName = createAsyncThunk(
+  'subjects/fetchSubjectByName',
+  async (name: string, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/subjects?name=${name}`);
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error fetching subject by name');
+    }
+  }
+);
+
+// Create a new subject
 export const createSubject = createAsyncThunk(
   'subjects/createSubject',
   async ({ name, semester }: { name: string; semester: string }, { rejectWithValue }) => {
@@ -67,6 +100,7 @@ export const createSubject = createAsyncThunk(
   }
 );
 
+// Update an existing subject
 export const updateSubject = createAsyncThunk(
   'subjects/updateSubject',
   async ({ id, name, semester }: { id: string; name: string; semester: string }, { rejectWithValue }) => {
@@ -89,17 +123,21 @@ export const updateSubject = createAsyncThunk(
   }
 );
 
-export const deleteSubject = createAsyncThunk('subjects/deleteSubject', async (id: string, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem('token');
-    await axios.delete(`${API_URL}/subjects/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return id;
-  } catch (error) {
-    return rejectWithValue('Error deleting subject');
+// Delete a subject
+export const deleteSubject = createAsyncThunk(
+  'subjects/deleteSubject',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/subjects/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return id;
+    } catch (error) {
+      return rejectWithValue('Error deleting subject');
+    }
   }
-});
+);
 
 const subjectSlice = createSlice({
   name: 'subjects',
@@ -115,6 +153,30 @@ const subjectSlice = createSlice({
         state.subjects = action.payload;
       })
       .addCase(fetchSubjects.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchSubjectById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSubjectById.fulfilled, (state, action: PayloadAction<Subject>) => {
+        state.loading = false;
+        state.subject = action.payload;
+      })
+      .addCase(fetchSubjectById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchSubjectByName.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchSubjectByName.fulfilled, (state, action: PayloadAction<Subject>) => {
+        state.loading = false;
+        state.subject = action.payload;
+      })
+      .addCase(fetchSubjectByName.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
