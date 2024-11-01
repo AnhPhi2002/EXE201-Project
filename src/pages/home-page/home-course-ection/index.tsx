@@ -28,22 +28,22 @@ const CodingCourseSection = () => {
     dispatch(fetchSemesters()).then((response) => {
       const semesters = response.payload;
       semesters.forEach((semester: any) => {
-        dispatch(fetchSubjects(semester._id));
+        dispatch(fetchSubjects(semester.id));
       });
     });
   }, [dispatch]);
 
   const toggleMajor = (departmentId: string) => {
     setExpandedMajor(expandedMajor === departmentId ? null : departmentId);
-    setExpandedSemester(null); // Reset trạng thái của kỳ học khi chọn ngành khác
+    setExpandedSemester(null);
   };
 
   const toggleSemester = (semesterId: string) => {
     setExpandedSemester(expandedSemester === semesterId ? null : semesterId);
   };
 
-  const handleSubjectClick = (subjectId: string) => {
-    navigate(`/subject/${subjectId}`);
+  const handleSubjectClick = (subjectId: string, subjectName: string) => {
+    navigate(`/subject/${subjectName}?id=${subjectId}`);
   };
 
   if (departmentsLoading || semestersLoading || subjectsLoading) {
@@ -90,9 +90,9 @@ const CodingCourseSection = () => {
                             subjects
                               .filter((subject) => subject.semester === semester.id)
                               .map((subject) => (
-                                <div key={subject._id} className="p-2">
+                                <div key={subject.id} className="p-2">
                                   <button
-                                    onClick={() => handleSubjectClick(subject._id)} 
+                                    onClick={() => handleSubjectClick(subject.id, subject.name)}
                                     className="text-left text-blue-600 hover:underline"
                                   >
                                     {subject.name}

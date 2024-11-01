@@ -1,66 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Home, ChevronRight, Star, Heart } from 'lucide-react';
 import { RootState, AppDispatch } from '@/lib/api/store';
-import { fetchResourcesBySubject, fetchSubjectById } from '@/lib/api/redux/resourceSlice'; // Import fetchSubjectById
+import { fetchResourcesBySubject } from '@/lib/api/redux/resourceSlice';
+import { fetchSubjectById } from '@/lib/api/redux/subjectSlice';
 import CommentSection from './CommentSubject';
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 const SubjectPage: React.FC = () => {
-  const { courseId } = useParams<{ courseId: string }>(); // Lấy courseId từ URL
+  const { subjectName } = useParams<{ subjectName: string }>();
+  const query = useQuery();
+  const subjectId = query.get('id');
   const dispatch = useDispatch<AppDispatch>();
 
-  // Lấy dữ liệu resources và subject từ store
-  const { resources, subject, loading, error } = useSelector((state: RootState) => state.resources);
+  const { resources, loading, error } = useSelector((state: RootState) => state.resources);
+  const subject = useSelector((state: RootState) => state.subjects.subject);
 
-  // Trạng thái của rating và likes
   const [rating, setRating] = useState<number>(0);
   const [likes, setLikes] = useState<number>(0);
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
-  // Lấy role từ localStorage
-  const userRole = localStorage.getItem('role') || 'guest'; // Mặc định là 'guest' nếu không có role
+  const userRole = localStorage.getItem('role') || 'member_free';
 
-  // Gọi API để lấy dữ liệu resources và subject name
   useEffect(() => {
-    if (courseId) {
-      dispatch(fetchResourcesBySubject(courseId));
-      dispatch(fetchSubjectById(courseId)); // Gọi thêm API để lấy thông tin môn học
+    if (subjectId) {
+      dispatch(fetchResourcesBySubject(subjectId));
+      dispatch(fetchSubjectById(subjectId));
     }
-  }, [dispatch, courseId]);
+  }, [dispatch, subjectId]);
 
-  // Xử lý khi đánh giá (rating) khóa học
-  const handleRating = (value: number) => {
-    setRating(value);
-  };
-
-  // Xử lý khi người dùng click vào like
+  const handleRating = (value: number) => setRating(value);
   const handleLike = () => {
-    if (isLiked) {
-      setLikes(likes - 1);
-    } else {
-      setLikes(likes + 1);
-    }
+    setLikes(isLiked ? likes - 1 : likes + 1);
     setIsLiked(!isLiked);
   };
 
-  // Hàm kiểm tra quyền truy cập dựa trên allowedRoles và userRole
   const canAccessResource = (allowedRoles: string[]): boolean => {
-    if (userRole === 'admin' || userRole === 'staff') {
-      return true; // Admin và staff có quyền truy cập tất cả tài liệu
-    }
-    if (userRole === 'member_premium') {
-      return true; // Member premium có thể truy cập tất cả tài liệu
-    }
-    return allowedRoles.includes(userRole); // Member free chỉ có thể truy cập tài liệu cho phép
+    return (
+      userRole === 'admin' || 
+      userRole === 'staff' || 
+      userRole === 'member_premium' || 
+      allowedRoles.includes(userRole)
+    );
   };
 
   return (
     <div className="bg-gray-100 min-h-screen">
-      {/* Phần chính của trang */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-lg shadow-md p-8 mb-12">
-          {/* Điều hướng */}
           <nav className="mb-8">
             <div className="max-w-7xl mx-auto">
               <div className="flex items-center space-x-4 py-4 text-sm">
@@ -73,42 +64,69 @@ const SubjectPage: React.FC = () => {
             </div>
           </nav>
 
-          {/* Tiêu đề môn học */}
           <div className="mb-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-8 rounded-lg">
-            <h1 className="text-4xl font-bold mb-4">{subject ? subject.name : 'Loading...'}</h1> {/* Hiển thị tên môn học */}
+            <h1 className="text-4xl font-bold mb-4">{subject ? subject.name : 'Loading...'}</h1>
           </div>
 
-          {/* Kiểm tra xem dữ liệu có đang được tải không */}
-          {loading ? (
-            <p>Loading resources...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : (
-            <div>
-              <h2 className="text-2xl font-semibold mb-4">Resources</h2>
-              {resources.length > 0 ? (
-                <ul className="list-disc pl-5">
-                  {resources.map((resource) => (
-                    <li key={resource._id} className="mb-2">
-                      {canAccessResource(resource.allowedRoles) ? (
-                        <a href={resource.fileUrls[0]} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          {resource.title}
-                        </a>
-                      ) : (
-                        <p className="text-red-500">Bạn phải mua premium để có thể xem tài liệu này</p>
-                      )}
-                      <p>{resource.description}</p>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No resources available for this subject.</p>
-              )}
-            </div>
-          )}
+          <section className="mt-8 mb-12">
+            <h2 className="text-2xl font-semibold mb-4">Resources</h2>
+            {loading ? (
+              <p className="text-gray-500">Loading resources...</p>
+            ) : error ? (
+              <p className="text-red-500">{error}</p>
+            ) : resources.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {resources.map((resource) => (
+                  <div key={resource.id} className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-lg font-semibold text-blue-600">{resource.title}</h3>
+                      <span className="text-xs font-semibold text-white py-1 px-3 rounded-full bg-purple-500">
+                        {resource.type?.toUpperCase()}
+                      </span>
+                    </div>
+                    <p className="text-gray-700 mb-4">{resource.description}</p>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-sm font-medium text-gray-500">Access:</span>
+                      <span className={`text-sm font-semibold py-1 px-3 rounded-full ${resource.allowedRoles?.includes('member_premium') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {resource.allowedRoles?.join(', ')}
+                      </span>
+                    </div>
+                    {canAccessResource(resource.allowedRoles || []) ? (
+                      resource.fileUrls && resource.fileUrls.length > 0 && (
+                        <div className="mt-4">
+                          <h4 className="text-sm font-semibold text-gray-500 mb-2">Files:</h4>
+                          <ul className="space-y-1">
+                            {resource.fileUrls.map((url, index) => (
+                              <li key={index} className="flex items-center">
+                                {resource.type === 'pdf' && (
+                                  <span className="bg-red-100 text-red-600 text-sm px-2 py-1 rounded mr-2">PDF</span>
+                                )}
+                                {resource.type === 'video' && (
+                                  <span className="bg-blue-100 text-blue-600 text-sm px-2 py-1 rounded mr-2">Video</span>
+                                )}
+                                {resource.type === 'document' && (
+                                  <span className="bg-yellow-100 text-yellow-600 text-sm px-2 py-1 rounded mr-2">Document</span>
+                                )}
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
+                                  {resource.type} {index + 1}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )
+                    ) : (
+                      <p className="text-red-500 mt-4">Nâng cấp Premium để xem tài liệu này</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No resources available for this subject.</p>
+            )}
+          </section>
 
-          {/* Phần đánh giá và yêu thích */}
-          <div className="border-t pt-6">
+          <div className="border-t pt-6 mt-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <span className="text-lg font-semibold mr-2">Rate this course:</span>
@@ -132,7 +150,6 @@ const SubjectPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Phần bình luận */}
           <div className="mt-10">
             <h3 className="text-2xl font-semibold mb-12">Comments</h3>
             <CommentSection />

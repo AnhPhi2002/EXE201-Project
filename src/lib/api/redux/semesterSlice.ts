@@ -21,17 +21,24 @@ const initialState: SemesterState = {
 
 const API_URL = 'http://localhost:8080/api/semesters';
 
-export const fetchSemesters = createAsyncThunk('semesters/fetchSemesters', async (_, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(API_URL, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    return rejectWithValue('Error fetching semesters');
+export const fetchSemesters = createAsyncThunk(
+  'semesters/fetchSemesters',
+  async (departmentId: string | null = null, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const url = departmentId 
+        ? `${API_URL}?department=${departmentId}` 
+        : API_URL;
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error fetching semesters');
+    }
   }
-});
+);
 
 export const createSemester = createAsyncThunk(
   'semesters/createSemester',

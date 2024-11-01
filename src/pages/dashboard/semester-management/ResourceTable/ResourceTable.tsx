@@ -2,39 +2,41 @@ import React, { useEffect, useState } from 'react';
 import { File, PlayCircle, Edit2, Trash2, Plus } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/lib/api/store';
-import { fetchAllResources, createResource, updateResource, deleteResource } from '@/lib/api/redux/resourceSlice';
+import { 
+  fetchAllResources, 
+  createResource, 
+  updateResource, 
+  deleteResource
+} from '@/lib/api/redux/resourceSlice';
 import { fetchDepartments } from '@/lib/api/redux/departmentSlice';
 import { fetchSemesters } from '@/lib/api/redux/semesterSlice';
 import { fetchSubjects } from '@/lib/api/redux/subjectSlice';
 import CreateResource from './CreateResource';
 import UpdateResource from './UpdateResource';
 
-interface ResourceTableProps {
-  selectedDepartment: string;
-  selectedSemester: string;
-  selectedSubject: string;
-  setSelectedDepartment: (value: string) => void;
-  setSelectedSemester: (value: string) => void;
-  setSelectedSubject: (value: string) => void;
+interface Resource {
+  id: string;
+  title: string;
+  description: string;
+  fileUrls?: string[];
+  type?: 'pdf' | 'video' | 'document';
+  allowedRoles?: ('member_free' | 'member_premium')[];
+  subject: string;
 }
 
-const ResourceTable: React.FC<ResourceTableProps> = ({
-  selectedDepartment,
-  selectedSemester,
-  selectedSubject,
-  setSelectedDepartment,
-  setSelectedSemester,
-  setSelectedSubject,
-}) => {
+const ResourceTable: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { departments } = useSelector((state: RootState) => state.departments);
   const { semesters } = useSelector((state: RootState) => state.semesters);
   const { subjects } = useSelector((state: RootState) => state.subjects);
   const { resources } = useSelector((state: RootState) => state.resources);
 
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedResource, setSelectedResource] = useState(null);
+  const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
 
   useEffect(() => {
     dispatch(fetchAllResources());
@@ -53,7 +55,7 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
     }
   }, [dispatch, selectedSemester]);
 
-  const handleCreate = (resourceData) => {
+  const handleCreate = (resourceData: Resource) => {
     if (resourceData.subject) {
       dispatch(createResource({ subjectId: resourceData.subject, resourceData }))
         .unwrap()
@@ -62,12 +64,12 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
     }
   };
 
-  const handleEditClick = (resource) => {
+  const handleEditClick = (resource: Resource) => {
     setSelectedResource(resource);
     setShowEditModal(true);
   };
 
-  const handleEdit = (updatedResourceData) => {
+  const handleEdit = (updatedResourceData: Partial<Resource>) => {
     if (selectedResource) {
       dispatch(updateResource({ id: selectedResource.id, resourceData: updatedResourceData }))
         .unwrap()
@@ -76,7 +78,7 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
     }
   };
 
-  const handleDelete = (resourceId) => {
+  const handleDelete = (resourceId: string) => {
     dispatch(deleteResource(resourceId))
       .unwrap()
       .catch((error) => console.error('Error deleting resource:', error));
@@ -171,15 +173,12 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
       </div>
 
       {showCreateModal && (
-        <CreateResource
-          onClose={() => setShowCreateModal(false)}
-        />
+        <CreateResource onClose={() => setShowCreateModal(false)} />
       )}
 
       {showEditModal && selectedResource && (
         <UpdateResource
           resource={selectedResource}
-          onUpdate={handleEdit}
           onClose={() => setShowEditModal(false)}
         />
       )}

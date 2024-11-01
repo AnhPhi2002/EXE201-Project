@@ -34,15 +34,15 @@ const SubjectTable = () => {
   }, [dispatch]);
 
   const handleCreateSubject = (data: { name: string; semesterId: string }) => {
-    dispatch(createSubject(data))
+    dispatch(createSubject({ name: data.name, semester: data.semesterId }))
       .unwrap()
       .then(() => setShowCreatePopover(false))
       .catch((error) => console.error("Error creating subject:", error));
   };
-
+  
   const handleUpdateSubject = (data: { name: string; semesterId: string }) => {
     if (selectedSubject) {
-      dispatch(updateSubject({ id: selectedSubject.id, ...data }))
+      dispatch(updateSubject({ id: selectedSubject.id, name: data.name, semester: data.semesterId }))
         .unwrap()
         .then(() => setShowUpdatePopover(false))
         .catch((error) => console.error("Error updating subject:", error));
@@ -193,3 +193,4 @@ const SubjectTable = () => {
 };
 
 export default SubjectTable;
+
