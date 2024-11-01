@@ -31,7 +31,7 @@ interface UpdateSubjectProps {
   subject: Subject;
   departments: Department[];
   semesters: Semester[];
-  onUpdate: (data: SubjectFormData) => void;
+  onUpdate: (data: { name: string; semesterId: string }) => void;
   onClose: () => void;
 }
 
@@ -48,7 +48,7 @@ const UpdateSubject: React.FC<UpdateSubjectProps> = ({ subject, departments, sem
   const filteredSemesters = semesters.filter((sem) => sem.department === departmentId);
 
   const onSubmit = (data: SubjectFormData) => {
-    onUpdate(data);
+    onUpdate({ name: data.name, semesterId: data.semester });
     onClose();
   };
 

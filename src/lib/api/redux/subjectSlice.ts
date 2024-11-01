@@ -4,7 +4,7 @@ import axios from 'axios';
 interface Subject {
   id: string;
   name: string;
-  semester: string;  // Thay đổi từ semesterId sang semester để khớp với API
+  semester: string;
   resources: any[];
 }
 
@@ -22,30 +22,36 @@ const initialState: SubjectState = {
 
 const API_URL = 'http://localhost:8080/api';
 
-export const fetchSubjects = createAsyncThunk('subjects/fetchSubjects', async (_, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(`${API_URL}/subjects`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    return rejectWithValue('Error fetching subjects');
+export const fetchSubjects = createAsyncThunk(
+  'subjects/fetchSubjects',
+  async (semesterId: string | null = null, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const url = semesterId 
+        ? `${API_URL}/subjects?semester=${semesterId}` 
+        : `${API_URL}/subjects`;
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue('Error fetching subjects');
+    }
   }
-});
+);
 
 export const createSubject = createAsyncThunk(
   'subjects/createSubject',
-  async ({ name, semesterId }: { name: string; semesterId: string }, { rejectWithValue }) => {
+  async ({ name, semester }: { name: string; semester: string }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('Token is missing');
       }
 
-      // Đảm bảo URL bao gồm `semesterId` trong đường dẫn
       const response = await axios.post(
-        `${API_URL}/subjects/${semesterId}/subjects`,
+        `${API_URL}/subjects/${semester}/subjects`,
         { name },
         {
           headers: {
@@ -61,16 +67,14 @@ export const createSubject = createAsyncThunk(
   }
 );
 
-
-
 export const updateSubject = createAsyncThunk(
   'subjects/updateSubject',
   async ({ id, name, semester }: { id: string; name: string; semester: string }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `${API_URL}/subjects/${id}`,  // Đảm bảo URL đúng
-        { name, semester },  // Sử dụng "semester" thay vì "semesterId"
+        `${API_URL}/subjects/${id}`,
+        { name, semester },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -85,8 +89,6 @@ export const updateSubject = createAsyncThunk(
   }
 );
 
-
-// Xóa môn học
 export const deleteSubject = createAsyncThunk('subjects/deleteSubject', async (id: string, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('token');

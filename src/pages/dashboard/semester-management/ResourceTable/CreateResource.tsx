@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,7 +31,6 @@ const CreateResource: React.FC<CreateResourceProps> = ({ onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    // Fetch departments on component mount
     dispatch(fetchDepartments());
   }, [dispatch]);
 
@@ -45,8 +44,8 @@ const CreateResource: React.FC<CreateResourceProps> = ({ onClose }) => {
     resolver: zodResolver(resourceSchema),
   });
 
-  const selectedDepartment = watch('selectedDepartment');
-  const selectedSemester = watch('selectedSemester');
+  const selectedDepartment = watch('selectedDepartment') as string;
+  const selectedSemester = watch('selectedSemester') as string;
 
   useEffect(() => {
     if (selectedDepartment) {
@@ -69,12 +68,17 @@ const CreateResource: React.FC<CreateResourceProps> = ({ onClose }) => {
       description,
       fileUrls: fileUrlsArray,
       type,
-      allowedRoles: [allowedRoles || 'member_free'],
+      allowedRoles: allowedRoles ? [allowedRoles] : [],
+      subject: selectedSubject,
     };
 
-    dispatch(createResource({ subjectId: selectedSubject, resourceData }));
-    reset();
-    onClose();
+    dispatch(createResource({ subjectId: selectedSubject, resourceData }))
+      .unwrap()
+      .then(() => {
+        reset();
+        onClose();
+      })
+      .catch((error) => console.error('Create resource error:', error));
   };
 
   return (

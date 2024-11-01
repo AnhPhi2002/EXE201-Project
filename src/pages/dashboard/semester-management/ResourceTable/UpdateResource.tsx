@@ -22,9 +22,9 @@ interface UpdateResourceProps {
     id: string;
     title: string;
     description: string;
-    type: string;
+    type: 'pdf' | 'video' | 'document';
     fileUrls?: string[];
-    allowedRoles: string[];
+    allowedRoles: ('member_free' | 'member_premium')[];
     subject: string;
   };
   onClose: () => void;
@@ -32,12 +32,12 @@ interface UpdateResourceProps {
 
 const UpdateResource: React.FC<UpdateResourceProps> = ({ resource, onClose }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm<ResourceFormData>({
+  const { register, handleSubmit, formState: { errors } } = useForm<ResourceFormData>({
     resolver: zodResolver(resourceSchema),
     defaultValues: {
       title: resource.title,
       description: resource.description,
-      type: resource.type as 'pdf' | 'video' | 'document',
+      type: resource.type,
       fileUrls: resource.fileUrls ? resource.fileUrls.join(', ') : '',
       allowedRoles: resource.allowedRoles[0],
     },
@@ -45,10 +45,16 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({ resource, onClose }) =>
 
   const onSubmit = (data: ResourceFormData) => {
     const fileUrlsArray = data.fileUrls ? data.fileUrls.split(',').map((url) => url.trim()) : [];
-    const updatedResourceData = { ...data, fileUrls: fileUrlsArray };
+    const updatedResourceData = {
+      ...data,
+      fileUrls: fileUrlsArray,
+      allowedRoles: data.allowedRoles ? [data.allowedRoles] : undefined,
+    };
 
-    dispatch(updateResource({ id: resource.id, resourceData: updatedResourceData }));
-    onClose();
+    dispatch(updateResource({ id: resource.id, resourceData: updatedResourceData }))
+      .unwrap()
+      .then(() => onClose())
+      .catch((error) => console.error('Update resource error:', error));
   };
 
   return (
