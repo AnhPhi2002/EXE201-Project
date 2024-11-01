@@ -124,7 +124,7 @@ const SemesterTable = () => {
                       <button
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => {
-                          setSelectedSemester(semester);
+                          setSelectedSemester({ ...semester, departmentId: semester.department || '' });
                           setShowUpdatePopover(true);
                         }}
                       >
