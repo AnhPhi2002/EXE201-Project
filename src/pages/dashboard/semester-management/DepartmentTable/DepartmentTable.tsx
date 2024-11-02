@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Edit2, Trash2, FilePlus } from 'lucide-react';
-import UpdateDepartment from './UpdateDepartment';
-import CreateDepartment from './CreateDepartment';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { fetchDepartments, createDepartment, deleteDepartment, updateDepartment } from '@/lib/api/redux/departmentSlice';
+import CreateDepartment from './CreateDepartment';
+import UpdateDepartment from './UpdateDepartment';
+
+interface DepartmentTableProps {
+  setShowDepartmentPopover: React.Dispatch<React.SetStateAction<boolean>>;
+  showCreatePopover: boolean; // Add prop for visibility of CreateDepartment modal
+}
 
 interface Department {
   id: string;
@@ -12,12 +17,11 @@ interface Department {
   code: string;
 }
 
-const DepartmentTable: React.FC = () => {
+const DepartmentTable: React.FC<DepartmentTableProps> = ({ setShowDepartmentPopover, showCreatePopover }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { departments, loading, error } = useSelector((state: RootState) => state.departments);
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [showUpdatePopover, setShowUpdatePopover] = useState(false);
-  const [showCreatePopover, setShowCreatePopover] = useState(false);
 
   useEffect(() => {
     dispatch(fetchDepartments());
@@ -25,7 +29,7 @@ const DepartmentTable: React.FC = () => {
 
   const handleCreateDepartment = (data: { name: string; code: string }) => {
     dispatch(createDepartment(data));
-    setShowCreatePopover(false);
+    setShowDepartmentPopover(false); // Close popover after creating department
   };
 
   const handleDeleteDepartment = (id: string) => {
@@ -42,19 +46,19 @@ const DepartmentTable: React.FC = () => {
     setShowUpdatePopover(true);
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-
   return (
     <div className="w-full overflow-x-auto">
       <div className="flex justify-end mb-4">
         <button
           className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
-          onClick={() => setShowCreatePopover(true)}
+          onClick={() => setShowDepartmentPopover(true)}
         >
           <FilePlus /> Add Department
         </button>
       </div>
+
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
 
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
@@ -86,27 +90,21 @@ const DepartmentTable: React.FC = () => {
         </tbody>
       </table>
 
+      {/* Render CreateDepartment component when showCreatePopover is true */}
       {showCreatePopover && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <CreateDepartment
-              onCreate={handleCreateDepartment}
-              onClose={() => setShowCreatePopover(false)}
-            />
-          </div>
-        </div>
+        <CreateDepartment
+          onCreate={handleCreateDepartment}
+          onClose={() => setShowDepartmentPopover(false)}
+        />
       )}
 
+      {/* Render UpdateDepartment component when showUpdatePopover is true */}
       {showUpdatePopover && selectedDepartment && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <UpdateDepartment
-              department={selectedDepartment}
-              onUpdate={handleUpdateDepartment}
-              onClose={() => setShowUpdatePopover(false)}
-            />
-          </div>
-        </div>
+        <UpdateDepartment
+          department={selectedDepartment}
+          onUpdate={handleUpdateDepartment}
+          onClose={() => setShowUpdatePopover(false)}
+        />
       )}
     </div>
   );

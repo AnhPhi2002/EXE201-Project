@@ -1,10 +1,10 @@
-import { useState } from "react";
-import DepartmentTable from "./DepartmentTable/DepartmentTable";
-import SemesterTable from "./SemesterTable/SemesterTable";
-import SubjectTable from "./SubjectTable/SubjectTable";
-import ResourceTable from "./ResourceTable/ResourceTable";
+import React, { useState } from 'react';
+import DepartmentTable from './DepartmentTable/DepartmentTable';
+import SemesterTable from './SemesterTable/SemesterTable';
+import SubjectTable from './SubjectTable/SubjectTable';
+import ResourceTable from './ResourceTable/ResourceTable';
 
-// Định nghĩa các kiểu dữ liệu (interfaces)
+// Define interfaces for data structures
 export interface Department {
   id: string;
   name: string;
@@ -25,68 +25,30 @@ export interface Subject {
 export interface Resource {
   id: string;
   title: string;
-  description: string;
-  fileUrls: string[];
-  type: string;
+  description?: string;
+  fileUrls?: string[];
+  type: 'pdf' | 'video' | 'document';
+  allowedRoles?: ('member_free' | 'member_premium')[];
   subject: string;
-  allowedRoles: string[];
 }
 
 const TabComponent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("departments");
+  const [activeTab, setActiveTab] = useState('departments');
   const [showDepartmentPopover, setShowDepartmentPopover] = useState(false);
   const [showSemesterPopover, setShowSemesterPopover] = useState(false);
   const [showSubjectPopover, setShowSubjectPopover] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedSemester, setSelectedSemester] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("");
+  const [showResourcePopover, setShowResourcePopover] = useState(false); // New state for resource popover
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedSemester, setSelectedSemester] = useState('');
+  const [selectedSubject, setSelectedSubject] = useState('');
 
-  // Dữ liệu mẫu
-  const departments: Department[] = [
-    { id: "1", name: "SE" },
-    { id: "2", name: "CS" },
-    { id: "3", name: "SA" },
-  ];
 
-  const semesters: Semester[] = [
-    { id: "1", name: "Kỳ 1", departmentId: "1" },
-    { id: "2", name: "Kỳ 2", departmentId: "1" },
-    { id: "3", name: "Kỳ 3", departmentId: "2" },
-  ];
-
-  const subjects: Subject[] = [
-    { id: "1", name: "SWD", semesterId: "1" },
-    { id: "2", name: "ENS", semesterId: "1" },
-    { id: "3", name: "ADD", semesterId: "2" },
-    { id: "4", name: "CAS", semesterId: "3" },
-  ];
-
-  const resources: Resource[] = [
-    {
-      id: "1",
-      title: "Math-PDF",
-      description: "Mathematics course materialAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-      fileUrls: ["math.pdf"],
-      type: "pdf",
-      subject: "1",
-      allowedRoles: ["member_free"],
-    },
-    {
-      id: "2",
-      title: "Programming-Video",
-      description: "Programming video lecture",
-      fileUrls: ["programming.mp4"],
-      type: "video",
-      subject: "2",
-      allowedRoles: ["member_premium"],
-    },
-  ];
 
   const tabs = [
-    { id: "departments", name: "Ngành" },
-    { id: "semesters", name: "Kỳ" },
-    { id: "subjects", name: "Môn học" },
-    { id: "resources", name: "Resource" },
+    { id: 'departments', name: 'Ngành' },
+    { id: 'semesters', name: 'Kỳ' },
+    { id: 'subjects', name: 'Môn học' },
+    { id: 'resources', name: 'Resource' },
   ];
 
   return (
@@ -98,8 +60,8 @@ const TabComponent: React.FC = () => {
               key={tab.id}
               className={`inline-block p-4 rounded-t-lg ${
                 activeTab === tab.id
-                  ? "border-b-2 border-blue-500 text-blue-500"
-                  : "hover:border-gray-300 hover:text-gray-600"
+                  ? 'border-b-2 border-blue-500 text-blue-500'
+                  : 'hover:border-gray-300 hover:text-gray-600'
               }`}
               onClick={() => setActiveTab(tab.id)}
             >
@@ -110,45 +72,40 @@ const TabComponent: React.FC = () => {
       </div>
 
       <div className="mt-6">
-        {activeTab === "departments" && (
+      {activeTab === 'departments' && (
           <DepartmentTable
-            departments={departments}
             setShowDepartmentPopover={setShowDepartmentPopover}
+            showCreatePopover={showDepartmentPopover}
           />
         )}
-        {activeTab === "semesters" && (
+        {activeTab === 'semesters' && (
           <SemesterTable
-            departments={departments}
-            semesters={semesters}
             selectedDepartment={selectedDepartment}
             setSelectedDepartment={setSelectedDepartment}
             setShowSemesterPopover={setShowSemesterPopover}
+            showCreatePopover={showSemesterPopover}
           />
         )}
-        {activeTab === "subjects" && (
+        {activeTab === 'subjects' && (
           <SubjectTable
-            departments={departments}
-            semesters={semesters}
-            subjects={subjects}
             selectedDepartment={selectedDepartment}
             selectedSemester={selectedSemester}
             setSelectedDepartment={setSelectedDepartment}
             setSelectedSemester={setSelectedSemester}
             setShowSubjectPopover={setShowSubjectPopover}
+            showCreatePopover={showSubjectPopover}
           />
         )}
-        {activeTab === "resources" && (
+        {activeTab === 'resources' && (
           <ResourceTable
-            departments={departments}
-            semesters={semesters}
-            subjects={subjects}
-            resources={resources}
             selectedDepartment={selectedDepartment}
             selectedSemester={selectedSemester}
             selectedSubject={selectedSubject}
             setSelectedDepartment={setSelectedDepartment}
             setSelectedSemester={setSelectedSemester}
             setSelectedSubject={setSelectedSubject}
+            setShowResourcePopover={setShowResourcePopover} // Add missing prop
+            showCreatePopover={showResourcePopover} // Add missing prop
           />
         )}
       </div>

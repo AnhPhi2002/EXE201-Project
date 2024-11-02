@@ -27,7 +27,7 @@ const API_URL = 'http://localhost:8080/api';
 // Fetch all subjects or by semester ID
 export const fetchSubjects = createAsyncThunk(
   'subjects/fetchSubjects',
-  async (semesterId: string | null = null, { rejectWithValue }) => {
+  async (semesterId: string | null, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const url = semesterId 
@@ -56,19 +56,6 @@ export const fetchSubjectById = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue('Error fetching subject by ID');
-    }
-  }
-);
-
-// Fetch subject by name
-export const fetchSubjectByName = createAsyncThunk(
-  'subjects/fetchSubjectByName',
-  async (name: string, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`${API_URL}/subjects?name=${name}`);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue('Error fetching subject by name');
     }
   }
 );
@@ -165,18 +152,6 @@ const subjectSlice = createSlice({
         state.subject = action.payload;
       })
       .addCase(fetchSubjectById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(fetchSubjectByName.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchSubjectByName.fulfilled, (state, action: PayloadAction<Subject>) => {
-        state.loading = false;
-        state.subject = action.payload;
-      })
-      .addCase(fetchSubjectByName.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })

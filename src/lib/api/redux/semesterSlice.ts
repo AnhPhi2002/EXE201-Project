@@ -21,17 +21,19 @@ const initialState: SemesterState = {
 
 const API_URL = 'http://localhost:8080/api/semesters';
 
+// Lỗi nằm ở đây: async (departmentId: string | null = null, { rejectWithValue }) => {}
+// `fetchSemesters` yêu cầu 1 tham số `departmentId`. Do đó, khi gọi `dispatch(fetchSemesters())`, nếu không truyền giá trị, TypeScript sẽ báo lỗi.
 export const fetchSemesters = createAsyncThunk(
   'semesters/fetchSemesters',
   async (departmentId: string | null = null, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const url = departmentId 
-        ? `${API_URL}?department=${departmentId}` 
+        ? `${API_URL}?department=${departmentId}`  // Sử dụng dấu backticks (`) để tạo chuỗi
         : API_URL;
       
       const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Bearer ${token}` },  // Thêm dấu backticks (`) vào chuỗi
       });
       return response.data;
     } catch (error) {
@@ -50,11 +52,11 @@ export const createSemester = createAsyncThunk(
       }
 
       const response = await axios.post(
-        `${API_URL}/${departmentId}/semesters`,
+        `${API_URL}/${departmentId}/semesters`,  // Thêm dấu backticks (`) vào chuỗi
         { name },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,  // Thêm dấu backticks (`) vào chuỗi
           },
         }
       );
@@ -73,9 +75,9 @@ export const updateSemester = createAsyncThunk(
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `${API_URL}/${id}`,
-        { name, departmentId },  // Gửi departmentId thay vì department
-        { headers: { Authorization: `Bearer ${token}` } }
+        `${API_URL}/${id}`,  // Thêm dấu backticks (`) vào chuỗi
+        { name, departmentId },  // Gửi `departmentId` thay vì `department`
+        { headers: { Authorization: `Bearer ${token}` } }  // Thêm dấu backticks (`) vào chuỗi
       );
       return response.data;
     } catch (error) {
@@ -87,8 +89,8 @@ export const updateSemester = createAsyncThunk(
 export const deleteSemester = createAsyncThunk('semesters/deleteSemester', async (id: string, { rejectWithValue }) => {
   try {
     const token = localStorage.getItem('token');
-    await axios.delete(`${API_URL}/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
+    await axios.delete(`${API_URL}/${id}`, {  // Thêm dấu backticks (`) vào chuỗi
+      headers: { Authorization: `Bearer ${token}` },  // Thêm dấu backticks (`) vào chuỗi
     });
     return id;
   } catch (error) {
