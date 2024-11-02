@@ -1,86 +1,75 @@
-import React, { useState, useEffect } from "react";
-import { Edit2, Trash2, Plus } from "lucide-react";
-import CreateSemester from "./CreateSemester";
-import UpdateSemester from "./UpdateSemester";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState, AppDispatch } from "@/lib/api/store";
-import {
-  fetchSemesters,
-  createSemester,
-  updateSemester,
-  deleteSemester,
-} from "@/lib/api/redux/semesterSlice";
-import { fetchDepartments } from "@/lib/api/redux/departmentSlice";
+import React, { useEffect, useState } from 'react';
+import { Edit2, Trash2, Plus } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/lib/api/store';
+import { fetchSemesters, createSemester, updateSemester, deleteSemester } from '@/lib/api/redux/semesterSlice';
+import { fetchDepartments } from '@/lib/api/redux/departmentSlice';
+import CreateSemester from './CreateSemester';
+import UpdateSemester from './UpdateSemester';
 
-interface Department {
-  id: string;
-  name: string;
+interface SemesterTableProps {
+  setShowSemesterPopover: React.Dispatch<React.SetStateAction<boolean>>;
+  showCreatePopover: boolean;
+  selectedDepartment: string;
+  setSelectedDepartment: React.Dispatch<React.SetStateAction<string>>;
 }
 
 interface Semester {
   id: string;
   name: string;
-  departmentId: string; // Đổi thành departmentId
+  department: string;
 }
-
-const SemesterTable = () => {
+// 
+const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, showCreatePopover, selectedDepartment, setSelectedDepartment }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { departments } = useSelector((state: RootState) => state.departments);
   const { semesters } = useSelector((state: RootState) => state.semesters);
+  const { departments } = useSelector((state: RootState) => state.departments);
 
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("");
-  const [showCreatePopover, setShowCreatePopover] = useState(false);
-  const [showUpdatePopover, setShowUpdatePopover] = useState(false);
-  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null); // Update selectedSemester type
+  const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
+  const [showUpdatePopover, setShowUpdatePopover] = useState<boolean>(false);
 
   useEffect(() => {
     dispatch(fetchDepartments());
-    dispatch(fetchSemesters());
+    dispatch(fetchSemesters(null));
   }, [dispatch]);
 
   const handleCreateSemester = (data: { name: string; departmentId: string }) => {
     dispatch(createSemester(data))
       .unwrap()
       .then(() => {
-        setShowCreatePopover(false);
-        dispatch(fetchSemesters());
+        setShowSemesterPopover(false);
+        dispatch(fetchSemesters(null));
       })
       .catch((error) => {
-        console.error("Error creating semester:", error);
+        console.error('Error creating semester:', error);
       });
   };
 
-  const handleUpdateSemester = (data: { name: string; departmentId: string }) => {
-    if (selectedSemester) {
-      dispatch(updateSemester({ id: selectedSemester.id, ...data }))
-        .unwrap()
-        .then(() => {
-          setShowUpdatePopover(false);
-          dispatch(fetchSemesters());
-        })
-        .catch((error) => {
-          console.error("Error updating semester:", error);
-        });
-    }
+  const handleUpdateSemester = (data: { id: string; name: string; departmentId: string }) => {
+    dispatch(updateSemester(data))
+      .unwrap()
+      .then(() => {
+        setShowUpdatePopover(false);
+        dispatch(fetchSemesters(null));
+      })
+      .catch((error) => {
+        console.error('Error updating semester:', error);
+      });
   };
 
   const handleDeleteSemester = (semesterId: string) => {
     dispatch(deleteSemester(semesterId))
       .unwrap()
-      .then(() => dispatch(fetchSemesters()))
+      .then(() => dispatch(fetchSemesters(null)))
       .catch((error) => {
-        console.error("Error deleting semester:", error);
+        console.error('Error deleting semester:', error);
       });
   };
 
   return (
     <div className="w-full overflow-x-auto">
       <div className="flex justify-between mb-4">
-        <select
-          className="border p-2 rounded-md"
-          value={selectedDepartment}
-          onChange={(e) => setSelectedDepartment(e.target.value)}
-        >
+        <select className="border p-2 rounded-md" value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
           <option value="">Select Department</option>
           {departments.map((dept) => (
             <option key={dept.id} value={dept.id}>
@@ -88,10 +77,7 @@ const SemesterTable = () => {
             </option>
           ))}
         </select>
-        <button
-          className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
-          onClick={() => setShowCreatePopover(true)}
-        >
+        <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={() => setShowSemesterPopover(true)}>
           <Plus /> Add Semester
         </button>
       </div>
@@ -107,13 +93,9 @@ const SemesterTable = () => {
         </thead>
         <tbody>
           {semesters
-            .filter((semester) =>
-              selectedDepartment ? semester.department === selectedDepartment : true
-            )
+            .filter((semester) => (selectedDepartment ? semester.department === selectedDepartment : true))
             .map((semester) => {
-              const departmentName = departments.find((dept) => dept.id === semester.department)?.name || "N/A";
-              console.log("Semester ID:", semester.id, "Department ID:", semester.department, "Department Name:", departmentName);
-
+              const departmentName = departments.find((dept) => dept.id === semester.department)?.name || 'N/A';
               return (
                 <tr key={semester.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 border-b">{semester.id}</td>
@@ -124,16 +106,13 @@ const SemesterTable = () => {
                       <button
                         className="text-blue-500 hover:text-blue-700"
                         onClick={() => {
-                          setSelectedSemester({ ...semester, departmentId: semester.department || '' });
+                          setSelectedSemester(semester);
                           setShowUpdatePopover(true);
                         }}
                       >
                         <Edit2 />
                       </button>
-                      <button
-                        className="text-red-500 hover:text-red-700"
-                        onClick={() => handleDeleteSemester(semester.id)}
-                      >
+                      <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteSemester(semester.id)}>
                         <Trash2 />
                       </button>
                     </div>
@@ -142,17 +121,12 @@ const SemesterTable = () => {
               );
             })}
         </tbody>
-
       </table>
 
       {showCreatePopover && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <CreateSemester
-              departments={departments}
-              onCreate={handleCreateSemester}
-              onClose={() => setShowCreatePopover(false)}
-            />
+            <CreateSemester departments={departments} onCreate={handleCreateSemester} onClose={() => setShowSemesterPopover(false)} />
           </div>
         </div>
       )}
@@ -160,11 +134,7 @@ const SemesterTable = () => {
       {showUpdatePopover && selectedSemester && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <UpdateSemester
-              semester={selectedSemester}
-              onUpdate={handleUpdateSemester}
-              onClose={() => setShowUpdatePopover(false)}
-            />
+            <UpdateSemester semester={selectedSemester} onUpdate={handleUpdateSemester} onClose={() => setShowUpdatePopover(false)} />
           </div>
         </div>
       )}

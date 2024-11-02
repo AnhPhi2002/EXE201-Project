@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Home, ChevronRight, Star, Heart } from 'lucide-react';
 import { RootState, AppDispatch } from '@/lib/api/store';
@@ -12,7 +12,6 @@ function useQuery() {
 }
 
 const SubjectPage: React.FC = () => {
-  const { subjectName } = useParams<{ subjectName: string }>();
   const query = useQuery();
   const subjectId = query.get('id');
   const dispatch = useDispatch<AppDispatch>();

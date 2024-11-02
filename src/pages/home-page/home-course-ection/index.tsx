@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchDepartments } from '@/lib/api/redux/departmentSlice';
 import { fetchSemesters } from '@/lib/api/redux/semesterSlice';
@@ -18,27 +18,44 @@ const CodingCourseSection = () => {
   const { subjects, loading: subjectsLoading, error: subjectsError } = useSelector((state: RootState) => state.subjects);
 
   useEffect(() => {
-    dispatch(fetchDepartments());
-    dispatch(fetchSemesters()).then((response) => {
-      const semesters = response.payload;
-      semesters.forEach((semester: any) => {
-        dispatch(fetchSubjects(semester.id));
-      });
+    dispatch(fetchDepartments()).then((response) => {
+      const departments = response.payload;
+      if (departments) {
+        departments.forEach((department: any) => {
+          dispatch(fetchSemesters(department.id)).then((semesterResponse) => {
+            const semesters = semesterResponse.payload;
+            if (semesters) {
+              semesters.forEach((semester: any) => {
+                dispatch(fetchSubjects(semester.id));
+              });
+            }
+          });
+        });
+      }
     });
   }, [dispatch]);
 
-  const toggleMajor = (departmentId: string) => {
-    setExpandedMajor(expandedMajor === departmentId ? null : departmentId);
-    setExpandedSemester(null);
-  };
+  const toggleMajor = useCallback(
+    (departmentId: string) => {
+      setExpandedMajor(expandedMajor === departmentId ? null : departmentId);
+      setExpandedSemester(null);
+    },
+    [expandedMajor],
+  );
 
-  const toggleSemester = (semesterId: string) => {
-    setExpandedSemester(expandedSemester === semesterId ? null : semesterId);
-  };
+  const toggleSemester = useCallback(
+    (semesterId: string) => {
+      setExpandedSemester(expandedSemester === semesterId ? null : semesterId);
+    },
+    [expandedSemester],
+  );
 
-  const handleSubjectClick = (subjectId: string, subjectName: string) => {
-    navigate(`/subject/${subjectName}?id=${subjectId}`);
-  };
+  const handleSubjectClick = useCallback(
+    (subjectId: string, subjectName: string) => {
+      navigate(`/subject/${subjectName}?id=${subjectId}`);
+    },
+    [navigate],
+  );
 
   if (departmentsLoading || semestersLoading || subjectsLoading) {
     return <p>Loading...</p>;
@@ -84,10 +101,7 @@ const CodingCourseSection = () => {
                               .filter((subject) => subject.semester === semester.id)
                               .map((subject) => (
                                 <div key={subject.id} className="p-2">
-                                  <button
-                                    onClick={() => handleSubjectClick(subject.id, subject.name)}
-                                    className="text-left text-blue-600 hover:underline"
-                                  >
+                                  <button onClick={() => handleSubjectClick(subject.id, subject.name)} className="text-left text-blue-600 hover:underline">
                                     {subject.name}
                                   </button>
                                 </div>
