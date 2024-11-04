@@ -9,12 +9,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  server: {
-    host: true,
-    port: 9999, 
+  // server: {
+  //   host: true,
+  //   port: 9999, 
     
-    watch: {
-      usePolling: true,
-    },
-  },
+  //   watch: {
+  //     usePolling: true,
+  //   },
+  // },
 })
