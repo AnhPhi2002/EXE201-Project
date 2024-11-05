@@ -4,6 +4,7 @@ import axios from 'axios';
 
 // export const BASE_URL = 'http://localhost/:8080';
 const BASE_URL: string = import.meta.env.VITE_BACKEND_URL || 'https://learnup.work';
+console.log('BASE_URL', BASE_URL);
 
 export const axiosClient = axios.create({
   baseURL: BASE_URL,
