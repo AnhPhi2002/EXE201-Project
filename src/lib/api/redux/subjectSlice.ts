@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { axiosClient } from '../config/axios-client';
 
 interface Subject {
   id: string;
@@ -22,106 +22,65 @@ const initialState: SubjectState = {
   error: null,
 };
 
-const API_URL = 'http://localhost:8080/api';
-
-// Fetch all subjects or by semester ID
+// Lấy danh sách môn học
 export const fetchSubjects = createAsyncThunk(
   'subjects/fetchSubjects',
-  async (semesterId: string | null, { rejectWithValue }) => {
+  async (semesterId: string | null = null, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const url = semesterId 
-        ? `${API_URL}/subjects?semester=${semesterId}` 
-        : `${API_URL}/subjects`;
-      
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const url = semesterId ? `/api/subjects?semester=${semesterId}` : '/api/subjects';
+      const response = await axiosClient.get(url);
       return response.data;
     } catch (error) {
-      return rejectWithValue('Error fetching subjects');
+      return rejectWithValue('Lỗi khi lấy danh sách môn học');
     }
   }
 );
 
-// Fetch subject by ID
+// Lấy chi tiết môn học bằng ID
 export const fetchSubjectById = createAsyncThunk(
   'subjects/fetchSubjectById',
-  async (subjectId: string, { rejectWithValue }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get(`${API_URL}/subjects/${subjectId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axiosClient.get(`/api/subjects/${id}`);
       return response.data;
     } catch (error) {
-      return rejectWithValue('Error fetching subject by ID');
+      return rejectWithValue('Lỗi khi lấy chi tiết môn học');
     }
   }
 );
 
-// Create a new subject
 export const createSubject = createAsyncThunk(
   'subjects/createSubject',
   async ({ name, semester }: { name: string; semester: string }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token is missing');
-      }
-
-      const response = await axios.post(
-        `${API_URL}/subjects/${semester}/subjects`,
-        { name },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axiosClient.post(`/api/subjects`, { name, semester });
       return response.data;
-    } catch (error: any) {
-      console.error("Error creating subject:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || 'Error creating subject');
+    } catch (error) {
+      return rejectWithValue('Lỗi khi tạo môn học');
     }
   }
 );
 
-// Update an existing subject
 export const updateSubject = createAsyncThunk(
   'subjects/updateSubject',
   async ({ id, name, semester }: { id: string; name: string; semester: string }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.put(
-        `${API_URL}/subjects/${id}`,
-        { name, semester },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axiosClient.put(`/api/subjects/${id}`, { name, semester });
       return response.data;
     } catch (error) {
-      console.error("Error updating subject:", error);
-      return rejectWithValue('Error updating subject');
+      return rejectWithValue('Lỗi khi cập nhật môn học');
     }
   }
 );
 
-// Delete a subject
 export const deleteSubject = createAsyncThunk(
   'subjects/deleteSubject',
   async (id: string, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${API_URL}/subjects/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axiosClient.delete(`/api/subjects/${id}`);
       return id;
     } catch (error) {
-      return rejectWithValue('Error deleting subject');
+      return rejectWithValue('Lỗi khi xóa môn học');
     }
   }
 );
@@ -145,7 +104,6 @@ const subjectSlice = createSlice({
       })
       .addCase(fetchSubjectById.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchSubjectById.fulfilled, (state, action: PayloadAction<Subject>) => {
         state.loading = false;
@@ -158,23 +116,12 @@ const subjectSlice = createSlice({
       .addCase(createSubject.fulfilled, (state, action: PayloadAction<Subject>) => {
         state.subjects.push(action.payload);
       })
-      .addCase(createSubject.rejected, (state, action) => {
-        state.error = action.payload as string;
-      })
       .addCase(updateSubject.fulfilled, (state, action: PayloadAction<Subject>) => {
-        const index = state.subjects.findIndex((sub) => sub.id === action.payload.id);
-        if (index !== -1) {
-          state.subjects[index] = action.payload;
-        }
-      })
-      .addCase(updateSubject.rejected, (state, action) => {
-        state.error = action.payload as string;
+        const index = state.subjects.findIndex(sub => sub.id === action.payload.id);
+        if (index !== -1) state.subjects[index] = action.payload;
       })
       .addCase(deleteSubject.fulfilled, (state, action: PayloadAction<string>) => {
-        state.subjects = state.subjects.filter((sub) => sub.id !== action.payload);
-      })
-      .addCase(deleteSubject.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.subjects = state.subjects.filter(sub => sub.id !== action.payload);
       });
   },
 });

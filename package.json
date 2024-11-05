@@ -33,6 +33,7 @@
     "chart.js": "^4.4.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "cross-env": "^7.0.3",
     "date-fns": "^4.1.0",
     "embla-carousel": "^8.3.0",
     "embla-carousel-autoplay": "^8.3.0",
