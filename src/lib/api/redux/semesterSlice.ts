@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import axios from 'axios';
+import { axiosClient } from '../config/axios-client';
 
 interface Semester {
   id: string;
@@ -19,25 +19,16 @@ const initialState: SemesterState = {
   error: null,
 };
 
-const API_URL = 'http://localhost:8080/api/semesters';
-
-// Lỗi nằm ở đây: async (departmentId: string | null = null, { rejectWithValue }) => {}
-// `fetchSemesters` yêu cầu 1 tham số `departmentId`. Do đó, khi gọi `dispatch(fetchSemesters())`, nếu không truyền giá trị, TypeScript sẽ báo lỗi.
+// Lấy danh sách kỳ học, có thể lấy theo `departmentId` nếu cần
 export const fetchSemesters = createAsyncThunk(
   'semesters/fetchSemesters',
   async (departmentId: string | null = null, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const url = departmentId 
-        ? `${API_URL}?department=${departmentId}`  // Sử dụng dấu backticks (`) để tạo chuỗi
-        : API_URL;
-      
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` },  // Thêm dấu backticks (`) vào chuỗi
-      });
+      const url = departmentId ? `/api/semesters?department=${departmentId}` : '/api/semesters';
+      const response = await axiosClient.get(url);
       return response.data;
     } catch (error) {
-      return rejectWithValue('Error fetching semesters');
+      return rejectWithValue('Lỗi khi lấy danh sách kỳ học');
     }
   }
 );
@@ -46,25 +37,10 @@ export const createSemester = createAsyncThunk(
   'semesters/createSemester',
   async ({ name, departmentId }: { name: string; departmentId: string }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Token is missing');
-      }
-
-      const response = await axios.post(
-        `${API_URL}/${departmentId}/semesters`,  // Thêm dấu backticks (`) vào chuỗi
-        { name },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,  // Thêm dấu backticks (`) vào chuỗi
-          },
-        }
-      );
-
+      const response = await axiosClient.post(`/api/semesters`, { name, departmentId });
       return response.data;
-    } catch (error: any) {
-      console.error("Error creating semester:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || 'Error creating semester');
+    } catch (error) {
+      return rejectWithValue('Lỗi khi tạo kỳ học');
     }
   }
 );
@@ -73,30 +49,25 @@ export const updateSemester = createAsyncThunk(
   'semesters/updateSemester',
   async ({ id, name, departmentId }: { id: string; name: string; departmentId: string }, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.put(
-        `${API_URL}/${id}`,  // Thêm dấu backticks (`) vào chuỗi
-        { name, departmentId },  // Gửi `departmentId` thay vì `department`
-        { headers: { Authorization: `Bearer ${token}` } }  // Thêm dấu backticks (`) vào chuỗi
-      );
+      const response = await axiosClient.put(`/api/semesters/${id}`, { name, departmentId });
       return response.data;
     } catch (error) {
-      return rejectWithValue('Error updating semester');
+      return rejectWithValue('Lỗi khi cập nhật kỳ học');
     }
   }
 );
 
-export const deleteSemester = createAsyncThunk('semesters/deleteSemester', async (id: string, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem('token');
-    await axios.delete(`${API_URL}/${id}`, {  // Thêm dấu backticks (`) vào chuỗi
-      headers: { Authorization: `Bearer ${token}` },  // Thêm dấu backticks (`) vào chuỗi
-    });
-    return id;
-  } catch (error) {
-    return rejectWithValue('Error deleting semester');
+export const deleteSemester = createAsyncThunk(
+  'semesters/deleteSemester',
+  async (id: string, { rejectWithValue }) => {
+    try {
+      await axiosClient.delete(`/api/semesters/${id}`);
+      return id;
+    } catch (error) {
+      return rejectWithValue('Lỗi khi xóa kỳ học');
+    }
   }
-});
+);
 
 const semesterSlice = createSlice({
   name: 'semesters',
@@ -118,23 +89,12 @@ const semesterSlice = createSlice({
       .addCase(createSemester.fulfilled, (state, action: PayloadAction<Semester>) => {
         state.semesters.push(action.payload);
       })
-      .addCase(createSemester.rejected, (state, action) => {
-        state.error = action.payload as string;
-      })
       .addCase(updateSemester.fulfilled, (state, action: PayloadAction<Semester>) => {
         const index = state.semesters.findIndex(sem => sem.id === action.payload.id);
-        if (index !== -1) {
-          state.semesters[index] = action.payload;
-        }
-      })
-      .addCase(updateSemester.rejected, (state, action) => {
-        state.error = action.payload as string;
+        if (index !== -1) state.semesters[index] = action.payload;
       })
       .addCase(deleteSemester.fulfilled, (state, action: PayloadAction<string>) => {
         state.semesters = state.semesters.filter(sem => sem.id !== action.payload);
-      })
-      .addCase(deleteSemester.rejected, (state, action) => {
-        state.error = action.payload as string;
       });
   },
 });
