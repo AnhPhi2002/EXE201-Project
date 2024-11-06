@@ -12,7 +12,7 @@ import Layout from './layouts';
 import LoginPage from './pages/login';
 import ResetPassword from './pages/reset-password';
 import RegisterPage from './pages/register';
-import VerifyPassword from './pages/reset-password/verifiy-password';
+// import VerifyPassword from './pages/reset-password/verifiy-password';
 import VideoPage from './pages/video-page';
 import QuestionPage from './pages/question-page';
 import QuestionDetailPage from './pages/question-page/detail';
@@ -119,10 +119,10 @@ const router = createBrowserRouter([
     path: '/reset-password',
     element: <ResetPassword />,
   },
-  {
-    path: '/verify-password',
-    element: <VerifyPassword />,
-  },
+  // {
+  //   path: '/verify-password',
+  //   element: <VerifyPassword />,
+  // },
 
   {
     path: '/dashboard', // Đường dẫn dashboard

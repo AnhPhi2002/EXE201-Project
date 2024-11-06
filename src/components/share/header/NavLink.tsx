@@ -1,106 +1,69 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import SearchIcon from '../../../components/icons/action-icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 
 const NavLink: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Quản lý trạng thái đăng nhập
-  const navigate = useNavigate();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
+  const openDropdown = () => setIsDropdownOpen(true);
+  const closeDropdown = () => setIsDropdownOpen(false);
+
+  // Đóng dropdown khi nhấp chuột ra ngoài
   useEffect(() => {
-    // Kiểm tra nếu có token trong localStorage => đã đăng nhập
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsLoggedIn(true);
-    }
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
-  const handleLogout = () => {
-    // Xóa token khỏi localStorage khi đăng xuất
-    localStorage.removeItem('token');
-    setIsLoggedIn(false);
-    navigate('/login'); // Điều hướng về trang đăng nhập
-  };
-
   return (
-    <div className="flex items-center space-x-6">
-      <Link to="/" className="text-gray-700 hover:text-gray-900 font-semibold">TRANG CHỦ</Link>
-      <Link to="/about" className="text-gray-700 hover:text-gray-900 font-semibold">GIỚI THIỆU</Link>
-
-      {/* Custom Select-style Dropdown for "NỘI DUNG" */}
-      <div className="relative">
-        <button
-          onClick={toggleDropdown}
-          className="text-gray-700 hover:text-gray-900 focus:outline-none flex items-center space-x-2"
-        >
-          <span className='font-semibold'>NỘI DUNG</span>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
+    <nav className="hidden md:flex items-center space-x-12 ml-auto mr-8">
+      <Link to="/" className="text-black hover:text-purple-600 font-medium">
+        TRANG CHỦ
+      </Link>
+      <Link to="/about" className="text-black hover:text-purple-600 font-medium">
+        GIỚI THIỆU
+      </Link>
+      <div
+        className="dropdown relative"
+        onMouseEnter={openDropdown}
+        ref={dropdownRef}
+      >
+        <button className="flex items-center text-black hover:text-purple-600 font-medium">
+          NỘI DUNG
+          <ChevronDown className={`ml-1 transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
         </button>
         {isDropdownOpen && (
-          <div className="absolute bg-white shadow-lg mt-2 py-2 rounded-md w-48 z-10">
-            <Link
-              to="/blog"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-              onClick={() => setIsDropdownOpen(false)}
-            >
+          <div
+            className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-lg py-3 z-50 border border-gray-100"
+            onMouseLeave={closeDropdown}
+          >
+            <Link to="/blog" className="block px-6 py-2.5 text-gray-700 hover:bg-purple-50 font-medium">
               BÀI BLOG
             </Link>
-            <Link
-              to="/subject"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-              onClick={() => setIsDropdownOpen(false)}
-            >
+            <Link to="/subject" className="block px-6 py-2.5 text-gray-700 hover:bg-purple-50 font-medium">
               MÔN HỌC
             </Link>
-            <Link
-              to="/document"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-              onClick={() => setIsDropdownOpen(false)}
-            >
+            <Link to="/document" className="block px-6 py-2.5 text-gray-700 hover:bg-purple-50 font-medium">
               TÀI LIỆU
             </Link>
-            <Link
-              to="/question"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-              onClick={() => setIsDropdownOpen(false)}
-            >
+            <Link to="/faq" className="block px-6 py-2.5 text-gray-700 hover:bg-purple-50 font-medium">
               GIẢI ĐÁP
             </Link>
-            <Link
-              to="/room"
-              className="block px-4 py-2 text-gray-700 hover:bg-gray-200"
-              onClick={() => setIsDropdownOpen(false)}
-            >
+            <Link to="/room" className="block px-6 py-2.5 text-gray-700 hover:bg-purple-50 font-medium">
               PHÒNG
             </Link>
           </div>
         )}
       </div>
-
-      {/* Hiển thị nút Đăng nhập hoặc Đăng xuất dựa trên trạng thái đăng nhập */}
-      {isLoggedIn ? (
-        <button
-          onClick={handleLogout}
-          className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-black font-semibold"
-        >
-          ĐĂNG XUẤT
-        </button>
-      ) : (
-        <Link to="/login" className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-black font-semibold">
-          ĐĂNG NHẬP
-        </Link>
-      )}
-
-      <div>
-        <SearchIcon icon="search" />
-      </div>
-    </div>
+    </nav>
   );
 };
 

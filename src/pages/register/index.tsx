@@ -2,25 +2,35 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useForm, FormProvider, Controller } from 'react-hook-form';
-import LoginLayout from "@/layouts/LoginLayout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { registerUser } from '@/lib/api/redux/authSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
 
-interface RegisterFormInputs {
-  email: string;
-  name: string;
-  password: string;
-}
+// Các thành phần UI
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import LoginLayout from "@/layouts/LoginLayout";
+
+// Định nghĩa lược đồ Zod cho biểu mẫu đăng ký
+const registerSchema = z.object({
+  email: z.string().email({ message: 'Email không hợp lệ' }).nonempty({ message: 'Email là bắt buộc' }),
+  name: z.string().min(2, { message: 'Tên phải có ít nhất 2 ký tự' }),
+  password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
+});
+
+// Kiểu dữ liệu của biểu mẫu dựa trên lược đồ Zod
+type RegisterFormInputs = z.infer<typeof registerSchema>;
 
 const RegisterPage: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
 
+  // Khởi tạo useForm với zodResolver để tích hợp Zod vào React Hook Form
   const methods = useForm<RegisterFormInputs>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
       email: '',
       name: '',
@@ -30,6 +40,7 @@ const RegisterPage: React.FC = () => {
 
   const { handleSubmit, control, formState: { errors } } = methods;
 
+  // Xử lý khi submit biểu mẫu
   const onSubmit = (data: RegisterFormInputs) => {
     dispatch(registerUser(data)).then((action) => {
       if (registerUser.fulfilled.match(action)) {
@@ -40,24 +51,23 @@ const RegisterPage: React.FC = () => {
 
   return (
     <LoginLayout>
-      <div className="w-full max-w-md">
-        <h2 className="font-bold text-3xl text-center mb-6">LearnUp Welcome</h2>
-        <p className="text-center text-gray-600 mb-16">Register your account</p>
+      <div className="w-full max-w-md mx-auto">
+        <h2 className="font-bold text-3xl text-center mb-6">Chào mừng đến với LearnUp</h2>
+        <p className="text-center text-gray-600 mb-16">Đăng ký tài khoản của bạn</p>
 
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Email Field */}
+            {/* Trường Email */}
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Controller
                   name="email"
                   control={control}
-                  rules={{ required: 'Email is required' }}
                   render={({ field }) => (
                     <Input
                       type="email"
-                      placeholder="Enter your email address"
+                      placeholder="Nhập email của bạn"
                       {...field}
                       className="w-full"
                     />
@@ -67,18 +77,17 @@ const RegisterPage: React.FC = () => {
               {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
             </FormItem>
 
-            {/* Name Field */}
+            {/* Trường Tên */}
             <FormItem>
-              <FormLabel>Full Name</FormLabel>
+              <FormLabel>Họ và tên</FormLabel>
               <FormControl>
                 <Controller
                   name="name"
                   control={control}
-                  rules={{ required: 'Name is required' }}
                   render={({ field }) => (
                     <Input
                       type="text"
-                      placeholder="Enter your full name"
+                      placeholder="Nhập họ và tên của bạn"
                       {...field}
                       className="w-full"
                     />
@@ -88,18 +97,17 @@ const RegisterPage: React.FC = () => {
               {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
             </FormItem>
 
-            {/* Password Field */}
+            {/* Trường Mật khẩu */}
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Mật khẩu</FormLabel>
               <FormControl>
                 <Controller
                   name="password"
                   control={control}
-                  rules={{ required: 'Password is required' }}
                   render={({ field }) => (
                     <Input
                       type="password"
-                      placeholder="Type to create a password"
+                      placeholder="Tạo mật khẩu"
                       {...field}
                       className="w-full"
                     />
@@ -109,18 +117,18 @@ const RegisterPage: React.FC = () => {
               {errors.password && <FormMessage>{errors.password.message}</FormMessage>}
             </FormItem>
 
-            {/* Submit Button */}
+            {/* Nút Đăng ký */}
             <div className="mt-4">
               <Button
                 type="submit"
                 className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900"
                 disabled={loading}
               >
-                {loading ? 'Registering...' : 'Register'}
+                {loading ? 'Đang đăng ký...' : 'Đăng ký'}
               </Button>
             </div>
 
-            {/* Display Error */}
+            {/* Hiển thị lỗi từ server nếu có */}
             {error && <p className="text-red-500 text-center mt-2">{error}</p>}
           </form>
         </FormProvider>
