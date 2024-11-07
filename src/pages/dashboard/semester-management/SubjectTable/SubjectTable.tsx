@@ -17,11 +17,11 @@ interface SubjectTableProps {
   setSelectedSemester: React.Dispatch<React.SetStateAction<string>>;
 }
 
-
 interface Subject {
   id: string;
   name: string;
   semester: string;
+  description: string; // Ensure description is included
 }
 
 const SubjectTable: React.FC<SubjectTableProps> = ({
@@ -42,12 +42,12 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
 
   useEffect(() => {
     dispatch(fetchDepartments());
-    dispatch(fetchSemesters(null));
+    dispatch(fetchSemesters());
     dispatch(fetchSubjects(null));
   }, [dispatch]);
 
-  const handleCreateSubject = (data: { name: string; semesterId: string }) => {
-    const subjectData = { name: data.name, semester: data.semesterId };
+  const handleCreateSubject = (data: { name: string; semesterId: string; description: string }) => {
+    const subjectData = { name: data.name, semester: data.semesterId, description: data.description }; // Include description
     dispatch(createSubject(subjectData))
       .unwrap()
       .then(() => {
@@ -58,9 +58,8 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
         console.error('Error creating subject:', error);
       });
   };
-  
 
-  const handleUpdateSubject = (data: { id: string; name: string; semester: string }) => {
+  const handleUpdateSubject = (data: { id: string; name: string; semester: string; description: string }) => {
     dispatch(updateSubject(data))
       .unwrap()
       .then(() => {
@@ -172,7 +171,12 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
       {showCreatePopover && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <CreateSubject departments={departments} semesters={semesters} onCreate={handleCreateSubject} onClose={() => setShowSubjectPopover(false)} />
+            <CreateSubject 
+              departments={departments} 
+              semesters={semesters} 
+              onCreate={handleCreateSubject} 
+              onClose={() => setShowSubjectPopover(false)} 
+            />
           </div>
         </div>
       )}
@@ -180,7 +184,13 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
       {showUpdatePopover && selectedSubject && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <UpdateSubject subject={selectedSubject} departments={departments} semesters={semesters} onUpdate={handleUpdateSubject} onClose={() => setShowUpdatePopover(false)} />
+            <UpdateSubject 
+              subject={selectedSubject} 
+              departments={departments} 
+              semesters={semesters} 
+              onUpdate={handleUpdateSubject} 
+              onClose={() => setShowUpdatePopover(false)} 
+            />
           </div>
         </div>
       )}

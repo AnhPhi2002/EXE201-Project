@@ -60,7 +60,7 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
 
   useEffect(() => {
     dispatch(fetchDepartments());
-    dispatch(fetchSemesters(selectedDepartment || null));
+    dispatch(fetchSemesters());
     dispatch(fetchSubjects(selectedSemester || null));
     dispatch(fetchAllResources());
   }, [dispatch, selectedDepartment, selectedSemester]);

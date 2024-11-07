@@ -16,7 +16,8 @@ interface Semester {
 
 const subjectSchema = z.object({
   name: z.string().min(2, "Tên môn học phải có ít nhất 2 ký tự").max(50, "Tên môn học quá dài"),
-  semesterId: z.string().min(1, "Vui lòng chọn học kỳ"), // Sử dụng semesterId
+  semesterId: z.string().min(1, "Vui lòng chọn học kỳ"),
+  description: z.string().min(5, "Mô tả phải có ít nhất 5 ký tự"), // Added description validation
 });
 
 type SubjectFormData = z.infer<typeof subjectSchema>;
@@ -24,7 +25,7 @@ type SubjectFormData = z.infer<typeof subjectSchema>;
 interface CreateSubjectProps {
   departments: Department[];
   semesters: Semester[];
-  onCreate: (data: { name: string; semesterId: string }) => void; // Đổi thành semesterId
+  onCreate: (data: { name: string; semesterId: string; description: string }) => void; // Include description
   onClose: () => void;
 }
 
@@ -35,13 +36,13 @@ const CreateSubject: React.FC<CreateSubjectProps> = ({ departments, semesters, o
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
 
   useEffect(() => {
-    setValue("semesterId", ""); // Sử dụng semesterId
+    setValue("semesterId", "");
   }, [selectedDepartment, setValue]);
 
   const filteredSemesters = semesters.filter((sem) => sem.department === selectedDepartment);
 
   const onSubmit = (data: SubjectFormData) => {
-    onCreate({ name: data.name, semesterId: data.semesterId }); // Đảm bảo sử dụng semesterId
+    onCreate({ name: data.name, semesterId: data.semesterId, description: data.description }); // Pass description
     onClose();
   };
 
@@ -79,7 +80,7 @@ const CreateSubject: React.FC<CreateSubjectProps> = ({ departments, semesters, o
           <div>
             <label className="block text-sm font-medium text-gray-700">Chọn học kỳ</label>
             <select
-              {...register("semesterId")} // Sử dụng semesterId
+              {...register("semesterId")}
               className="mt-1 p-2 border border-gray-300 rounded-md w-full"
               disabled={!selectedDepartment}
             >
@@ -94,6 +95,16 @@ const CreateSubject: React.FC<CreateSubjectProps> = ({ departments, semesters, o
             {selectedDepartment && filteredSemesters.length === 0 && (
               <p className="text-yellow-500 text-sm">Không có học kỳ nào cho phòng ban này</p>
             )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Mô tả</label>
+            <textarea
+              {...register("description")}
+              className="mt-1 p-2 border border-gray-300 rounded-md w-full"
+              rows={4}
+            ></textarea>
+            {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
           </div>
 
           <div className="flex justify-end space-x-4">

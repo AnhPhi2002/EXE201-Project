@@ -1,30 +1,57 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import HomeQA from './home-q-and-a';
 import HomeDocument from './home-documents';
 import HomeReview from './home-review';
-import HomeVideo from './home-videos';
-import CodingCourseSection from './home-course-ection';
+import CodingCourseSection from './home-course-ection/CodingCourseSection';
+
 
 
 const HomePage: React.FC = () => {
   return (
-    <div className="bg-gray-50 min-h-screen px-[10%] py-10">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-16">
+    <div>
+      <div className="max-w-7xl mx-auto ">
+        {/* Coding Course Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="mb-16 bg-white/30 backdrop-blur-lg border border-white/20 shadow-xl rounded-lg p-6"
+        >
           <CodingCourseSection />
-        </div>
-        <div className="mb-16">
-          <HomeVideo />
-        </div>
-        <div className="mb-16 py-10">
+        </motion.div>
+
+
+
+        {/* Home QA Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-16 py-10   p-6"
+        >
           <HomeQA />
-        </div>
-        <div className="mb-16 py-10">
+        </motion.div>
+
+        {/* Home Document Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="mb-16 py-10 p-6"
+        >
           <HomeDocument />
-        </div>
-        <div className="mb-16 py-10">
+        </motion.div>
+
+        {/* Home Review Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mb-16 py-10  p-6"
+        >
           <HomeReview />
-        </div>
+        </motion.div>
       </div>
     </div>
   );

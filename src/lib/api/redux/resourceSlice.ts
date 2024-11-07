@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { axiosClient } from '../config/axios-client';
+import axios from 'axios';
 
 interface Resource {
   id: string;
@@ -25,80 +25,100 @@ const initialState: ResourceState = {
   error: null,
 };
 
-// Fetch tất cả tài liệu
+const API_URL = 'https://learnup.work/api/resources';
+
+// Fetch all resources
 export const fetchAllResources = createAsyncThunk(
   'resources/fetchAllResources',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get('/api/resources/all-resources');
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/all-resources`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data.resources;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Lỗi khi lấy tất cả tài liệu');
+    } catch (error) {
+      return rejectWithValue('Error fetching all resources');
     }
   }
 );
 
-// Fetch tài liệu theo subject ID
+// Fetch resources by subject ID
 export const fetchResourcesBySubject = createAsyncThunk(
   'resources/fetchResourcesBySubject',
   async (subjectId: string, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get(`/api/resources/${subjectId}/resources?page=1&limit=10`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/${subjectId}/resources?page=1&limit=10`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data.resources;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Lỗi khi lấy tài liệu theo môn học');
+    } catch (error) {
+      return rejectWithValue('Error fetching resources by subject');
     }
   }
 );
 
-// Fetch một tài liệu bằng ID
+// Fetch a single resource by ID
 export const fetchResourceById = createAsyncThunk(
   'resources/fetchResourceById',
   async (resourceId: string, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get(`/api/resources/${resourceId}`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/${resourceId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Lỗi khi lấy tài liệu');
+    } catch (error) {
+      return rejectWithValue('Error fetching resource by ID');
     }
   }
 );
 
-// Tạo mới tài liệu
+// Create a new resource
 export const createResource = createAsyncThunk(
   'resources/createResource',
   async ({ subjectId, resourceData }: { subjectId: string; resourceData: Omit<Resource, 'id'> }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post(`/api/resources/${subjectId}/resources`, resourceData);
+      const token = localStorage.getItem('token');
+      const response = await axios.post(`${API_URL}/${subjectId}/resources`, resourceData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Lỗi khi tạo tài liệu');
+    } catch (error) {
+      return rejectWithValue('Error creating resource');
     }
   }
 );
 
-// Cập nhật tài liệu
+// Update an existing resource
 export const updateResource = createAsyncThunk(
   'resources/updateResource',
   async ({ id, resourceData }: { id: string; resourceData: Partial<Resource> }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.put(`/api/resources/${id}`, resourceData);
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${API_URL}/${id}`, resourceData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Lỗi khi cập nhật tài liệu');
+    } catch (error) {
+      return rejectWithValue('Error updating resource');
     }
   }
 );
 
-// Xóa tài liệu
+// Delete a resource
 export const deleteResource = createAsyncThunk(
   'resources/deleteResource',
   async (id: string, { rejectWithValue }) => {
     try {
-      await axiosClient.delete(`/api/resources/${id}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return id;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Lỗi khi xóa tài liệu');
+    } catch (error) {
+      return rejectWithValue('Error deleting resource');
     }
   }
 );
@@ -109,7 +129,6 @@ const resourceSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      // Fetch tất cả tài liệu
       .addCase(fetchAllResources.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -122,8 +141,6 @@ const resourceSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // Fetch tài liệu theo subject ID
       .addCase(fetchResourcesBySubject.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -136,8 +153,6 @@ const resourceSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // Fetch một tài liệu bằng ID
       .addCase(fetchResourceById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -150,49 +165,25 @@ const resourceSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-
-      // Tạo mới tài liệu
-      .addCase(createResource.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(createResource.fulfilled, (state, action: PayloadAction<Resource>) => {
-        state.loading = false;
         state.resources.push(action.payload);
       })
       .addCase(createResource.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload as string;
       })
-
-      // Cập nhật tài liệu
-      .addCase(updateResource.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(updateResource.fulfilled, (state, action: PayloadAction<Resource>) => {
-        state.loading = false;
         const index = state.resources.findIndex((res) => res.id === action.payload.id);
         if (index !== -1) {
           state.resources[index] = action.payload;
         }
       })
       .addCase(updateResource.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload as string;
       })
-
-      // Xóa tài liệu
-      .addCase(deleteResource.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
       .addCase(deleteResource.fulfilled, (state, action: PayloadAction<string>) => {
-        state.loading = false;
         state.resources = state.resources.filter((res) => res.id !== action.payload);
       })
       .addCase(deleteResource.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload as string;
       });
   },
