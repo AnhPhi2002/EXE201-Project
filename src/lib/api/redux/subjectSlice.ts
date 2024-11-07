@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { axiosClient } from '../config/axios-client';
+import axios from 'axios';
 
 interface Subject {
   id: string;
   name: string;
   semester: string;
+  description: string; // Thêm trường description
   resources: any[];
 }
 
@@ -22,65 +23,95 @@ const initialState: SubjectState = {
   error: null,
 };
 
-// Lấy danh sách môn học
+const API_URL = 'https://learnup.work/api';
+
+// Fetch all subjects or by semester ID
 export const fetchSubjects = createAsyncThunk(
   'subjects/fetchSubjects',
-  async (semesterId: string | null = null, { rejectWithValue }) => {
+  async (semesterId: string | null, { rejectWithValue }) => {
     try {
-      const url = semesterId ? `/api/subjects?semester=${semesterId}` : '/api/subjects';
-      const response = await axiosClient.get(url);
+      const token = localStorage.getItem('token');
+      const url = semesterId 
+        ? `${API_URL}/subjects?semester=${semesterId}` 
+        : `${API_URL}/subjects`;
+      
+      const response = await axios.get(url, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error) {
-      return rejectWithValue('Lỗi khi lấy danh sách môn học');
+      return rejectWithValue('Error fetching subjects');
     }
   }
 );
 
-// Lấy chi tiết môn học bằng ID
+// Fetch subject by ID
 export const fetchSubjectById = createAsyncThunk(
   'subjects/fetchSubjectById',
-  async (id: string, { rejectWithValue }) => {
+  async (subjectId: string, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.get(`/api/subjects/${id}`);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${API_URL}/subjects/${subjectId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return response.data;
     } catch (error) {
-      return rejectWithValue('Lỗi khi lấy chi tiết môn học');
+      return rejectWithValue('Error fetching subject by ID');
     }
   }
 );
 
+// Create a new subject
 export const createSubject = createAsyncThunk(
   'subjects/createSubject',
-  async ({ name, semester }: { name: string; semester: string }, { rejectWithValue }) => {
+  async ({ name, semester, description }: { name: string; semester: string; description: string }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post(`/api/subjects`, { name, semester });
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        `${API_URL}/subjects/${semester}/subjects`,
+        { name, description },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       return response.data;
-    } catch (error) {
-      return rejectWithValue('Lỗi khi tạo môn học');
+    } catch (error: any) {
+      console.error("Error creating subject:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || 'Error creating subject');
     }
   }
 );
 
+// Update an existing subject
 export const updateSubject = createAsyncThunk(
   'subjects/updateSubject',
-  async ({ id, name, semester }: { id: string; name: string; semester: string }, { rejectWithValue }) => {
+  async ({ id, name, semester, description }: { id: string; name: string; semester: string; description: string }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.put(`/api/subjects/${id}`, { name, semester });
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `${API_URL}/subjects/${id}`,
+        { name, semester, description },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue('Lỗi khi cập nhật môn học');
+      console.error("Error updating subject:", error);
+      return rejectWithValue('Error updating subject');
     }
   }
 );
 
+
+// Delete a subject
 export const deleteSubject = createAsyncThunk(
   'subjects/deleteSubject',
   async (id: string, { rejectWithValue }) => {
     try {
-      await axiosClient.delete(`/api/subjects/${id}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/subjects/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return id;
     } catch (error) {
-      return rejectWithValue('Lỗi khi xóa môn học');
+      return rejectWithValue('Error deleting subject');
     }
   }
 );
@@ -104,6 +135,7 @@ const subjectSlice = createSlice({
       })
       .addCase(fetchSubjectById.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchSubjectById.fulfilled, (state, action: PayloadAction<Subject>) => {
         state.loading = false;
@@ -116,12 +148,23 @@ const subjectSlice = createSlice({
       .addCase(createSubject.fulfilled, (state, action: PayloadAction<Subject>) => {
         state.subjects.push(action.payload);
       })
+      .addCase(createSubject.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
       .addCase(updateSubject.fulfilled, (state, action: PayloadAction<Subject>) => {
-        const index = state.subjects.findIndex(sub => sub.id === action.payload.id);
-        if (index !== -1) state.subjects[index] = action.payload;
+        const index = state.subjects.findIndex((sub) => sub.id === action.payload.id);
+        if (index !== -1) {
+          state.subjects[index] = action.payload;
+        }
+      })
+      .addCase(updateSubject.rejected, (state, action) => {
+        state.error = action.payload as string;
       })
       .addCase(deleteSubject.fulfilled, (state, action: PayloadAction<string>) => {
-        state.subjects = state.subjects.filter(sub => sub.id !== action.payload);
+        state.subjects = state.subjects.filter((sub) => sub.id !== action.payload);
+      })
+      .addCase(deleteSubject.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });

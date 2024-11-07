@@ -30,7 +30,7 @@ const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, s
 
   useEffect(() => {
     dispatch(fetchDepartments());
-    dispatch(fetchSemesters(null));
+    dispatch(fetchSemesters());
   }, [dispatch]);
 
   const handleCreateSemester = (data: { name: string; departmentId: string }) => {
@@ -38,7 +38,7 @@ const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, s
       .unwrap()
       .then(() => {
         setShowSemesterPopover(false);
-        dispatch(fetchSemesters(null));
+        dispatch(fetchSemesters());
       })
       .catch((error) => {
         console.error('Error creating semester:', error);
@@ -50,7 +50,7 @@ const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, s
       .unwrap()
       .then(() => {
         setShowUpdatePopover(false);
-        dispatch(fetchSemesters(null));
+        dispatch(fetchSemesters());
       })
       .catch((error) => {
         console.error('Error updating semester:', error);
@@ -60,7 +60,7 @@ const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, s
   const handleDeleteSemester = (semesterId: string) => {
     dispatch(deleteSemester(semesterId))
       .unwrap()
-      .then(() => dispatch(fetchSemesters(null)))
+      .then(() => dispatch(fetchSemesters()))
       .catch((error) => {
         console.error('Error deleting semester:', error);
       });

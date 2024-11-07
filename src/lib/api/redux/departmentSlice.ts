@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { axiosClient } from '../config/axios-client';
+import axios from 'axios';
 
 interface Department {
   id: string;
@@ -19,54 +19,69 @@ const initialState: DepartmentState = {
   error: null,
 };
 
-// Lấy danh sách các phòng ban
-export const fetchDepartments = createAsyncThunk(
-  'departments/fetchDepartments',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axiosClient.get('/api/departments');
-      return response.data;
-    } catch (error) {
-      return rejectWithValue('Lỗi khi lấy danh sách phòng ban');
-    }
-  }
-);
+const API_URL = 'https://learnup.work/api/departments';
 
-// Tạo mới phòng ban
+// Thunk để lấy danh sách phòng ban
+export const fetchDepartments = createAsyncThunk('departments/fetchDepartments', async (_, { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(API_URL, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue('Error fetching departments');
+  }
+});
+
+// Thunk để tạo phòng ban mới
 export const createDepartment = createAsyncThunk(
   'departments/createDepartment',
   async ({ name, code }: { name: string; code: string }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post('/api/departments', { name, code });
+      const token = localStorage.getItem('token');
+      const response = await axios.post(
+        API_URL,
+        { name, code },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue('Lỗi khi tạo phòng ban');
+      return rejectWithValue('Error creating department');
     }
   }
 );
 
-// Cập nhật phòng ban
+// Thunk để cập nhật phòng ban
 export const updateDepartment = createAsyncThunk(
   'departments/updateDepartment',
   async ({ id, name, code }: { id: string; name: string; code: string }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.put(`/api/departments/${id}`, { name, code });
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `${API_URL}/${id}`,
+        { name, code },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       return response.data;
     } catch (error) {
-      return rejectWithValue('Lỗi khi cập nhật phòng ban');
+      return rejectWithValue('Error updating department');
     }
   }
 );
 
-// Xóa phòng ban
+// Thunk để xóa phòng ban
 export const deleteDepartment = createAsyncThunk(
   'departments/deleteDepartment',
   async (id: string, { rejectWithValue }) => {
     try {
-      await axiosClient.delete(`/api/departments/${id}`);
+      const token = localStorage.getItem('token');
+      await axios.delete(`${API_URL}/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       return id;
     } catch (error) {
-      return rejectWithValue('Lỗi khi xóa phòng ban');
+      return rejectWithValue('Error deleting department');
     }
   }
 );
@@ -91,12 +106,23 @@ const departmentSlice = createSlice({
       .addCase(createDepartment.fulfilled, (state, action: PayloadAction<Department>) => {
         state.departments.push(action.payload);
       })
+      .addCase(createDepartment.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
       .addCase(updateDepartment.fulfilled, (state, action: PayloadAction<Department>) => {
         const index = state.departments.findIndex(dept => dept.id === action.payload.id);
-        if (index !== -1) state.departments[index] = action.payload;
+        if (index !== -1) {
+          state.departments[index] = action.payload;
+        }
+      })
+      .addCase(updateDepartment.rejected, (state, action) => {
+        state.error = action.payload as string;
       })
       .addCase(deleteDepartment.fulfilled, (state, action: PayloadAction<string>) => {
         state.departments = state.departments.filter(dept => dept.id !== action.payload);
+      })
+      .addCase(deleteDepartment.rejected, (state, action) => {
+        state.error = action.payload as string;
       });
   },
 });

@@ -48,27 +48,27 @@ const SubjectPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen">
+    <div className=" min-h-screen">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="bg-white rounded-lg shadow-md p-8 mb-12">
+        <div className=" ">
           <nav className="mb-8">
             <div className="max-w-7xl mx-auto">
-              <div className="flex items-center space-x-4 py-4 text-sm">
-                <Home className="text-gray-600" />
-                <ChevronRight className="text-gray-400" />
-                <span className="text-gray-600">Subjects</span>
-                <ChevronRight className="text-gray-400" />
+              <div className="flex items-center space-x-4 py-4 text-sm text-gray-600">
+                <Home className="text-white" />
+                <ChevronRight className="text-white" />
+                <span className="text-white">Subjects</span>
+                <ChevronRight className="text-white" />
                 <span className="text-gray-800 font-medium">{subject ? subject.name : 'Loading...'}</span>
               </div>
             </div>
           </nav>
 
-          <div className="mb-8 bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-8 rounded-lg">
-            <h1 className="text-4xl font-bold mb-4">{subject ? subject.name : 'Loading...'}</h1>
+          <div className="mb-8 bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-8 rounded-lg shadow-md">
+            <h1 className="text-4xl font-bold mb-8">{subject ? subject.name : 'Loading...'}</h1>
           </div>
 
           <section className="mt-8 mb-12">
-            <h2 className="text-2xl font-semibold mb-4">Resources</h2>
+            <h2 className="text-3xl font-semibold text-black mb-10">Resources</h2>
             {loading ? (
               <p className="text-gray-500">Loading resources...</p>
             ) : error ? (
@@ -76,10 +76,10 @@ const SubjectPage: React.FC = () => {
             ) : resources.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {resources.map((resource) => (
-                  <div key={resource.id} className="bg-gray-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <div key={resource.id} className="bg-white/60 backdrop-blur-sm p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-blue-600">{resource.title}</h3>
-                      <span className="text-xs font-semibold text-white py-1 px-3 rounded-full bg-purple-500">
+                      <h3 className="text-lg font-semibold text-purple-600">{resource.title}</h3>
+                      <span className="text-xs font-semibold text-white py-1 px-3 rounded-full bg-pink-500">
                         {resource.type?.toUpperCase()}
                       </span>
                     </div>
@@ -97,15 +97,6 @@ const SubjectPage: React.FC = () => {
                           <ul className="space-y-1">
                             {resource.fileUrls.map((url, index) => (
                               <li key={index} className="flex items-center">
-                                {resource.type === 'pdf' && (
-                                  <span className="bg-red-100 text-red-600 text-sm px-2 py-1 rounded mr-2">PDF</span>
-                                )}
-                                {resource.type === 'video' && (
-                                  <span className="bg-blue-100 text-blue-600 text-sm px-2 py-1 rounded mr-2">Video</span>
-                                )}
-                                {resource.type === 'document' && (
-                                  <span className="bg-yellow-100 text-yellow-600 text-sm px-2 py-1 rounded mr-2">Document</span>
-                                )}
                                 <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
                                   {resource.type} {index + 1}
                                 </a>
@@ -125,24 +116,24 @@ const SubjectPage: React.FC = () => {
             )}
           </section>
 
-          <div className="border-t pt-6 mt-8">
+          <div className="border-t pt-6 mt-8 border-gray-300/20">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <span className="text-lg font-semibold mr-2">Rate this course:</span>
+                <span className="text-lg font-semibold text-black mr-2">Rate this course:</span>
                 <div className="flex">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button key={star} onClick={() => handleRating(star)} className="focus:outline-none">
                       {star <= rating ? (
-                        <Star className="text-yellow-400 text-2xl" />
+                        <Star className="text-yellow-200 text-2xl" />
                       ) : (
-                        <Star className="text-slate-400 text-2xl" />
+                        <Star className="text-white text-2xl" />
                       )}
                     </button>
                   ))}
                 </div>
-                <span className="ml-2 text-gray-600">({rating}/5)</span>
+                <span className="ml-2 text-black ">({rating}/5)</span>
               </div>
-              <button onClick={handleLike} className={`flex items-center space-x-1 ${isLiked ? 'text-red-500' : 'text-gray-500'} focus:outline-none`}>
+              <button onClick={handleLike} className={`flex items-center space-x-1 ${isLiked ? 'text-pink-500' : 'text-black '} focus:outline-none`}>
                 <Heart className="text-2xl" />
                 <span>{likes} Likes</span>
               </button>
@@ -150,7 +141,7 @@ const SubjectPage: React.FC = () => {
           </div>
 
           <div className="mt-10">
-            <h3 className="text-2xl font-semibold mb-12">Comments</h3>
+            <h3 className="text-2xl font-semibold text-purple-700 mb-6">Comments</h3>
             <CommentSection />
           </div>
         </div>
