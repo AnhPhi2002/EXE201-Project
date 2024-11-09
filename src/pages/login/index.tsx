@@ -23,6 +23,10 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
+  useEffect(() => {
+    document.title = "Đăng nhập| LearnUp"
+  }, [])
+
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
@@ -51,16 +55,16 @@ const LoginPage: React.FC = () => {
 
   return (
     <LoginLayout>
-      <div className="w-full max-w-md mx-auto">
-        <h2 className="font-bold text-3xl text-center mb-6">Chào mừng đến với LearnUp</h2>
-        <p className="text-center text-gray-600 mb-16">Đăng nhập vào tài khoản của bạn</p>
+      <div className="">
+        <h2 className="font-bold text-3xl text-center mb-6 text-white">Chào mừng đến với LearnUp</h2>
+        <p className="text-center text-gray-200 mb-16">Đăng nhập vào tài khoản của bạn</p>
 
         {/* Bao bọc FormProvider quanh form để cung cấp ngữ cảnh */}
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
             {/* Trường Email */}
             <FormItem>
-              <FormLabel>Email</FormLabel>
+              <FormLabel className="text-white">Email</FormLabel>
               <FormControl>
                 <Controller
                   name="email"
@@ -70,17 +74,17 @@ const LoginPage: React.FC = () => {
                       type="email"
                       placeholder="Nhập địa chỉ email của bạn"
                       {...field}
-                      className="w-full"
+                      className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 border-2 border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
                     />
                   )}
                 />
               </FormControl>
-              {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
+              {errors.email && <FormMessage className="text-red-500">{errors.email.message}</FormMessage>}
             </FormItem>
 
             {/* Trường Mật khẩu */}
             <FormItem>
-              <FormLabel>Mật khẩu</FormLabel>
+              <FormLabel className="text-white">Mật khẩu</FormLabel>
               <FormControl>
                 <Controller
                   name="password"
@@ -90,24 +94,24 @@ const LoginPage: React.FC = () => {
                       type="password"
                       placeholder="Nhập mật khẩu của bạn"
                       {...field}
-                      className="w-full"
+                      className="w-full p-3 rounded-md bg-gray-100 text-black placeholder-gray-500 border-2 border-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
                     />
                   )}
                 />
               </FormControl>
-              {errors.password && <FormMessage>{errors.password.message}</FormMessage>}
+              {errors.password && <FormMessage className="text-red-500">{errors.password.message}</FormMessage>}
             </FormItem>
 
             {/* Liên kết Quên mật khẩu */}
             <div className="text-right mt-2">
-              <Link to="/reset-password" className="text-sm text-black hover:text-blue-800">
+              <Link to="/reset-password" className="text-sm text-white hover:text-blue-400">
                 Quên mật khẩu?
               </Link>
             </div>
 
             {/* Nút Submit */}
-            <div className="mt-4">
-              <Button type="submit" className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900" disabled={loading}>
+            <div className="mt-6">
+              <Button type="submit" className="w-full bg-black text-white py-3 rounded-md hover:bg-gray-900 transition-colors duration-300" disabled={loading}>
                 {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
             </div>
@@ -117,9 +121,9 @@ const LoginPage: React.FC = () => {
           </form>
         </FormProvider>
 
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-gray-200">
           Bạn chưa có tài khoản?{' '}
-          <Link to="/register" className="text-blue-600 hover:text-blue-800">
+          <Link to="/register" className="text-blue-400 hover:text-blue-500">
             Đăng ký ngay.
           </Link>
         </p>

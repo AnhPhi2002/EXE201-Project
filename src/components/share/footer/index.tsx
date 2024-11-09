@@ -11,7 +11,7 @@ const GlassmorphismFooter: React.FC = () => {
 
   return (
     <footer>
-      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 blur-lg"></div>
+      <div className="absolute mt-2 inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 blur-lg"></div>
       <div className="relative backdrop-blur-md bg-white/30 border border-white/20 shadow-lg rounded-t-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">

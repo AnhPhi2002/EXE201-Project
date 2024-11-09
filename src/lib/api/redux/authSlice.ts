@@ -1,3 +1,5 @@
+// src/lib/api/redux/authSlice.ts
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { axiosClient } from '../config/axios-client';
 
@@ -8,7 +10,7 @@ interface AuthState {
 }
 
 const initialState: AuthState = {
-  isAuthenticated: false,
+  isAuthenticated: localStorage.getItem('token') ? true : false, // Kiểm tra token trong localStorage
   loading: false,
   error: null,
 };
@@ -48,7 +50,7 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
+      localStorage.removeItem('token');  // Xóa token khi đăng xuất
       localStorage.removeItem('role');
     },
   },

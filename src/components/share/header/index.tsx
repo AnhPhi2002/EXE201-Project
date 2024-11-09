@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
@@ -38,17 +38,26 @@ const Header: React.FC = () => {
     };
   }, []);
 
+  useEffect(() => {
+    document.title = 'Trang Chủ | LearnUp'; 
+  }, []);
+
   return (
     <motion.header
       initial={{ y: -50, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.5 }}
       className="fixed top-0 w-full z-50 backdrop-blur-lg bg-white/40 border-b border-white/20 shadow-md"
     >
       <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-20">
           <Logo />
-          <NavLink />
+          
+          {/* Hiển thị NavLink khi menu mobile mở */}
+          <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 ml-auto justify-end`}>
+            <NavLink />
+          </div>
+
           <div className="flex items-center space-x-6">
             {/* Search bar */}
             <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 backdrop-blur-md shadow-md">
