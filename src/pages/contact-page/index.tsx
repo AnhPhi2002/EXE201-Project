@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import { Send, Phone, Mail, MapPin} from "lucide-react"; // Sử dụng icon từ lucide-react
+import { Send, Phone, Mail, MapPin } from "lucide-react"; // Sử dụng icon từ lucide-react
+import { motion } from "framer-motion"; // Import motion từ framer-motion
 
 interface FormData {
   name: string;
@@ -76,15 +77,24 @@ const ContactUs: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:flex">
-        <div className="md:flex-shrink-0 bg-indigo-600 md:w-1/3 p-8 flex flex-col justify-between">
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-6">Contact Us</h2>
-            <p className="text-indigo-100 mb-8">
-              We'd love to hear from you! Please fill out the form and we'll get back to you as soon as possible.
-            </p>
-          </div>
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <motion.div
+        className="max-w-6xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden md:flex"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6 }}
+      >
+        {/* Sidebar */}
+        <motion.div
+          className="md:flex-shrink-0 bg-gradient-to-r from-purple-500 to-pink-500 md:w-1/3 p-8 flex flex-col justify-between"
+          initial={{ opacity: 0, x: -200 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <h2 className="text-3xl font-bold text-white mb-6">Liên Hệ Với Chúng Tôi</h2>
+          <p className="text-indigo-100 mb-8">
+            Chúng tôi rất mong nhận được phản hồi từ bạn! Hãy điền vào mẫu dưới đây và chúng tôi sẽ phản hồi sớm nhất có thể.
+          </p>
           <div className="space-y-4">
             <div className="flex items-center text-indigo-100">
               <Phone className="w-6 h-6 mr-3" />
@@ -96,21 +106,18 @@ const ContactUs: React.FC = () => {
             </div>
             <div className="flex items-start text-indigo-100">
               <MapPin className="w-6 h-6 mr-3 mt-1" />
-              <span>
-                123 Business Avenue,
-                <br />
-                Suite 456,
-                <br />
-                Cityville, ST 78901
-              </span>
+              <span>123 Business Avenue, Suite 456, Cityville, ST 78901</span>
             </div>
           </div>
-        </div>
+        </motion.div>
+
+        {/* Form Section */}
         <div className="p-8 md:w-2/3">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Name Input */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Name
+                Tên
               </label>
               <input
                 type="text"
@@ -127,6 +134,8 @@ const ContactUs: React.FC = () => {
                 </p>
               )}
             </div>
+
+            {/* Email Input */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email
@@ -146,22 +155,11 @@ const ContactUs: React.FC = () => {
                 </p>
               )}
             </div>
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Phone (optional)
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-              />
-            </div>
+
+            {/* Subject Input */}
             <div>
               <label htmlFor="subject" className="block text-sm font-medium text-gray-700">
-                Subject
+                Chủ Đề
               </label>
               <input
                 type="text"
@@ -178,9 +176,11 @@ const ContactUs: React.FC = () => {
                 </p>
               )}
             </div>
+
+            {/* Category Input */}
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-                Category
+                Danh Mục
               </label>
               <select
                 id="category"
@@ -190,11 +190,11 @@ const ContactUs: React.FC = () => {
                 className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${errors.category ? 'border-red-500' : ''}`}
                 aria-describedby="category-error"
               >
-                <option value="">Select a category</option>
-                <option value="general">General Inquiry</option>
-                <option value="support">Technical Support</option>
-                <option value="sales">Sales</option>
-                <option value="feedback">Feedback</option>
+                <option value="">Chọn danh mục</option>
+                <option value="general">Câu hỏi chung</option>
+                <option value="support">Hỗ trợ kỹ thuật</option>
+                <option value="sales">Bán hàng</option>
+                <option value="feedback">Phản hồi</option>
               </select>
               {errors.category && (
                 <p className="mt-2 text-sm text-red-600" id="category-error">
@@ -202,9 +202,11 @@ const ContactUs: React.FC = () => {
                 </p>
               )}
             </div>
+
+            {/* Message Input */}
             <div>
               <label htmlFor="message" className="block text-sm font-medium text-gray-700">
-                Message
+                Tin Nhắn
               </label>
               <textarea
                 id="message"
@@ -221,31 +223,27 @@ const ContactUs: React.FC = () => {
                 </p>
               )}
             </div>
+
+            {/* Submit Button */}
             <div>
               <button
                 type="submit"
-                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''}`}
+                className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-pink-500 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''}`}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Submitting...
-                  </>
+                  <span className="animate-spin">Đang gửi...</span>
                 ) : (
                   <>
-                    <Send className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
-                    Send Message
+                    Gửi
+                    <Send className="w-4 h-4 ml-2" />
                   </>
                 )}
               </button>
             </div>
           </form>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

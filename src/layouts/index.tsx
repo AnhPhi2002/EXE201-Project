@@ -11,24 +11,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-blue-300 relative overflow-hidden">
       {/* Các khối mờ hình tròn */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 bg-purple-300 rounded-full filter blur-3xl opacity-30"></div>
-      <div className="absolute top-1/2 -right-48 w-96 h-96 bg-blue-300 rounded-full filter blur-3xl opacity-30"></div>
+     
 
       {/* Header cố định ở đầu trang */}
       <Header />
 
       {/* Phần nội dung chính với hiệu ứng mờ nền */}
       <div className="relative z-10 pt-20 backdrop-blur-sm bg-white/10 border-t border-white/20">
-        <main className="container mx-auto px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            role="main"
-            tabIndex={0}
-          >
+        <main className=" ">
+        
             {children}
-          </motion.div>
+   
         </main>
 
         {/* Footer */}

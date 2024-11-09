@@ -18,6 +18,9 @@ interface Post {
 }
 
 const BlogSection: React.FC = () => {
+  useEffect(() => {
+    document.title = "Bài viết| LearnUp"
+  }, [])
   const [posts, setPosts] = useState<Post[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");

@@ -12,7 +12,7 @@ import Layout from './layouts';
 import LoginPage from './pages/login';
 import ResetPassword from './pages/reset-password';
 import RegisterPage from './pages/register';
-// import VerifyPassword from './pages/reset-password/verifiy-password';
+
 import VideoPage from './pages/video-page';
 import QuestionPage from './pages/question-page';
 import QuestionDetailPage from './pages/question-page/detail';
@@ -32,6 +32,7 @@ import CommentManagementDashboard from './pages/dashboard/comment-management';
 import MeetingManagementDashboard from './pages/dashboard/meeting-management';
 import PermissionManagementDashboard from './pages/dashboard/permission-management';
 import SemesterManagementDashboard from './pages/dashboard/semester-management';
+import AboutUs from './pages/about-page';
 
 
 // Cấu hình router
@@ -102,6 +103,11 @@ const router = createBrowserRouter([
       {
         path: '/contact',
         element: <ContactUs />,
+        
+      },
+      {
+        path: '/about',
+        element: <AboutUs />,
       },
     ],
     
