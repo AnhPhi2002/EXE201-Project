@@ -32,7 +32,8 @@ import CommentManagementDashboard from './pages/dashboard/comment-management';
 import MeetingManagementDashboard from './pages/dashboard/meeting-management';
 import PermissionManagementDashboard from './pages/dashboard/permission-management';
 import SemesterManagementDashboard from './pages/dashboard/semester-management';
-import AboutUs from './pages/about-page';
+import PaymentPage from './pages/payment-page';
+import SuccessPaymentPage from './pages/success_payment_page';
 
 
 // Cấu hình router
@@ -106,8 +107,12 @@ const router = createBrowserRouter([
         
       },
       {
-        path: '/about',
-        element: <AboutUs />,
+        path: '/payment',
+        element: <PaymentPage />,
+      },
+      {
+        path: '/payment/success',
+        element: <SuccessPaymentPage />,
       },
     ],
     

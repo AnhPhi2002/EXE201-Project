@@ -26,3 +26,13 @@ export interface Resource {
   allowedRoles?: ('member_free' | 'member_premium')[];
   subject: string;
 }
+
+export interface PaymentState {
+  loading: boolean;
+  error: string | null;
+  checkoutUrl: string | null;
+}
+
+export interface RootState {
+  payment: PaymentState;
+}

@@ -4,6 +4,7 @@ import semesterReducer from './redux/semesterSlice';
 import subjectReducer from './redux/subjectSlice';
 import resourceReducer from './redux/resourceSlice';
 import authReducer from './redux/authSlice';
+import paymentReducer from './redux/paymentSlice';
 
 
 const rootReducer = combineReducers({
@@ -11,7 +12,8 @@ const rootReducer = combineReducers({
   semesters: semesterReducer,
   subjects: subjectReducer,
   resources: resourceReducer,
-  auth: authReducer
+  auth: authReducer,
+  payment: paymentReducer,
 });
 
 export const store = configureStore({

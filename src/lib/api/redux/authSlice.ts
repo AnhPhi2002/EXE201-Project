@@ -21,9 +21,10 @@ export const login = createAsyncThunk(
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
       const response = await axiosClient.post('/api/auth/login', credentials);
-      const { token, role } = response.data;
+      const { token, role, name } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
+      localStorage.setItem('name', name);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Đăng nhập thất bại');
