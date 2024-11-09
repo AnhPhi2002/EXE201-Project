@@ -34,6 +34,7 @@ import PermissionManagementDashboard from './pages/dashboard/permission-manageme
 import SemesterManagementDashboard from './pages/dashboard/semester-management';
 import PaymentPage from './pages/payment-page';
 import SuccessPaymentPage from './pages/success_payment_page';
+import AboutUs from './pages/about-page';
 
 
 // Cấu hình router
@@ -104,6 +105,11 @@ const router = createBrowserRouter([
       {
         path: '/contact',
         element: <ContactUs />,
+        
+      },
+      {
+        path: '/about',
+        element: <AboutUs />,
         
       },
       {
