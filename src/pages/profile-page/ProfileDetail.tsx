@@ -3,11 +3,15 @@ import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, Crown } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchUserInfo, updateUserProfile } from '@/lib/api/redux/userSlice';
+import { RootState, AppDispatch } from '@/lib/api/store';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useNavigate } from 'react-router-dom';
 
 const schema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -23,22 +27,11 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-interface UserProfile {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  phone?: string;
-  gender?: 'male' | 'female' | 'other';
-  dob?: string;
-  about?: string;
-  avatar?: string;
-}
-
 const ProfileDetail: React.FC = () => {
-  const [profilePicture, setProfilePicture] = useState('');
-  const [userId, setUserId] = useState<string | null>(null);
-  const [role, setRole] = useState<string>(''); // Trạng thái để lưu vai trò của người dùng
+  const dispatch = useDispatch<AppDispatch>();
+  const { profile, loading, error } = useSelector((state: RootState) => state.user);
+  const navigate = useNavigate();
+
   const methods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -53,38 +46,23 @@ const ProfileDetail: React.FC = () => {
   });
   const { handleSubmit, control, setValue, formState: { errors } } = methods;
 
+  const [profilePicture, setProfilePicture] = useState(profile?.avatar || '');
+
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await fetch('https://learnup.work/api/auth/user-info', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch user info");
-        }
-
-        const data: UserProfile = await response.json();
-
-        setUserId(data._id);
-        setRole(data.role); // Lưu vai trò người dùng
-        setValue('name', data.name);
-        setValue('email', data.email);
-        setValue('phone', data.phone || '');
-        setValue('gender', data.gender || 'male');
-        setValue('dob', data.dob || '2000-01-01');
-        setValue('about', data.about || '');
-        setProfilePicture(data.avatar || '');
-        setValue('avatar', data.avatar || '');
-      } catch (error) {
-        console.error("Error fetching user info:", error);
+    dispatch(fetchUserInfo()).then((action) => {
+      if (fetchUserInfo.fulfilled.match(action)) {
+        const userData = action.payload;
+        setValue('name', userData.name);
+        setValue('email', userData.email);
+        setValue('phone', userData.phone || '');
+        setValue('gender', userData.gender || 'male');
+        setValue('dob', userData.dob || '2000-01-01');
+        setValue('about', userData.about || '');
+        setProfilePicture(userData.avatar || '');
+        setValue('avatar', userData.avatar || '');
       }
-    };
-    fetchUserInfo();
-  }, [setValue]);
+    });
+  }, [dispatch, setValue]);
 
   const openCloudinaryWidget = () => {
     if ((window as any).cloudinary) {
@@ -110,36 +88,23 @@ const ProfileDetail: React.FC = () => {
     }
   };
 
-  const onSubmit = async (data: FormData) => {
-    const token = localStorage.getItem('token');
-
-    if (!userId) {
-      alert("User ID not found.");
-      return;
-    }
-
-    try {
-      const response = await fetch(`https://learnup.work/api/auth/update/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
+  const onSubmit = (data: FormData) => {
+    if (profile?._id) {
+      dispatch(updateUserProfile({ ...data, _id: profile._id })).then((action) => {
+        if (updateUserProfile.fulfilled.match(action)) {
+          alert("Profile updated successfully!");
+          navigate('/profile');
+        } else {
+          alert("Failed to update profile.");
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Server error:", errorData);
-        alert(`Update failed: ${errorData.message || 'Unknown error'}`);
-        return;
-      }
-
-      alert("Profile updated successfully!");
-    } catch (error) {
-      console.error("Error updating profile:", error);
+    } else {
+      alert("User ID not found.");
     }
   };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18" style={{padding: '100px 0'}}>
@@ -152,8 +117,10 @@ const ProfileDetail: React.FC = () => {
             </Avatar>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center">
               Account Settings
-              {role === 'member_premium' && (
-                <Crown className="ml-2 text-yellow-500 w-6 h-6" aria-label="Premium Member" />
+              {profile?.role === 'member_premium' && (
+                <span title="Premium Member">
+                  <Crown className="ml-2 text-yellow-500 w-6 h-6" />
+                </span>
               )}
             </h1>
           </div>

@@ -1,62 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '@/lib/api/store';
+import { fetchUserInfo } from '@/lib/api/redux/userSlice';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-
-interface UserProfile {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-  address?: string;
-  phone?: string;
-  avatar?: string;
-  gender?: string;
-  about?: string;
-}
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const dispatch = useDispatch<AppDispatch>();
+  const { profile, loading, error } = useSelector((state: RootState) => state.user);
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Bạn cần đăng nhập để có thể xem trang này');
-        navigate('/login');
-        return;
-      }
-
-      try {
-        const response = await fetch("https://learnup.work/api/auth/user-info", {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch profile data");
-        }
-
-        const data = await response.json();
-        setProfile(data);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [navigate]);
+    dispatch(fetchUserInfo());
+  }, [dispatch]);
 
   const handleUpdateClick = () => {
     navigate('/profile-detail');
   };
 
   if (loading) return <p>Loading...</p>;
-  if (!profile) return <p>No profile data found.</p>;
+  if (!profile) return <p>{error || "No profile data found."}</p>;
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18">
