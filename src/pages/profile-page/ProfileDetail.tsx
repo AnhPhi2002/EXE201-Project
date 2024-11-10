@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -18,66 +18,151 @@ const schema = z.object({
   }),
   dob: z.string().nonempty({ message: 'Date of birth is required.' }),
   about: z.string().max(500, { message: 'About must be less than 500 characters.' }),
+  avatar: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
-const ProfileDetail: React.FC = () => {
-  const [profilePicture, setProfilePicture] = React.useState(
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  );
-  const [isPremium, setIsPremium] = React.useState(false);
+interface UserProfile {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  phone?: string;
+  gender?: 'male' | 'female' | 'other';
+  dob?: string;
+  about?: string;
+  avatar?: string;
+}
 
+const ProfileDetail: React.FC = () => {
+  const [profilePicture, setProfilePicture] = useState('');
+  const [userId, setUserId] = useState<string | null>(null);
+  const [role, setRole] = useState<string>(''); // Trạng thái để lưu vai trò của người dùng
   const methods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
+      name: '',
+      email: '',
       phone: '',
       gender: 'male',
-      dob: '',
+      dob: '2000-01-01',
       about: '',
+      avatar: '',
     },
   });
+  const { handleSubmit, control, setValue, formState: { errors } } = methods;
 
-  const { handleSubmit, control, formState: { errors } } = methods;
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('https://learnup.work/api/auth/user-info', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-  const onSubmit = (data: FormData) => {
-    console.log(data);
+        if (!response.ok) {
+          throw new Error("Failed to fetch user info");
+        }
+
+        const data: UserProfile = await response.json();
+
+        setUserId(data._id);
+        setRole(data.role); // Lưu vai trò người dùng
+        setValue('name', data.name);
+        setValue('email', data.email);
+        setValue('phone', data.phone || '');
+        setValue('gender', data.gender || 'male');
+        setValue('dob', data.dob || '2000-01-01');
+        setValue('about', data.about || '');
+        setProfilePicture(data.avatar || '');
+        setValue('avatar', data.avatar || '');
+      } catch (error) {
+        console.error("Error fetching user info:", error);
+      }
+    };
+    fetchUserInfo();
+  }, [setValue]);
+
+  const openCloudinaryWidget = () => {
+    if ((window as any).cloudinary) {
+      (window as any).cloudinary.openUploadWidget(
+        {
+          cloudName: "dbezyvjzm",
+          uploadPreset: "learnup",
+          sources: ["local", "camera"],
+          cropping: true,
+          multiple: false,
+          defaultSource: "local",
+        },
+        (error: any, result: any) => {
+          if (!error && result && result.event === "success") {
+            const uploadedUrl = result.info.secure_url;
+            setProfilePicture(uploadedUrl);
+            setValue('avatar', uploadedUrl);
+          }
+        }
+      );
+    } else {
+      console.error("Cloudinary Widget script not loaded.");
+    }
   };
 
-  const handleUpgradeToPremium = () => {
-    setIsPremium(true);
-  };
+  const onSubmit = async (data: FormData) => {
+    const token = localStorage.getItem('token');
 
-  const handleProfilePictureUpdate = () => {
-    setProfilePicture('https://images.unsplash.com/photo-1554151228-14d9def656e4?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80');
+    if (!userId) {
+      alert("User ID not found.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://learnup.work/api/auth/update/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Server error:", errorData);
+        alert(`Update failed: ${errorData.message || 'Unknown error'}`);
+        return;
+      }
+
+      alert("Profile updated successfully!");
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18">
+    <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18" style={{padding: '100px 0'}}>
       <div className="max-w-7xl w-full p-8 bg-white rounded-lg shadow-lg mt-10">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <Avatar className="w-20 h-20 mr-4 border-4 border-indigo-500 shadow-lg">
-              <AvatarImage src={profilePicture} alt="Profile" />
+              <AvatarImage src={profilePicture || "https://example.com/default-avatar.jpg"} alt="Profile" />
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
               Account Settings
-              {isPremium && <Crown className="inline-block ml-2 text-yellow-500 w-6 h-6" />}
+              {role === 'member_premium' && (
+                <Crown className="ml-2 text-yellow-500 w-6 h-6" aria-label="Premium Member" />
+              )}
             </h1>
           </div>
-          <div>
-            {!isPremium && (
-              <Button onClick={handleUpgradeToPremium} className="text-indigo-600">
-                Upgrade to Premium
-              </Button>
-            )}
-            <Button onClick={handleProfilePictureUpdate} className="text-indigo-600 ml-4">
-              Change Profile Picture
-            </Button>
-          </div>
+          <Button
+            onClick={openCloudinaryWidget}
+            className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Change Profile Picture
+          </Button>
         </div>
 
         <FormProvider {...methods}>
@@ -90,13 +175,8 @@ const ProfileDetail: React.FC = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Your name"
-                        {...field}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      />
+                      <Input {...field} placeholder="Your name" />
                     </FormControl>
-                    <FormDescription>Your public display name.</FormDescription>
                     {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
                   </FormItem>
                 )}
@@ -110,13 +190,8 @@ const ProfileDetail: React.FC = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="you@example.com"
-                      {...field}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                    <Input {...field} placeholder="you@example.com" />
                   </FormControl>
-                  <FormDescription>We'll never share your email with anyone else.</FormDescription>
                   {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
                 </FormItem>
               )}
@@ -129,13 +204,8 @@ const ProfileDetail: React.FC = () => {
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="1234567890"
-                      {...field}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                    <Input {...field} placeholder="1234567890" />
                   </FormControl>
-                  <FormDescription>Your contact number.</FormDescription>
                   {errors.phone && <FormMessage>{errors.phone.message}</FormMessage>}
                 </FormItem>
               )}
@@ -157,7 +227,6 @@ const ProfileDetail: React.FC = () => {
                       <option value="other">Other</option>
                     </select>
                   </FormControl>
-                  <FormDescription>Select your gender.</FormDescription>
                   {errors.gender && <FormMessage>{errors.gender.message}</FormMessage>}
                 </FormItem>
               )}
@@ -189,23 +258,18 @@ const ProfileDetail: React.FC = () => {
                   <FormLabel>About</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Tell us about yourself..."
                       {...field}
+                      placeholder="Tell us about yourself..."
                       className="w-full h-32 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </FormControl>
-                  <FormDescription>A short description about you.</FormDescription>
                   {errors.about && <FormMessage>{errors.about.message}</FormMessage>}
                 </FormItem>
               )}
             />
 
             <div className="col-span-2 flex justify-end space-x-4 mt-6">
-              <Button
-                type="submit"
-                variant="default"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors"
-              >
+              <Button type="submit" variant="default" className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors">
                 <Save className="mr-2 w-4 h-4" />
                 Save Changes
               </Button>
