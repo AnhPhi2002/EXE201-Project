@@ -25,7 +25,7 @@ const formSchema = z.object({
   gender: z.string().optional(),
 });
 
-type FormData = z.infer<typeof formSchema>; 
+type FormData = z.infer<typeof formSchema>;
 
 const defaultValues: FormData = {
   name: '',
@@ -40,7 +40,7 @@ interface UpdateUserProps {
   existingUser?: FormData;
   userId?: string;
   open?: boolean;
-  handleUpdate?: () => void
+  handleUpdate?: () => void;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>; // Nhận trạng thái từ component cha
 }
 
@@ -57,7 +57,6 @@ const UpdateUser: React.FC<UpdateUserProps> = ({ existingUser, open, setOpen }) 
     }
   }
 
-
   // const handleUpdate(id: string) => {
   //   // handle action
   // }
@@ -65,20 +64,13 @@ const UpdateUser: React.FC<UpdateUserProps> = ({ existingUser, open, setOpen }) 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogHeader>
-        <DialogTrigger>
-          Update
-
-        </DialogTrigger>
-        <DialogTrigger>
-          Update
-          
-        </DialogTrigger>
+        <DialogTrigger className="mr-12">Update</DialogTrigger>
       </DialogHeader>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle> Update user </DialogTitle>
         </DialogHeader>
-         
+
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid gap-4 py-4">
@@ -199,9 +191,7 @@ const UpdateUser: React.FC<UpdateUserProps> = ({ existingUser, open, setOpen }) 
                 Update now
               </Button>
 
-              <Button onClick={() => setOpen?.  (!open)}>
-                Cancel
-              </Button>
+              <Button onClick={() => setOpen?.(!open)}>Cancel</Button>
             </DialogFooter>
           </form>
         </Form>

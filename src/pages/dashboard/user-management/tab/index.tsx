@@ -35,6 +35,49 @@ const mockUsers: User[] = [
     gender: 'male',
     createdAt: '2023-01-01T12:00:00Z',
   },
+  {
+    _id: 2,
+    name: 'John Doe',
+    email: 'johndoe@example.com',
+    password: 'password123',
+    role: 'admin',
+    permissions: ['manage_users', 'edit_content'],
+    address: '123 Main St, Springfield',
+    phone: '123-456-7890',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+    gender: 'male',
+    createdAt: '2023-01-01T12:00:00Z',
+  },
+  {
+    _id: 5,
+    name: 'John Doe',
+    email: 'johndoe@example.com',
+    password: 'password123',
+    role: 'admin',
+    permissions: ['manage_users', 'edit_content'],
+    address: '123 Main St, Springfield',
+    phone: '123-456-7890',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+    gender: 'male',
+    createdAt: '2023-01-01T12:00:00Z',
+  },
+  
+  {
+    _id: 4,
+    name: 'John Doe',
+    email: 'johndoe@example.com',
+    password: 'password123',
+    role: 'admin',
+    permissions: ['manage_users', 'edit_content'],
+    address: '123 Main St, Springfield',
+    phone: '123-456-7890',
+    avatar: 'https://i.pravatar.cc/150?img=1',
+    gender: 'male',
+    createdAt: '2023-01-01T12:00:00Z',
+  },
+  
+  
+  
 ];
 
 const exportToExcel = (data: User[]) => {

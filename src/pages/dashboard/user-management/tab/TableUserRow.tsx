@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import UserActionMenu from './UserActionMenu';
-import UpdateUser from '../UpdateUser';  // Import UpdateUser để mở dialog
+
 
 interface User {
   _id: number;
@@ -30,14 +30,9 @@ const userTypeOptions = [
 ];
 
 const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
-  const [open, setOpen] = useState(false);  // Trạng thái để mở/đóng dialog UpdateUser
 
   const handleRoleChange = (newRole: string) => {
     console.log(`Change role of user ${user._id} to ${newRole}`);
-  };
-
-  const handleUpdateClick = () => {
-    setOpen(true);  // Mở dialog khi nhấn "Update"
   };
 
   return (
@@ -62,19 +57,13 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
         <TableCell className="hidden md:table-cell">{new Date(user.createdAt).toLocaleDateString()}</TableCell>
         <TableCell>
           <UserActionMenu
-            onUpdate={handleUpdateClick}  // Truyền hàm mở dialog cho UserActionMenu
+            onUpdate={() => console.log('Update user dialog opened')}
             userTypeOptions={userTypeOptions}
             onRoleChange={handleRoleChange}
           />
         </TableCell>
       </TableRow>
 
-      {/* Dialog UpdateUser */}
-      <UpdateUser
-        existingUser={user}
-        open={open}
-        setOpen={setOpen} 
-      />
     </>
   );
 };
