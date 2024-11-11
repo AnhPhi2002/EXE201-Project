@@ -7,14 +7,11 @@ import { AppDispatch } from '@/lib/api/store';
 
 const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
-  // Fix: Gọi useDispatch với type
   const dispatch = useDispatch<AppDispatch>();
   
-  // Fix: Thêm type cho state
   const { loading, error, checkoutUrl } = useSelector((state: RootState) => state.payment);
   const [userName, setUserName] = React.useState<string>('');
 
-  // Kiểm tra authentication
   useEffect(() => {
     const token = localStorage.getItem('token');
     const name = localStorage.getItem('name');
@@ -34,7 +31,6 @@ const PaymentPage: React.FC = () => {
     }
   }, [navigate]);
 
-  // Watch for checkoutUrl changes
   useEffect(() => {
     if (checkoutUrl) {
       window.location.href = checkoutUrl;
@@ -46,7 +42,7 @@ const PaymentPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-gray-100 rounded-lg shadow-lg">
+    <div className="max-w-lg mx-auto p-6 bg-gray-100 rounded-lg shadow-lg my-20">
       <h1 className="text-2xl font-semibold text-center mb-6">Update Premium Account</h1>
 
       <section className="mb-6">
@@ -65,7 +61,17 @@ const PaymentPage: React.FC = () => {
       </section>
 
       <section className="mb-6">
+        <h2 className="text-xl font-medium mb-4">Package Information</h2>
+        <div className="p-4 bg-white rounded-lg shadow-sm">
+          <p className="text-lg">Price: <span className="font-semibold">50,000 VND</span> / month</p>
+        </div>
+      </section>
+
+      <section className="mb-6">
         <h2 className="text-xl font-medium mb-4">Payment Method</h2>
+        <div className="p-4 bg-white rounded-lg shadow-sm">
+          <p className="text-lg">Method: <span className="font-semibold">Transfer</span></p>
+        </div>
       </section>
 
       <button

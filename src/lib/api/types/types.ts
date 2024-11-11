@@ -36,3 +36,18 @@ export interface PaymentState {
 export interface RootState {
   payment: PaymentState;
 }
+
+export interface UserProfile {
+  _id: string;
+  name: string;
+  email: string;
+  role?: 'member_free' | 'member_premium';
+  address?: string;
+  phone?: string;
+  avatar?: string;
+  gender?: 'male' | 'female' | 'other';
+  dob?: string;
+  about?: string;
+  birthDate?: Date;
+}
+

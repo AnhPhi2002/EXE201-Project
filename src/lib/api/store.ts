@@ -5,6 +5,7 @@ import subjectReducer from './redux/subjectSlice';
 import resourceReducer from './redux/resourceSlice';
 import authReducer from './redux/authSlice';
 import paymentReducer from './redux/paymentSlice';
+import { userReducer } from './redux/userSlice';
 
 
 const rootReducer = combineReducers({
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   resources: resourceReducer,
   auth: authReducer,
   payment: paymentReducer,
+  user: userReducer,
 });
 
 export const store = configureStore({

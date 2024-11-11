@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, Crown } from 'lucide-react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
+import { fetchUserInfo, updateUserProfile } from '@/lib/api/redux/userSlice';
+import { RootState, AppDispatch } from '@/lib/api/store';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
@@ -16,68 +20,116 @@ const schema = z.object({
   gender: z.enum(['male', 'female', 'other'], {
     required_error: 'Gender is required.',
   }),
-  dob: z.string().nonempty({ message: 'Date of birth is required.' }),
+  birthDate: z.date(),
   about: z.string().max(500, { message: 'About must be less than 500 characters.' }),
+  avatar: z.string().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
 const ProfileDetail: React.FC = () => {
-  const [profilePicture, setProfilePicture] = React.useState(
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  );
-  const [isPremium, setIsPremium] = React.useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
+  const { profile, loading, error } = useSelector((state: RootState) => state.user);
 
   const methods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: 'John Doe',
-      email: 'johndoe@example.com',
+      name: '',
+      email: '',
       phone: '',
       gender: 'male',
-      dob: '',
+      birthDate: new Date('2000-01-01'), // Cập nhật defaultValue thành birthDate
       about: '',
+      avatar: '',
     },
   });
+  const { handleSubmit, control, setValue, formState: { errors } } = methods;
 
-  const { handleSubmit, control, formState: { errors } } = methods;
+  const [profilePicture, setProfilePicture] = useState(profile?.avatar || '');
+
+  useEffect(() => {
+    dispatch(fetchUserInfo()).then((action) => {
+      if (fetchUserInfo.fulfilled.match(action)) {
+        const userData = action.payload;
+        setValue('name', userData.name);
+        setValue('email', userData.email);
+        setValue('phone', userData.phone || '');
+        setValue('gender', userData.gender || 'male');
+        setValue('birthDate', userData.birthDate ? new Date(userData.birthDate) : new Date('2000-01-01'));
+        setValue('about', userData.about || '');
+        setProfilePicture(userData.avatar || '');
+        setValue('avatar', userData.avatar || '');
+      }
+    });
+  }, [dispatch, setValue]);
+
+  const openCloudinaryWidget = () => {
+    if ((window as any).cloudinary) {
+      (window as any).cloudinary.openUploadWidget(
+        {
+          cloudName: "dbezyvjzm",
+          uploadPreset: "learnup",
+          sources: ["local", "camera"],
+          cropping: true,
+          multiple: false,
+          defaultSource: "local",
+        },
+        (error: any, result: any) => {
+          if (!error && result && result.event === "success") {
+            const uploadedUrl = result.info.secure_url;
+            setProfilePicture(uploadedUrl);
+            setValue('avatar', uploadedUrl);
+          }
+        }
+      );
+    } else {
+      console.error("Cloudinary Widget script not loaded.");
+    }
+  };
 
   const onSubmit = (data: FormData) => {
-    console.log(data);
+    if (profile?._id) {
+      dispatch(updateUserProfile({ ...data, _id: profile._id })).then((action) => {
+        if (updateUserProfile.fulfilled.match(action)) {
+          alert("Profile updated successfully!");
+          navigate('/profile'); // Điều hướng về trang /profile sau khi cập nhật thành công
+        } else {
+          alert("Failed to update profile.");
+        }
+      });
+    } else {
+      alert("User ID not found.");
+    }
   };
 
-  const handleUpgradeToPremium = () => {
-    setIsPremium(true);
-  };
-
-  const handleProfilePictureUpdate = () => {
-    setProfilePicture('https://images.unsplash.com/photo-1554151228-14d9def656e4?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80');
-  };
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18">
+    <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18" style={{ padding: '100px 0' }}>
       <div className="max-w-7xl w-full p-8 bg-white rounded-lg shadow-lg mt-10">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <Avatar className="w-20 h-20 mr-4 border-4 border-indigo-500 shadow-lg">
-              <AvatarImage src={profilePicture} alt="Profile" />
+              <AvatarImage src={profilePicture || "https://example.com/default-avatar.jpg"} alt="Profile" />
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
               Account Settings
-              {isPremium && <Crown className="inline-block ml-2 text-yellow-500 w-6 h-6" />}
+              {profile?.role === 'member_premium' && (
+                <span title="Premium Member">
+                  <Crown className="ml-2 text-yellow-500 w-6 h-6" />
+                </span>
+              )}
             </h1>
           </div>
-          <div>
-            {!isPremium && (
-              <Button onClick={handleUpgradeToPremium} className="text-indigo-600">
-                Upgrade to Premium
-              </Button>
-            )}
-            <Button onClick={handleProfilePictureUpdate} className="text-indigo-600 ml-4">
-              Change Profile Picture
-            </Button>
-          </div>
+          <Button
+            onClick={openCloudinaryWidget}
+            className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Change Profile Picture
+          </Button>
         </div>
 
         <FormProvider {...methods}>
@@ -90,13 +142,8 @@ const ProfileDetail: React.FC = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Your name"
-                        {...field}
-                        className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                      />
+                      <Input {...field} placeholder="Your name" />
                     </FormControl>
-                    <FormDescription>Your public display name.</FormDescription>
                     {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
                   </FormItem>
                 )}
@@ -110,13 +157,8 @@ const ProfileDetail: React.FC = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="you@example.com"
-                      {...field}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                    <Input {...field} placeholder="you@example.com" />
                   </FormControl>
-                  <FormDescription>We'll never share your email with anyone else.</FormDescription>
                   {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
                 </FormItem>
               )}
@@ -129,13 +171,8 @@ const ProfileDetail: React.FC = () => {
                 <FormItem>
                   <FormLabel>Phone Number</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="1234567890"
-                      {...field}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    />
+                    <Input {...field} placeholder="1234567890" />
                   </FormControl>
-                  <FormDescription>Your contact number.</FormDescription>
                   {errors.phone && <FormMessage>{errors.phone.message}</FormMessage>}
                 </FormItem>
               )}
@@ -157,7 +194,6 @@ const ProfileDetail: React.FC = () => {
                       <option value="other">Other</option>
                     </select>
                   </FormControl>
-                  <FormDescription>Select your gender.</FormDescription>
                   {errors.gender && <FormMessage>{errors.gender.message}</FormMessage>}
                 </FormItem>
               )}
@@ -165,7 +201,7 @@ const ProfileDetail: React.FC = () => {
 
             <FormField
               control={control}
-              name="dob"
+              name="birthDate"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Date of Birth</FormLabel>
@@ -173,10 +209,12 @@ const ProfileDetail: React.FC = () => {
                     <Input
                       type="date"
                       {...field}
+                      value={field.value ? field.value.toISOString().split('T')[0] : ''}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                       className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </FormControl>
-                  {errors.dob && <FormMessage>{errors.dob.message}</FormMessage>}
+                  {errors.birthDate && <FormMessage>{errors.birthDate.message}</FormMessage>}
                 </FormItem>
               )}
             />
@@ -189,23 +227,18 @@ const ProfileDetail: React.FC = () => {
                   <FormLabel>About</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Tell us about yourself..."
                       {...field}
+                      placeholder="Tell us about yourself..."
                       className="w-full h-32 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </FormControl>
-                  <FormDescription>A short description about you.</FormDescription>
                   {errors.about && <FormMessage>{errors.about.message}</FormMessage>}
                 </FormItem>
               )}
             />
 
             <div className="col-span-2 flex justify-end space-x-4 mt-6">
-              <Button
-                type="submit"
-                variant="default"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors"
-              >
+              <Button type="submit" variant="default" className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition-colors">
                 <Save className="mr-2 w-4 h-4" />
                 Save Changes
               </Button>
