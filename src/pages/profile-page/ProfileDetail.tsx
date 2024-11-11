@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, Crown } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
 import { fetchUserInfo, updateUserProfile } from '@/lib/api/redux/userSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -11,7 +12,6 @@ import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessa
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { useNavigate } from 'react-router-dom';
 
 const schema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -20,7 +20,7 @@ const schema = z.object({
   gender: z.enum(['male', 'female', 'other'], {
     required_error: 'Gender is required.',
   }),
-  dob: z.string().nonempty({ message: 'Date of birth is required.' }),
+  birthDate: z.date(),
   about: z.string().max(500, { message: 'About must be less than 500 characters.' }),
   avatar: z.string().optional(),
 });
@@ -29,8 +29,8 @@ type FormData = z.infer<typeof schema>;
 
 const ProfileDetail: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
   const { profile, loading, error } = useSelector((state: RootState) => state.user);
-  const navigate = useNavigate();
 
   const methods = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -39,7 +39,7 @@ const ProfileDetail: React.FC = () => {
       email: '',
       phone: '',
       gender: 'male',
-      dob: '2000-01-01',
+      birthDate: new Date('2000-01-01'), // Cập nhật defaultValue thành birthDate
       about: '',
       avatar: '',
     },
@@ -56,7 +56,7 @@ const ProfileDetail: React.FC = () => {
         setValue('email', userData.email);
         setValue('phone', userData.phone || '');
         setValue('gender', userData.gender || 'male');
-        setValue('dob', userData.dob || '2000-01-01');
+        setValue('birthDate', userData.birthDate ? new Date(userData.birthDate) : new Date('2000-01-01'));
         setValue('about', userData.about || '');
         setProfilePicture(userData.avatar || '');
         setValue('avatar', userData.avatar || '');
@@ -93,7 +93,7 @@ const ProfileDetail: React.FC = () => {
       dispatch(updateUserProfile({ ...data, _id: profile._id })).then((action) => {
         if (updateUserProfile.fulfilled.match(action)) {
           alert("Profile updated successfully!");
-          navigate('/profile');
+          navigate('/profile'); // Điều hướng về trang /profile sau khi cập nhật thành công
         } else {
           alert("Failed to update profile.");
         }
@@ -107,7 +107,7 @@ const ProfileDetail: React.FC = () => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18" style={{padding: '100px 0'}}>
+    <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18" style={{ padding: '100px 0' }}>
       <div className="max-w-7xl w-full p-8 bg-white rounded-lg shadow-lg mt-10">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
@@ -201,7 +201,7 @@ const ProfileDetail: React.FC = () => {
 
             <FormField
               control={control}
-              name="dob"
+              name="birthDate"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Date of Birth</FormLabel>
@@ -209,10 +209,12 @@ const ProfileDetail: React.FC = () => {
                     <Input
                       type="date"
                       {...field}
+                      value={field.value ? field.value.toISOString().split('T')[0] : ''}
+                      onChange={(e) => field.onChange(new Date(e.target.value))}
                       className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
                     />
                   </FormControl>
-                  {errors.dob && <FormMessage>{errors.dob.message}</FormMessage>}
+                  {errors.birthDate && <FormMessage>{errors.birthDate.message}</FormMessage>}
                 </FormItem>
               )}
             />
