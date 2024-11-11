@@ -51,3 +51,21 @@ export interface UserProfile {
   birthDate?: Date;
 }
 
+
+export interface Post {
+  _id: string;
+  title: string;
+  content: string;
+  authorId: { _id: string };
+  tags: string[];
+  createdAt: string;
+  updatedAt: string;
+  image?: string;
+}
+
+export interface Author {
+  _id: string;
+  name: string;
+  avatar: string;
+}
+

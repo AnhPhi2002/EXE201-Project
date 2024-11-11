@@ -6,6 +6,7 @@ import resourceReducer from './redux/resourceSlice';
 import authReducer from './redux/authSlice';
 import paymentReducer from './redux/paymentSlice';
 import { userReducer } from './redux/userSlice';
+import postReducer from './redux/postSlice';
 
 
 const rootReducer = combineReducers({
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   auth: authReducer,
   payment: paymentReducer,
   user: userReducer,
+  posts: postReducer,
 });
 
 export const store = configureStore({
