@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client';
 
 import { Provider } from 'react-redux';
 import { createBrowserRouter, Outlet, RouterProvider } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
 import './index.css';
 import { store } from './lib/api/store';
 import HomePage from './pages/home-page';
@@ -17,7 +16,6 @@ import VideoPage from './pages/video-page';
 import QuestionPage from './pages/question-page';
 import QuestionDetailPage from './pages/question-page/detail';
 import SubjectPage from './pages/subject-page';
-import CommentSubject from './pages/subject-page/CommentSubject';
 import ProfilePage from './pages/profile-page';
 import ProfileDetail from './pages/profile-page/ProfileDetail';
 import Dashboard from './pages/dashboard';
@@ -35,6 +33,8 @@ import SemesterManagementDashboard from './pages/dashboard/semester-management';
 import PaymentPage from './pages/payment-page';
 import SuccessPaymentPage from './pages/success_payment_page';
 import AboutUs from './pages/about-page';
+import CodingCourseSection from './pages/search-subject/CodingCourseSection';
+import { Toaster } from 'sonner';
 
 
 // Cấu hình router
@@ -74,10 +74,6 @@ const router = createBrowserRouter([
         element: <QuestionDetailPage />,
       },
       {
-        path: '/subject',
-        element: <SubjectPage />,
-      },
-      {
         path: '/subject/:courseId',  // Thêm route động cho subject
         element: <SubjectPage />,
       },
@@ -90,10 +86,7 @@ const router = createBrowserRouter([
         path: '/profile-detail', 
         element: <ProfileDetail />,
       },
-      {
-        path: '/comment',
-        element: <CommentSubject />,
-      },
+
       {
         path: '/blog',
         element: <BlogSection />,
@@ -101,6 +94,10 @@ const router = createBrowserRouter([
       {
         path: '/blog-detail',
         element: <BlogDetail />,
+      },
+      {
+        path: '/subject',
+        element: <CodingCourseSection />,
       },
       {
         path: '/contact',
@@ -182,7 +179,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Provider store={store}>
       <RouterProvider router={router} />
-      <ToastContainer autoClose={3000} /> {/* Nếu dùng react-toastify */}
+      <Toaster closeButton position="top-right" richColors duration={1000} />
     </Provider>
   </React.StrictMode>,
 );

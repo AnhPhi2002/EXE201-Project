@@ -61,9 +61,9 @@ const CodingCourseSection = () => {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-semibold mb-4">Phần ngành học </h1>
-      <div className="space-y-4">
+    <div className="px-[10%] py-[7%]">
+      <h1 className="text-4xl text-white font-semibold mb-10">Bạn có thể tìm kiếm phần học ở đây</h1>
+      <div className="space-y-4  ">
         {departments.map((major) => (
           <DepartmentItem
             key={major.id}

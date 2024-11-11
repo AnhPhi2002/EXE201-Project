@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Home, ChevronRight, Star, Heart } from 'lucide-react';
+// Import các biểu tượng từ react-icons
+import { FaStar, FaHome, FaChevronRight, FaHeart } from 'react-icons/fa';
+
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { fetchResourcesBySubject } from '@/lib/api/redux/resourceSlice';
 import { fetchSubjectById } from '@/lib/api/redux/subjectSlice';
@@ -25,6 +27,12 @@ const SubjectPage: React.FC = () => {
 
   const userRole = localStorage.getItem('role') || 'member_free';
 
+  const currentUser = {
+    _id: 'currentUserId',
+    name: 'John Doe',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
+  };
+
   useEffect(() => {
     if (subjectId) {
       dispatch(fetchResourcesBySubject(subjectId));
@@ -39,112 +47,106 @@ const SubjectPage: React.FC = () => {
   };
 
   const canAccessResource = (allowedRoles: string[]): boolean => {
-    return (
-      userRole === 'admin' || 
-      userRole === 'staff' || 
-      userRole === 'member_premium' || 
-      allowedRoles.includes(userRole)
-    );
+    return userRole === 'admin' || userRole === 'staff' || userRole === 'member_premium' || allowedRoles.includes(userRole);
   };
 
   return (
-    <div className=" min-h-screen">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className=" ">
-          <nav className="mb-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="flex items-center space-x-4 py-4 text-sm text-gray-600">
-                <Home className="text-white" />
-                <ChevronRight className="text-white" />
-                <span className="text-white">Subjects</span>
-                <ChevronRight className="text-white" />
-                <span className="text-gray-800 font-medium">{subject ? subject.name : 'Loading...'}</span>
-              </div>
-            </div>
-          </nav>
-
-          <div className="mb-8 bg-gradient-to-r from-purple-500 to-indigo-500 text-white p-8 rounded-lg shadow-md">
-            <h1 className="text-4xl font-bold mb-8">{subject ? subject.name : 'Loading...'}</h1>
+    <div className="min-h-screen ">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+        {/* Breadcrumb Navigation */}
+        <nav className="text-sm 0">
+          <div className="flex items-center space-x-3">
+            {' '}
+            {/* Tăng spacing */}
+            <FaHome className="text-black text-lg" /> {/* Tăng kích thước biểu tượng */}
+            <FaChevronRight className="text-black text-lg" />
+            <span className="font-medium text-black text-lg">Môn học</span> {/* Tăng kích thước chữ */}
+            <FaChevronRight className="text-black text-lg" />
+            <span className="font-medium text-black text-lg">{subject ? subject.name : 'Loading...'}</span>
           </div>
-
-          <section className="mt-8 mb-12">
-            <h2 className="text-3xl font-semibold text-black mb-10">Resources</h2>
-            {loading ? (
-              <p className="text-gray-500">Loading resources...</p>
-            ) : error ? (
-              <p className="text-red-500">{error}</p>
-            ) : resources.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {resources.map((resource) => (
-                  <div key={resource.id} className="bg-white/60 backdrop-blur-sm p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-lg font-semibold text-purple-600">{resource.title}</h3>
-                      <span className="text-xs font-semibold text-white py-1 px-3 rounded-full bg-pink-500">
-                        {resource.type?.toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-gray-700 mb-4">{resource.description}</p>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-sm font-medium text-gray-500">Access:</span>
-                      <span className={`text-sm font-semibold py-1 px-3 rounded-full ${resource.allowedRoles?.includes('member_premium') ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                        {resource.allowedRoles?.join(', ')}
-                      </span>
-                    </div>
-                    {canAccessResource(resource.allowedRoles || []) ? (
-                      resource.fileUrls && resource.fileUrls.length > 0 && (
-                        <div className="mt-4">
-                          <h4 className="text-sm font-semibold text-gray-500 mb-2">Files:</h4>
-                          <ul className="space-y-1">
+        </nav>
+        {/* Subject Title Section */}
+        <div className="p-8 rounded-lg shadow-lg bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 backdrop-blur-sm bg-white/10 border-t border-white/20">
+          <h1 className="text-4xl font-bold text-white">{subject ? subject.name : 'Loading...'}</h1>
+        </div>
+        {/* Resources Section */}
+        <section className="space-y-6">
+          {loading ? (
+            <p className="text-white">Loading resources...</p>
+          ) : error ? (
+            <p className="text-red-500">{error}</p>
+          ) : resources.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {resources.map((resource) => (
+                <div key={resource.id} className="bg-white/30 rounded-lg p-8 shadow-lg backdrop-blur-md transform transition-all duration-300">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xl font-semibold mb-2 text-white">{resource.title}</h3>
+                    <span className="text-xs font-semibold py-1 px-3 rounded-full bg-blue-500 text-white">{resource.type?.toUpperCase()}</span>
+                  </div>
+                  <p className="text-gray-700 mb-4">{resource.description}</p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className="text-xl font-semibold mb-2 text-white">Access:</span>
+                    <span
+                      className={`text-sm font-semibold py-1 px-3 rounded-full ${
+                        resource.allowedRoles?.includes('member_premium') ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+                      }`}
+                    >
+                      {resource.allowedRoles?.join(', ')}
+                    </span>
+                  </div>
+                  {canAccessResource(resource.allowedRoles || []) ? (
+                    resource.fileUrls &&
+                    resource.fileUrls.length > 0 && (
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between space-x-2">
+                          <h4 className="text-xl font-semibold mb-2 text-white">Tài liệu:</h4>
+                          <ul className="flex space-x-4 text-blue-500 justify-end">
                             {resource.fileUrls.map((url, index) => (
-                              <li key={index} className="flex items-center">
-                                <a href={url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                                  {resource.type} {index + 1}
+                              <li key={index}>
+                                <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline flex items-center space-x-1">
+                                  <span>
+                                    {resource.type} {index + 1}
+                                  </span>
                                 </a>
                               </li>
                             ))}
                           </ul>
                         </div>
-                      )
-                    ) : (
-                      <p className="text-red-500 mt-4">Nâng cấp Premium để xem tài liệu này</p>
-                    )}
-                  </div>
+                      </div>
+                    )
+                  ) : (
+                    <p className="text-red-400 mt-4">Nâng cấp Premium để xem tài liệu này</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-400">No resources available for this subject.</p>
+          )}
+        </section>
+        {/* Rating and Like Section */}
+        <div className="border-t border-gray-700 pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-lg font-semibold text-white">Đánh giá tài liệu:</span>
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button key={star} onClick={() => handleRating(star)} className="focus:outline-none">
+                    <FaStar className={`w-6 h-6 transition-all duration-200 ${star <= rating ? 'text-yellow-400' : 'text-white'} hover:text-yellow-300`} />
+                  </button>
                 ))}
               </div>
-            ) : (
-              <p className="text-gray-500">No resources available for this subject.</p>
-            )}
-          </section>
-
-          <div className="border-t pt-6 mt-8 border-gray-300/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <span className="text-lg font-semibold text-black mr-2">Rate this course:</span>
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button key={star} onClick={() => handleRating(star)} className="focus:outline-none">
-                      {star <= rating ? (
-                        <Star className="text-yellow-200 text-2xl" />
-                      ) : (
-                        <Star className="text-white text-2xl" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <span className="ml-2 text-black ">({rating}/5)</span>
-              </div>
-              <button onClick={handleLike} className={`flex items-center space-x-1 ${isLiked ? 'text-pink-500' : 'text-black '} focus:outline-none`}>
-                <Heart className="text-2xl" />
-                <span>{likes} Likes</span>
-              </button>
+              <span className="ml-2 text-white">({rating}/5)</span>
             </div>
-          </div>
-
-          <div className="mt-10">
-            <h3 className="text-2xl font-semibold text-purple-700 mb-6">Comments</h3>
-            <CommentSection />
+            <button onClick={handleLike} className={`flex items-center ${isLiked ? 'text-red-500' : 'text-white'} hover:text-red-400 focus:outline-none`}>
+              <FaHeart className="text-2xl" />
+              <span className="ml-1 text-lg">{likes} Thích</span>
+            </button>
           </div>
         </div>
+        {/* Comment Section */}
+        <h3 className="text-2xl font-semibold text-white mb-6">Bình luận</h3>
+        <CommentSection postId={subjectId} videoId={null} currentUser={currentUser} />
       </main>
     </div>
   );

@@ -83,7 +83,7 @@ const ResourceCard: React.FC = () => {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-blue-500/20 py-20 px-4 md:px-8 backdrop-blur-lg"
+        className="bg-gradient-to-r from-purple-500/40 via-pink-500/40 to-blue-500/40 py-20 px-4 md:px-8 backdrop-blur-lg"
       >
         <h2 className="text-4xl font-bold text-center mb-12  text-white">Tài nguyên giáo dục</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto ">

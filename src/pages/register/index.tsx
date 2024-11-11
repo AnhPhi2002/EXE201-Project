@@ -6,18 +6,19 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerUser } from '@/lib/api/redux/authSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
+import { toast } from 'sonner'; // Import toast từ sonner
 
 // Các thành phần UI
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
-import LoginLayout from "@/layouts/LoginLayout";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import LoginLayout from '@/layouts/LoginLayout';
 
 // Định nghĩa lược đồ Zod cho biểu mẫu đăng ký
 const registerSchema = z.object({
   email: z.string().email({ message: 'Email không hợp lệ' }).nonempty({ message: 'Email là bắt buộc' }),
   name: z.string().min(2, { message: 'Tên phải có ít nhất 2 ký tự' }),
-  password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
+  password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
 });
 
 // Kiểu dữ liệu của biểu mẫu dựa trên lược đồ Zod
@@ -34,17 +35,24 @@ const RegisterPage: React.FC = () => {
     defaultValues: {
       email: '',
       name: '',
-      password: ''
-    }
+      password: '',
+    },
   });
 
-  const { handleSubmit, control, formState: { errors } } = methods;
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = methods;
 
   // Xử lý khi submit biểu mẫu
   const onSubmit = (data: RegisterFormInputs) => {
     dispatch(registerUser(data)).then((action) => {
       if (registerUser.fulfilled.match(action)) {
-        navigate('/login');
+        toast.success('Đăng ký thành công!'); // Hiển thị thông báo
+        setTimeout(() => {
+          navigate('/login'); // Chuyển hướng sau khi thông báo hiện xong
+        }, 1000); // Thời gian trì hoãn 1 giây
       }
     });
   };
@@ -61,18 +69,7 @@ const RegisterPage: React.FC = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Controller
-                  name="email"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type="email"
-                      placeholder="Nhập email của bạn"
-                      {...field}
-                      className="w-full"
-                    />
-                  )}
-                />
+                <Controller name="email" control={control} render={({ field }) => <Input type="email" placeholder="Nhập email của bạn" {...field} className="w-full" />} />
               </FormControl>
               {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
             </FormItem>
@@ -81,18 +78,7 @@ const RegisterPage: React.FC = () => {
             <FormItem>
               <FormLabel>Họ và tên</FormLabel>
               <FormControl>
-                <Controller
-                  name="name"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type="text"
-                      placeholder="Nhập họ và tên của bạn"
-                      {...field}
-                      className="w-full"
-                    />
-                  )}
-                />
+                <Controller name="name" control={control} render={({ field }) => <Input type="text" placeholder="Nhập họ và tên của bạn" {...field} className="w-full" />} />
               </FormControl>
               {errors.name && <FormMessage>{errors.name.message}</FormMessage>}
             </FormItem>
@@ -101,29 +87,14 @@ const RegisterPage: React.FC = () => {
             <FormItem>
               <FormLabel>Mật khẩu</FormLabel>
               <FormControl>
-                <Controller
-                  name="password"
-                  control={control}
-                  render={({ field }) => (
-                    <Input
-                      type="password"
-                      placeholder="Tạo mật khẩu"
-                      {...field}
-                      className="w-full"
-                    />
-                  )}
-                />
+                <Controller name="password" control={control} render={({ field }) => <Input type="password" placeholder="Tạo mật khẩu" {...field} className="w-full" />} />
               </FormControl>
               {errors.password && <FormMessage>{errors.password.message}</FormMessage>}
             </FormItem>
 
             {/* Nút Đăng ký */}
             <div className="mt-4">
-              <Button
-                type="submit"
-                className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900"
-                disabled={loading}
-              >
+              <Button type="submit" className="w-full bg-black text-white py-2 rounded-md hover:bg-gray-900" disabled={loading}>
                 {loading ? 'Đang đăng ký...' : 'Đăng ký'}
               </Button>
             </div>

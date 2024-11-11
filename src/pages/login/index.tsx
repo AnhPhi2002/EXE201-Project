@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { login } from '@/lib/api/redux/authSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
+import { toast } from 'sonner'; // Import thêm toast từ sonner
 
 // Import các thành phần từ Shadcn
 import { FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
@@ -24,7 +25,7 @@ type LoginFormInputs = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
   useEffect(() => {
-    document.title = "Đăng nhập| LearnUp"
+    document.title = "Đăng nhập | LearnUp"
   }, [])
 
   const dispatch = useDispatch<AppDispatch>();
@@ -49,9 +50,18 @@ const LoginPage: React.FC = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/'); 
+      toast.success('Đăng nhập thành công!');
+      setTimeout(() => {
+        navigate('/');
+      }, 1000); // Trì hoãn 1 giây để toast hiển thị
     }
-  }, [isAuthenticated, navigate]); 
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    if (error) {
+      toast.error('Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.');
+    }
+  }, [error]);
 
   return (
     <LoginLayout>

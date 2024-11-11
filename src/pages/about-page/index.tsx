@@ -57,19 +57,19 @@ const AboutUs: React.FC = () => {
   const testimonials: Testimonial[] = [
     {
       name: "Hồng Hạnh",
-      role: "Học viên",
+      role: "Thành viên",
       quote: "LearnUp đã thay đổi hành trình học tập của tôi với nguồn tài nguyên phong phú và cộng đồng hỗ trợ.",
       image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"
     },
     {
       name: "Quang Huy",
-      role: "Chuyên gia",
+      role: "Thành viên",
       quote: "Tính linh hoạt của nền tảng cho phép tôi nâng cao kỹ năng trong khi vẫn duy trì công việc toàn thời gian.",
       image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
     },
     {
-      name: "Mỹ Phụng",  // Thêm dấu phẩy sau đối tượng "Quang Huy"
-      role: "Mentor",
+      name: "Mỹ Phụng",  
+      role: "Thành viên VIP",
       quote: "Tính linh hoạt của nền tảng cho phép tôi nâng cao kỹ năng trong khi vẫn duy trì công việc toàn thời gian.",
       image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
     }

@@ -6,13 +6,13 @@ import { RootState } from '@/lib/api/store';
 import { logout } from '@/lib/api/redux/authSlice';
 import Logo from './Logo';
 import NavLink from './NavLink';
-import { Search, Menu } from 'lucide-react';
+import { Search, Menu, ChevronDown } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 const Header: React.FC = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -23,7 +23,16 @@ const Header: React.FC = () => {
     navigate('/');
   };
 
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  const closeDropdown = () => {
+    setIsDropdownOpen(false);
+    setIsMobileMenuOpen(false); // Đóng cả menu di động nếu đang mở
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -39,7 +48,7 @@ const Header: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    document.title = 'Trang Chủ | LearnUp'; 
+    document.title = 'Trang Chủ | LearnUp';
   }, []);
 
   return (
@@ -52,7 +61,7 @@ const Header: React.FC = () => {
       <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex items-center justify-between h-20">
           <Logo />
-          
+
           {/* Hiển thị NavLink khi menu mobile mở */}
           <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:flex items-center space-x-6 ml-auto justify-end`}>
             <NavLink />
@@ -121,6 +130,60 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+      {isMobileMenuOpen && (
+        <div className="md:hidden py-4 space-y-3 bg-white rounded-xl shadow-lg mt-3 border border-gray-100">
+          {/* Search bar */}
+          <div className="px-6 pb-3 border-b border-gray-100">
+            <div className="flex items-center bg-gray-100 rounded-full px-4 py-2">
+              <Search className="text-gray-500 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                className="bg-transparent border-none focus:outline-none ml-3 w-full text-base"
+              />
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <Link to="/" onClick={closeDropdown} className="block px-6 py-2 text-black hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+            TRANG CHỦ
+          </Link>
+          <Link to="/about" onClick={closeDropdown} className="block px-6 py-2 text-black hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+            GIỚI THIỆU
+          </Link>
+          <Link to="/contact" onClick={closeDropdown} className="block px-6 py-2 text-black hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+            LIÊN HỆ
+          </Link>
+
+          {/* Dropdown Menu */}
+          <button
+            onClick={toggleDropdown}
+            className="flex items-center w-full px-6 py-2 text-black hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base"
+          >
+            NỘI DUNG
+            <ChevronDown className={`ml-1 transform transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`} />
+          </button>
+          {isDropdownOpen && (
+            <div className="pl-8 space-y-2">
+              <Link to="/blog" onClick={closeDropdown} className="block px-6 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+                BÀI BLOG
+              </Link>
+              <Link to="/subject" onClick={closeDropdown} className="block px-6 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+                MÔN HỌC
+              </Link>
+              <Link to="/resources" onClick={closeDropdown} className="block px-6 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+                TÀI LIỆU
+              </Link>
+              <Link to="/faqs" onClick={closeDropdown} className="block px-6 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+                GIẢI ĐÁP
+              </Link>
+              <Link to="/rooms" onClick={closeDropdown} className="block px-6 py-2 text-gray-700 hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+                PHÒNG
+              </Link>
+            </div>
+          )}
+        </div>
+      )}
     </motion.header>
   );
 };

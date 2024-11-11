@@ -125,7 +125,7 @@ const ContactUs: React.FC = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${errors.name ? 'border-red-500' : ''}`}
+                className={`mt-1 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-500 p-1 text-lg ${errors.name ? 'border-red-500' : ''}`}
                 aria-describedby="name-error"
               />
               {errors.name && (
@@ -146,7 +146,7 @@ const ContactUs: React.FC = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${errors.email ? 'border-red-500' : ''}`}
+                className={`mt-1 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-500 p-1 text-lg ${errors.email ? 'border-red-500' : ''}`}
                 aria-describedby="email-error"
               />
               {errors.email && (
@@ -167,7 +167,7 @@ const ContactUs: React.FC = () => {
                 name="subject"
                 value={formData.subject}
                 onChange={handleChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${errors.subject ? 'border-red-500' : ''}`}
+                className={`mt-1 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-500 p-1 text-lg ${errors.subject ? 'border-red-500' : ''}`}
                 aria-describedby="subject-error"
               />
               {errors.subject && (
@@ -187,7 +187,7 @@ const ContactUs: React.FC = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${errors.category ? 'border-red-500' : ''}`}
+                className={`mt-1 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-500 p-1 text-lg ${errors.category ? 'border-red-500' : ''}`}
                 aria-describedby="category-error"
               >
                 <option value="">Chọn danh mục</option>
@@ -214,7 +214,7 @@ const ContactUs: React.FC = () => {
                 rows={4}
                 value={formData.message}
                 onChange={handleChange}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${errors.message ? 'border-red-500' : ''}`}
+                className={`mt-1 block w-full rounded-lg border-2 border-gray-300 shadow-sm focus:border-indigo-600 focus:ring-indigo-500 p-1 text-lg ${errors.message ? 'border-red-500' : ''}`}
                 aria-describedby="message-error"
               ></textarea>
               {errors.message && (
