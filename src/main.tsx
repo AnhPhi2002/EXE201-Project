@@ -92,7 +92,7 @@ const router = createBrowserRouter([
         element: <BlogSection />,
       },
       {
-        path: '/blog-detail',
+        path: '/blog-detail/:id',
         element: <BlogDetail />,
       },
       {
@@ -118,6 +118,7 @@ const router = createBrowserRouter([
         element: <SuccessPaymentPage />,
       },
     ],
+
     
   },
   // Các route bên ngoài layout chính
