@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom'; // Import useNavigate để đi�
 import { fetchUserInfo, updateUserProfile } from '@/lib/api/redux/userSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';

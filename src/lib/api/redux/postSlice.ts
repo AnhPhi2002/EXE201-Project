@@ -30,7 +30,7 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
 });
 
 // Thunk for fetching a single post by ID
-export const fetchPostById = createAsyncThunk('posts/fetchPostById', async (id: string, { getState }) => {
+export const fetchPostById = createAsyncThunk('posts/fetchPostById', async (id: string) => {
   const token = localStorage.getItem('token');
   const response = await fetch(`https://learnup.work/api/posts/${id}`, {
     headers: {
