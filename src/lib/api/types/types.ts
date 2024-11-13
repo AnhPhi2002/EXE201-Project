@@ -1,4 +1,26 @@
 // src/types.ts
+
+export type UserRole = 'admin' | 'staff' | 'member_free' | 'member_premium';
+
+export interface UserProfile {
+  _id: string;
+  name: string;
+  email: string;
+  role?: UserRole;
+  address?: string;
+  phone?: string;
+  avatar?: string;
+  gender?: 'male' | 'female' | 'other';
+  dob?: string;
+  about?: string;
+  birthDate?: Date;
+  permissions?: string[];
+}
+
+export interface User extends UserProfile {
+  createdAt?: string;
+}
+
 export interface Department {
   id: string;
   name: string;
@@ -35,22 +57,17 @@ export interface PaymentState {
 
 export interface RootState {
   payment: PaymentState;
+  user: UserState;
 }
 
-export interface UserProfile {
-  _id: string;
-  name: string;
-  email: string;
-  role?: 'member_free' | 'member_premium';
-  address?: string;
-  phone?: string;
-  avatar?: string;
-  gender?: 'male' | 'female' | 'other';
-  dob?: string;
-  about?: string;
-  birthDate?: Date;
-}
 
+
+export interface UserState {
+  profile: UserProfile | null;
+  users: User[];
+  loading: boolean;
+  error: string | null;
+}
 
 export interface Post {
   _id: string;
@@ -68,4 +85,3 @@ export interface Author {
   name: string;
   avatar: string;
 }
-

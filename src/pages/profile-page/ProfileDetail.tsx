@@ -4,11 +4,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Save, Crown } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate để điều hướng
+import { useNavigate } from 'react-router-dom';
 import { fetchUserInfo, updateUserProfile } from '@/lib/api/redux/userSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -17,9 +17,7 @@ const schema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Email must be a valid email.' }),
   phone: z.string().min(10, { message: 'Phone number must be at least 10 digits.' }),
-  gender: z.enum(['male', 'female', 'other'], {
-    required_error: 'Gender is required.',
-  }),
+  gender: z.enum(['male', 'female', 'other'], { required_error: 'Gender is required.' }),
   birthDate: z.date(),
   about: z.string().max(500, { message: 'About must be less than 500 characters.' }),
   avatar: z.string().optional(),
@@ -29,7 +27,7 @@ type FormData = z.infer<typeof schema>;
 
 const ProfileDetail: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate(); // Sử dụng useNavigate để điều hướng
+  const navigate = useNavigate();
   const { profile, loading, error } = useSelector((state: RootState) => state.user);
 
   const methods = useForm<FormData>({
@@ -39,13 +37,12 @@ const ProfileDetail: React.FC = () => {
       email: '',
       phone: '',
       gender: 'male',
-      birthDate: new Date('2000-01-01'), // Cập nhật defaultValue thành birthDate
+      birthDate: new Date('2000-01-01'),
       about: '',
       avatar: '',
     },
   });
   const { handleSubmit, control, setValue, formState: { errors } } = methods;
-
   const [profilePicture, setProfilePicture] = useState(profile?.avatar || '');
 
   useEffect(() => {
@@ -93,7 +90,7 @@ const ProfileDetail: React.FC = () => {
       dispatch(updateUserProfile({ ...data, _id: profile._id })).then((action) => {
         if (updateUserProfile.fulfilled.match(action)) {
           alert("Profile updated successfully!");
-          navigate('/profile'); // Điều hướng về trang /profile sau khi cập nhật thành công
+          navigate('/profile');
         } else {
           alert("Failed to update profile.");
         }
