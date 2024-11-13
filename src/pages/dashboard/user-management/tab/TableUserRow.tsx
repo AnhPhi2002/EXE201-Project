@@ -23,7 +23,8 @@ const userTypeOptions = [
   { label: 'Member Premium', value: 'member_premium' as UserRole },
 ];
 
-const TableUserRow: React.FC<TableUserRowProps> = ({ user, currentUserRole, currentUserId, onEdit }) => {
+// currentUserRole, currentUserId, onEdit
+const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [isPermissionModalOpen, setPermissionModalOpen] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>(user.role || 'member_free');

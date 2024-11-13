@@ -2,7 +2,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { UserProfile, User, UserRole, RootState } from '../types/types';
+import { UserProfile, User, UserRole } from '../types/types';
 
 interface UserState {
   profile: UserProfile | null;

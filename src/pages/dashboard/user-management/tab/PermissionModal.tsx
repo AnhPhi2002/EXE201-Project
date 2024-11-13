@@ -17,7 +17,7 @@ const permissionsOptions = [
   { label: 'Manage Meetings', value: 'manage_meetings' },
 ];
 
-const PermissionModal: React.FC<PermissionModalProps> = ({ userId, initialPermissions, onClose, onSave }) => {
+const PermissionModal: React.FC<PermissionModalProps> = ({ initialPermissions, onClose, onSave }) => {
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
 
   useEffect(() => {
