@@ -43,7 +43,10 @@ const ProfilePage: React.FC = () => {
           <div className="text-center">
             <h1 className="text-3xl font-bold mb-2">{profile.name || "No Name"}</h1>
             <p className="text-gray-600 mb-4">
-              {profile.role === 'member_premium' ? "Premium Member" : "Free Member"}
+              {profile.role === 'member_premium' ? "Premium Member" :
+                profile.role === 'member_free' ? "Free Member" :
+                  profile.role === 'staff' ? "Culi không công" :
+                    profile.role === 'admin' ? "Sếp" : "Unknown Role"}
             </p>
           </div>
           <div className="bg-slate-50 p-6 rounded-2xl shadow-inner mb-6">

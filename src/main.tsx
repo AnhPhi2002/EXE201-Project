@@ -15,7 +15,7 @@ import RegisterPage from './pages/register';
 import VideoPage from './pages/video-page';
 import QuestionPage from './pages/question-page';
 import QuestionDetailPage from './pages/question-page/detail';
-import SubjectPage from './pages/subject-page';
+// import SubjectPage from './pages/subject-page';
 import ProfilePage from './pages/profile-page';
 import ProfileDetail from './pages/profile-page/ProfileDetail';
 import Dashboard from './pages/dashboard';
@@ -74,10 +74,10 @@ const router = createBrowserRouter([
         path: '/question/:id',
         element: <QuestionDetailPage />,
       },
-      {
-        path: '/subject/:courseId',  // Thêm route động cho subject
-        element: <SubjectPage />,
-      },
+      // {
+      //   path: '/subject/:courseId', 
+      //   element: <SubjectPage />,
+      // },
       
       {
         path: '/profile',

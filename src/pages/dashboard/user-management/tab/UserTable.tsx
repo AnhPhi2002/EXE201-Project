@@ -1,25 +1,20 @@
 import React from 'react';
 import { Table, TableBody, TableHead, TableHeader, TableRow, TableCell } from '@/components/ui/table';
 import TableUserRow from './TableUserRow';
-
-interface User {
-  _id: number;
-  name: string;
-  email: string;
-  role: string;
-  phone: string;
-  address: string;
-  avatar: string;
-  gender: string;
-  createdAt: string;
-}
+import { User, UserRole } from '@/lib/api/types/types'; // Sử dụng các type từ types.ts
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/api/types/types'; // Thêm RootState vào types.ts để lấy state từ Redux
 
 interface UserTableProps {
   users: User[];
-  onEdit: (userId: number) => void;
+  currentUserRole: UserRole;
+  currentUserId: string;
+  onEdit: (userId: string) => void;
 }
 
-const UserTable: React.FC<UserTableProps> = ({ users, onEdit }) => {
+const UserTable: React.FC<UserTableProps> = ({ users, currentUserRole, currentUserId, onEdit }) => {
+  const loading = useSelector((state: RootState) => state.user.loading); // Kiểm tra trạng thái loading
+
   return (
     <Table>
       <TableHeader>
@@ -38,9 +33,21 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {users.length > 0 ? (
+        {loading ? (
+          <TableRow>
+            <TableCell colSpan={9} className="text-center">
+              Loading...
+            </TableCell>
+          </TableRow>
+        ) : users.length > 0 ? (
           users.map((user) => (
-            <TableUserRow key={user._id} user={user} onEdit={onEdit} />
+            <TableUserRow 
+              key={user._id} 
+              user={user} 
+              currentUserRole={currentUserRole} 
+              currentUserId={currentUserId} 
+              onEdit={onEdit} 
+            />
           ))
         ) : (
           <TableRow>

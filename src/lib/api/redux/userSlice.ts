@@ -1,27 +1,60 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { UserProfile } from '../types/types'; // Cập nhật đường dẫn tới UserProfile của bạn
+// src/redux/features/userSlice.ts
 
-// Thunk để lấy thông tin người dùng
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import axios from 'axios';
+import { UserProfile, User, UserRole, RootState } from '../types/types';
+
+interface UserState {
+  profile: UserProfile | null;
+  users: User[];
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: UserState = {
+  profile: null,
+  users: [],
+  loading: false,
+  error: null,
+};
+
+// Fetch user profile info
 export const fetchUserInfo = createAsyncThunk<UserProfile, void, { rejectValue: string }>(
   'user/fetchUserInfo',
   async (_, { rejectWithValue }) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch("https://learnup.work/api/auth/user-info", {
+      const response = await axios.get("https://learnup.work/api/auth/user-info", {
         headers: {
-          Authorization: `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
-      if (!response.ok) throw new Error("Failed to fetch profile data");
-
-      return await response.json();
+      return response.data;
     } catch (error) {
       return rejectWithValue('Failed to fetch user information');
     }
   }
 );
 
-// Thunk để cập nhật thông tin người dùng
+// Fetch all users for dashboard
+export const fetchAllUsers = createAsyncThunk<User[], void, { rejectValue: string }>(
+  'user/fetchAllUsers',
+  async (_, { rejectWithValue }) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.get('https://learnup.work/api/admin/users', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data.users;
+    } catch (error) {
+      return rejectWithValue('Failed to fetch users');
+    }
+  }
+);
+
+// Thunk to update user profile
 export const updateUserProfile = createAsyncThunk<
   void,
   UserProfile,
@@ -31,32 +64,69 @@ export const updateUserProfile = createAsyncThunk<
   async (userData, { rejectWithValue }) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`https://learnup.work/api/auth/update/${userData._id}`, {
-        method: 'PUT',
+      await axios.put(`https://learnup.work/api/auth/update/${userData._id}`, userData, {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(userData)
       });
-      if (!response.ok) throw new Error("Failed to update profile");
     } catch (error) {
       return rejectWithValue('Failed to update profile');
     }
   }
 );
 
-interface UserState {
-  profile: UserProfile | null;
-  loading: boolean;
-  error: string | null;
-}
+// Update user role
+export const updateUserRole = createAsyncThunk<
+  { userId: string; role: UserRole },
+  { userId: string; role: UserRole },
+  { rejectValue: string }
+>(
+  'user/updateRole',
+  async ({ userId, role }, { rejectWithValue }) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.put(
+        `https://learnup.work/api/admin/user/${userId}/role`,
+        { role },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return { userId, role };
+    } catch (error) {
+      return rejectWithValue('Failed to update user role');
+    }
+  }
+);
 
-const initialState: UserState = {
-  profile: null,
-  loading: false,
-  error: null
-};
+// Update user permissions
+export const updateUserPermissions = createAsyncThunk<
+  { userId: string; permissions: string[] },
+  { userId: string; permissions: string[] },
+  { rejectValue: string }
+>(
+  'user/updatePermissions',
+  async ({ userId, permissions }, { rejectWithValue }) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.put(
+        `https://learnup.work/api/admin/user/${userId}`,
+        { role: 'staff', permissions },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return { userId, permissions };
+    } catch (error) {
+      return rejectWithValue('Failed to update user permissions');
+    }
+  }
+);
 
 const userSlice = createSlice({
   name: 'user',
@@ -76,6 +146,18 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload || 'Failed to fetch user information';
       })
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.users = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch users';
+      })
       .addCase(updateUserProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -86,6 +168,20 @@ const userSlice = createSlice({
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update profile';
+      })
+      .addCase(updateUserRole.fulfilled, (state, action) => {
+        const { userId, role } = action.payload;
+        const user = state.users.find(u => u._id === userId);
+        if (user) {
+          user.role = role;
+        }
+      })
+      .addCase(updateUserPermissions.fulfilled, (state, action) => {
+        const { userId, permissions } = action.payload;
+        const user = state.users.find(u => u._id === userId);
+        if (user) {
+          user.permissions = permissions;
+        }
       });
   }
 });

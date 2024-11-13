@@ -4,8 +4,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -13,15 +11,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-import UpdateUser from '../UpdateUser';
+
+type UserRole = 'admin' | 'staff' | 'member_free' | 'member_premium';
 
 interface UserActionMenuProps {
-  onUpdate: () => void;  // Callback để mở dialog UpdateUser
-  userTypeOptions: { label: string; value: string }[];
-  onRoleChange: (role: string) => void;
+  userTypeOptions: { label: string; value: UserRole }[];
+  onRoleChange: (role: UserRole) => void;
+  onOpenPermissions?: () => void;
 }
 
-const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRoleChange }) => {
+const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRoleChange, onOpenPermissions }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -31,27 +30,27 @@ const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRole
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <UpdateUser />
-        {/* <DropdownMenuItem
-          onClick={onUpdate}  // Gọi hàm onUpdate để mở dialog UpdateUser
-        >
-          Update
-        </DropdownMenuItem> */}
+        
+        {/* Submenu for Changing Role */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger>
-            <span>Change role</span>
+            <span>Change Role</span>
           </DropdownMenuSubTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuSubContent>
-              {userTypeOptions.map((option) => (
-                <DropdownMenuItem key={option.value} onClick={() => onRoleChange(option.value)}>
-                  <span>{option.label}</span>
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-            </DropdownMenuSubContent>
-          </DropdownMenuPortal>
+          <DropdownMenuSubContent>
+            {userTypeOptions.map((option) => (
+              <DropdownMenuItem key={option.value} onClick={() => onRoleChange(option.value)}>
+                <span>{option.label}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
         </DropdownMenuSub>
+
+        {/* Option for Permissions (only appears if onOpenPermissions is provided) */}
+        {onOpenPermissions && (
+          <DropdownMenuItem onClick={onOpenPermissions}>
+            <span>Permissions</span>
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
