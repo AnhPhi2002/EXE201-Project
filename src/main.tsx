@@ -36,6 +36,8 @@ import AboutUs from './pages/about-page';
 import CodingCourseSection from './pages/search-subject/CodingCourseSection';
 import { Toaster } from 'sonner';
 import PricingPlanSection from './pages/pricingplans';
+import PaymentSuccess from './pages/pricingplans/PaymentSuccess';
+import PaymentFailure from './pages/pricingplans/PaymentFailure';
 
 
 // Cấu hình router
@@ -121,7 +123,11 @@ const router = createBrowserRouter([
       },
       {
         path: '/payment/success',
-        element: <SuccessPaymentPage />,
+        element: <PaymentSuccess />,
+      },
+      {
+        path: '/payment/failure',
+        element: <PaymentFailure />,
       },
     ],
 
