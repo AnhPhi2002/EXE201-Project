@@ -31,7 +31,7 @@ import MeetingManagementDashboard from './pages/dashboard/meeting-management';
 import PermissionManagementDashboard from './pages/dashboard/permission-management';
 import SemesterManagementDashboard from './pages/dashboard/semester-management';
 import PaymentPage from './pages/payment-page';
-import SuccessPaymentPage from './pages/success_payment_page';
+
 import AboutUs from './pages/about-page';
 import CodingCourseSection from './pages/search-subject/CodingCourseSection';
 import { Toaster } from 'sonner';
