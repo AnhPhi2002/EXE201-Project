@@ -5,9 +5,10 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import UserActionMenu from './UserActionMenu';
 import PermissionModal from './PermissionModal';
-import { updateUserRole, updateUserPermissions } from '@/lib/api/redux/userSlice';
+import { updateUserRole, updateUserPermissions, deleteUser } from '@/lib/api/redux/userSlice';
 import { User, UserRole } from '@/lib/api/types/types';
 import { AppDispatch } from '@/lib/api/store';
+import { toast } from 'sonner';
 
 interface TableUserRowProps {
   user: User;
@@ -33,9 +34,9 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user, currentUserRole, curr
     try {
       await dispatch(updateUserRole({ userId: user._id, role: newRole })).unwrap();
       setUserRole(newRole);
-      alert('Role updated successfully');
+      toast.success('Role updated successfully');
     } catch (error) {
-      alert('Failed to update role');
+      toast.error('Failed to update role');
     }
   };
 
@@ -48,9 +49,20 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user, currentUserRole, curr
         })
       ).unwrap();
       setUserPermissions(updatedPermissions);
-      alert('Permissions updated successfully');
+      toast.success('Permissions updated successfully');
     } catch (error) {
-      alert('Failed to update permissions');
+      toast.error('Failed to update permissions');
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (window.confirm('Are you sure you want to delete this user?')) {
+      try {
+        await dispatch(deleteUser(user._id)).unwrap();
+        toast.success('User deleted successfully');
+      } catch (error) {
+        toast.error('Failed to delete user');
+      }
     }
   };
 
@@ -88,6 +100,7 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user, currentUserRole, curr
           userTypeOptions={userTypeOptions} 
           onRoleChange={handleRoleChange}
           onOpenPermissions={userRole === 'staff' ? handleOpenPermissionModal : undefined}
+          onDelete={handleDeleteUser} // Thêm hàm delete user
         />
         {isPermissionModalOpen && (
           <PermissionModal 

@@ -11,16 +11,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
-
-type UserRole = 'admin' | 'staff' | 'member_free' | 'member_premium';
+import { UserRole } from '@/lib/api/types/types';
 
 interface UserActionMenuProps {
   userTypeOptions: { label: string; value: UserRole }[];
   onRoleChange: (role: UserRole) => void;
   onOpenPermissions?: () => void;
+  onDelete: () => void;  // Thêm hàm onDelete
 }
 
-const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRoleChange, onOpenPermissions }) => {
+const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRoleChange, onOpenPermissions, onDelete }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,6 +51,11 @@ const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRole
             <span>Permissions</span>
           </DropdownMenuItem>
         )}
+        
+        {/* Option for Delete */}
+        <DropdownMenuItem onClick={onDelete}>
+          <span className="text-red-500">Delete User</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
