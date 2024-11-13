@@ -8,6 +8,7 @@ import FliterDashboard from '../FliterDashboard';
 import * as XLSX from 'xlsx';
 import { fetchAllUsers } from '@/lib/api/redux/userSlice';
 import { RootState, UserRole, User } from '@/lib/api/types/types';
+import { toast } from 'sonner';
 
 const UserManagementDashboard: React.FC = () => {
   const dispatch = useDispatch();
@@ -24,6 +25,7 @@ const UserManagementDashboard: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchAllUsers() as any); // Type assertion to resolve dispatch type error
+    toast.success('Success fetch userlist')
   }, [dispatch]);
 
   const exportToExcel = (data: User[]) => {

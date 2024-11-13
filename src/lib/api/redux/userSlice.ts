@@ -18,6 +18,23 @@ const initialState: UserState = {
   error: null,
 };
 
+// Thunk để xóa người dùng
+export const deleteUser = createAsyncThunk<void, string, { rejectValue: string }>(
+  'user/deleteUser',
+  async (userId, { rejectWithValue }) => {
+    const token = localStorage.getItem('token');
+    try {
+      await axios.delete(`https://learnup.work/api/admin/user/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      return rejectWithValue('Failed to delete user');
+    }
+  }
+);
+
 // Fetch user profile info
 export const fetchUserInfo = createAsyncThunk<UserProfile, void, { rejectValue: string }>(
   'user/fetchUserInfo',
@@ -182,6 +199,9 @@ const userSlice = createSlice({
         if (user) {
           user.permissions = permissions;
         }
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.users = state.users.filter((user) => user._id !== action.meta.arg);
       });
   }
 });
