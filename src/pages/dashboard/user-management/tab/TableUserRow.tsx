@@ -5,6 +5,7 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import UserActionMenu from './UserActionMenu';
 import PermissionModal from './PermissionModal';
+import ConfirmationModal from './ConfirmationModal';
 import { updateUserRole, updateUserPermissions, deleteUser } from '@/lib/api/redux/userSlice';
 import { User, UserRole } from '@/lib/api/types/types';
 import { AppDispatch } from '@/lib/api/store';
@@ -24,10 +25,10 @@ const userTypeOptions = [
   { label: 'Member Premium', value: 'member_premium' as UserRole },
 ];
 
-// currentUserRole, currentUserId, onEdit
 const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [isPermissionModalOpen, setPermissionModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [userRole, setUserRole] = useState<UserRole>(user.role || 'member_free');
   const [userPermissions, setUserPermissions] = useState<string[]>(user.permissions || []);
 
@@ -35,9 +36,9 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
     try {
       await dispatch(updateUserRole({ userId: user._id, role: newRole })).unwrap();
       setUserRole(newRole);
-      toast.success('Role updated successfully');
+      toast.success('Cập nhật vai trò thành công');
     } catch (error) {
-      toast.error('Failed to update role');
+      toast.error('Cập nhật vai trò thất bại');
     }
   };
 
@@ -50,21 +51,28 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
         })
       ).unwrap();
       setUserPermissions(updatedPermissions);
-      toast.success('Permissions updated successfully');
+      toast.success('Cập nhật quyền thành công');
     } catch (error) {
-      toast.error('Failed to update permissions');
+      toast.error('Cập nhật quyền thất bại');
     }
   };
 
   const handleDeleteUser = async () => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      try {
-        await dispatch(deleteUser(user._id)).unwrap();
-        toast.success('User deleted successfully');
-      } catch (error) {
-        toast.error('Failed to delete user');
-      }
+    try {
+      await dispatch(deleteUser(user._id)).unwrap();
+      toast.success('Xóa người dùng thành công');
+      setConfirmationModalOpen(false); // Đóng modal sau khi xóa thành công
+    } catch (error) {
+      toast.error('Xóa người dùng thất bại');
     }
+  };
+
+  const openConfirmationModal = () => {
+    setConfirmationModalOpen(true);
+  };
+
+  const closeConfirmationModal = () => {
+    setConfirmationModalOpen(false);
   };
 
   const handleOpenPermissionModal = () => {
@@ -83,7 +91,7 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
           <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
         </Avatar>
       </TableCell>
-      <TableCell className="font-medium">{user.name || 'Unknown User'}</TableCell>
+      <TableCell className="font-medium">{user.name || 'N/A'}</TableCell>
       <TableCell>
         <Badge variant="outline" className="bg-blue-100 text-blue-800 font-semibold rounded-full border-2 border-blue-200">
           {userRole}
@@ -101,7 +109,7 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
           userTypeOptions={userTypeOptions} 
           onRoleChange={handleRoleChange}
           onOpenPermissions={userRole === 'staff' ? handleOpenPermissionModal : undefined}
-          onDelete={handleDeleteUser} // Thêm hàm delete user
+          onDelete={openConfirmationModal} // Mở modal xác nhận xóa khi nhấn nút xóa
         />
         {isPermissionModalOpen && (
           <PermissionModal 
@@ -109,6 +117,15 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
             initialPermissions={userPermissions}
             onClose={handleClosePermissionModal} 
             onSave={handlePermissionUpdate}
+          />
+        )}
+        {isConfirmationModalOpen && (
+          <ConfirmationModal
+            isOpen={isConfirmationModalOpen}
+            title="Xác nhận xóa người dùng"
+            message="Bạn có chắc chắn muốn xóa người dùng này không?"
+            onConfirm={handleDeleteUser}
+            onCancel={closeConfirmationModal}
           />
         )}
       </TableCell>
