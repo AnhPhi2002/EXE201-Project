@@ -18,39 +18,47 @@ const ProfilePage: React.FC = () => {
     navigate('/profile-detail');
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (!profile) return <p>{error || "No profile data found."}</p>;
+  if (loading) return <p className="text-center text-indigo-600">Loading...</p>;
+  if (!profile) return <p className="text-center text-red-600">{error || "No profile data found."}</p>;
+
+  // Xác định màu nền cho từng role
+  const roleColors = {
+    member_premium: "ext-yellow-700",
+    member_free: "text-blue-700",
+    staff: "text-green-700",
+    admin: " text-red-700",
+    default: "text-gray-700"
+  };
+  const roleClass = profile.role ? roleColors[profile.role] || roleColors.default : roleColors.default;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center p-18">
-      <div className="w-full max-w-7xl">
-        <div className="relative h-36 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+    <div className="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 flex items-center justify-center pb-32">
+      <div className="w-full max-w-5xl bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="relative h-48 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
           <Avatar
-            className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-32 h-32 border-4 shadow-lg 
+            className={`absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 w-28 h-28 border-4 rounded-full shadow-md 
               ${profile.role === 'member_premium' ? 'border-yellow-500 ring-4 ring-yellow-400' : 'border-white'}`}
           >
             <AvatarImage src={profile.avatar || "https://example.com/default-avatar.jpg"} alt="User profile picture" />
             <AvatarFallback>{profile.name?.charAt(0) || 'U'}</AvatarFallback>
           </Avatar>
           <button
-            className="absolute top-8 right-4 bg-white text-indigo-500 p-2 rounded-full hover:bg-indigo-100 transition duration-300"
+            className="absolute top-6 right-6 bg-white text-indigo-500 px-4 py-2 rounded-lg font-semibold shadow-md hover:bg-indigo-100 hover:scale-105 transform transition duration-300"
             onClick={handleUpdateClick}
           >
             Cập nhật thông tin
           </button>
         </div>
-        <div className="p-8 pt-20">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-2">{profile.name || "No Name"}</h1>
-            <p className="text-gray-600 mb-4">
-              {profile.role === 'member_premium' ? "Premium Member" :
-                profile.role === 'member_free' ? "Free Member" :
-                  profile.role === 'staff' ? "Culi không công" :
-                    profile.role === 'admin' ? "Sếp" : "Unknown Role"}
-            </p>
-          </div>
-          <div className="bg-slate-50 p-6 rounded-2xl shadow-inner mb-6">
-            <h2 className="text-xl font-semibold mb-4 text-indigo-700">About Me</h2>
+        <div className="p-10 pt-20 text-center">
+          <h1 className={`text-4xl font-extrabold mb-2 ${roleClass}`}>{profile.name || "No Name"}</h1>
+          <p className={`text-lg mb-4 ${roleClass}`}>
+            {profile.role === 'member_premium' ? "Premium Member" :
+              profile.role === 'member_free' ? "Free Member" :
+                profile.role === 'staff' ? "Culi không công" :
+                  profile.role === 'admin' ? "Sếp" : "Unknown Role"}
+          </p>
+          <div className="bg-gray-50 p-8 rounded-xl shadow-inner">
+            <h2 className="text-2xl font-semibold mb-4 text-indigo-700">About Me</h2>
             <p className="text-gray-700 leading-relaxed">
               {profile.about || "No description available."}
             </p>

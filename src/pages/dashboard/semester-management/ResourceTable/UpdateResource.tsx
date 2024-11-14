@@ -32,14 +32,14 @@ interface Resource {
 }
 
 const resourceSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters").optional(),
+  title: z.string().min(3, "Tiêu đề phải có ít nhất 3 ký tự"),
+  description: z.string().min(10, "Mô tả phải có ít nhất 10 ký tự").optional(),
   type: z.enum(["pdf", "video", "document"]),
   fileUrls: z.string().optional(),
   allowedRoles: z.enum(["member_free", "member_premium"]).optional(),
-  selectedDepartment: z.string().optional(),
-  selectedSemester: z.string().optional(),
-  selectedSubject: z.string().optional(),
+  selectedDepartment: z.string().nonempty("Vui lòng chọn ngành"),
+  selectedSemester: z.string().nonempty("Vui lòng chọn kỳ học"),
+  selectedSubject: z.string().nonempty("Vui lòng chọn môn học"),
 });
 
 type ResourceFormData = z.infer<typeof resourceSchema>;
@@ -75,7 +75,7 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
       type: resource.type,
       fileUrls: resource.fileUrls ? resource.fileUrls.join(", ") : "",
       allowedRoles: resource.allowedRoles?.[0],
-      selectedDepartment: "", // default to an empty string
+      selectedDepartment: "",
       selectedSemester: "",
       selectedSubject: resource.subject,
     },
@@ -108,54 +108,16 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
   };
 
   return (
-    <Modal title="Update Resource" onClose={onClose}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">Title</label>
-            <input {...register("title")} type="text" className="p-2 border rounded-md w-full" />
-            {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-
-            <label className="block text-sm font-medium mt-4">Type</label>
-            <select {...register("type")} className="p-2 border rounded-md w-full">
-              <option value="pdf">PDF</option>
-              <option value="video">Video</option>
-              <option value="document">Document</option>
-            </select>
-            {errors.type && <p className="text-red-500 text-sm">{errors.type.message}</p>}
-
-            <label className="block text-sm font-medium mt-4">Select Role</label>
-            <select {...register("allowedRoles")} className="p-2 border rounded-md w-full">
-              <option value="">None</option>
-              <option value="member_free">Member Free</option>
-              <option value="member_premium">Member Premium</option>
-            </select>
-            {errors.allowedRoles && (
-              <p className="text-red-500 text-sm">{errors.allowedRoles.message}</p>
-            )}
-          </div>
-
-          <div className="col-span-2 space-y-2">
-            <label className="block text-sm font-medium">Description</label>
-            <textarea {...register("description")} className="p-2 border rounded-md w-full h-52 resize-none" />
-            {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
-
-            <label className="block text-sm font-medium mt-4">File URLs</label>
-            <input
-              {...register("fileUrls")}
-              type="text"
-              placeholder="Enter URLs separated by commas"
-              className="p-2 border rounded-md w-full"
-            />
-            {errors.fileUrls && <p className="text-red-500 text-sm">{errors.fileUrls.message}</p>}
-
-            {/* Department Selection */}
-            <label className="block text-sm font-medium mt-4">Select Department</label>
+    <Modal title="Cập Nhật Tài Liệu" onClose={onClose}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Chọn Ngành</label>
             <select
               {...register("selectedDepartment")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
             >
-              <option value="">Select Department</option>
+              <option value="">Chọn Ngành</option>
               {departments.map((dept) => (
                 <option key={dept.id} value={dept.id}>
                   {dept.name}
@@ -165,15 +127,16 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
             {errors.selectedDepartment && (
               <p className="text-red-500 text-xs">{errors.selectedDepartment.message}</p>
             )}
+          </div>
 
-            {/* Semester Selection */}
-            <label className="block text-sm font-medium mt-4">Select Semester</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Chọn Kỳ Học</label>
             <select
               {...register("selectedSemester")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
               disabled={!selectedDepartment}
             >
-              <option value="">Select Semester</option>
+              <option value="">Chọn Kỳ Học</option>
               {filteredSemesters.map((sem) => (
                 <option key={sem.id} value={sem.id}>
                   {sem.name}
@@ -183,15 +146,16 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
             {errors.selectedSemester && (
               <p className="text-red-500 text-xs">{errors.selectedSemester.message}</p>
             )}
+          </div>
 
-            {/* Subject Selection */}
-            <label className="block text-sm font-medium mt-4">Select Subject</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Chọn Môn Học</label>
             <select
               {...register("selectedSubject")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
               disabled={!selectedSemester}
             >
-              <option value="">Select Subject</option>
+              <option value="">Chọn Môn Học</option>
               {filteredSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
                   {subject.name}
@@ -202,14 +166,78 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
               <p className="text-red-500 text-xs">{errors.selectedSubject.message}</p>
             )}
           </div>
+
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Tiêu Đề</label>
+            <input
+              {...register("title")}
+              type="text"
+              className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
+            />
+            {errors.title && <p className="text-red-500 text-xs">{errors.title.message}</p>}
+          </div>
+
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Loại Tài Liệu</label>
+            <select
+              {...register("type")}
+              className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
+            >
+              <option value="pdf">PDF</option>
+              <option value="video">Video</option>
+              <option value="document">Tài Liệu</option>
+            </select>
+            {errors.type && <p className="text-red-500 text-xs">{errors.type.message}</p>}
+          </div>
+
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-semibold text-gray-700">Vai Trò</label>
+            <select
+              {...register("allowedRoles")}
+              className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Không có</option>
+              <option value="member_free">Thành Viên Miễn Phí</option>
+              <option value="member_premium">Thành Viên Cao Cấp</option>
+            </select>
+            {errors.allowedRoles && (
+              <p className="text-red-500 text-xs">{errors.allowedRoles.message}</p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-gray-700">Mô Tả</label>
+          <textarea
+            {...register("description")}
+            className="p-2 border rounded-md w-full h-24 resize-none focus:border-blue-500 focus:outline-none"
+          />
+          {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
+        </div>
+
+        <div className="space-y-4">
+          <label className="text-sm font-semibold text-gray-700">Đường Dẫn Tệp</label>
+          <input
+            {...register("fileUrls")}
+            type="text"
+            placeholder="Nhập các URL, cách nhau bằng dấu phẩy"
+            className="p-2 border rounded-md w-full focus:border-blue-500 focus:outline-none"
+          />
         </div>
 
         <div className="flex justify-end space-x-4 mt-6">
-          <button type="button" className="bg-gray-300 px-4 py-2 rounded-md" onClick={onClose}>
-            Cancel
+          <button
+            type="button"
+            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
+            onClick={onClose}
+          >
+            Hủy
           </button>
-          <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
-            Update
+          <button
+            type="submit"
+            className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+          >
+            Cập Nhật
           </button>
         </div>
       </form>

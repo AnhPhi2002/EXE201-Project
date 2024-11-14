@@ -21,7 +21,7 @@ const UserManagementDashboard: React.FC = () => {
   const [selectedMetric, setSelectedMetric] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 5;
 
   useEffect(() => {
     dispatch(fetchAllUsers() as any); // Type assertion to resolve dispatch type error

@@ -10,13 +10,11 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-400 to-blue-300 relative overflow-hidden">
-      {/* Các khối mờ hình tròn */}
-     
+   
 
-      {/* Header cố định ở đầu trang */}
       <Header />
 
-      {/* Phần nội dung chính với hiệu ứng mờ nền */}
+     
       <div className="relative z-10 pt-20 backdrop-blur-sm bg-white/10 border-t border-white/20">
         <main className=" ">
         

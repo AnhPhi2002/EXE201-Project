@@ -22,14 +22,14 @@ interface Subject {
 }
 
 const resourceSchema = z.object({
-  title: z.string().min(3, "Title must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters").optional(),
+  title: z.string().min(3, "Tiêu đề phải có ít nhất 3 ký tự"),
+  description: z.string().min(10, "Mô tả phải có ít nhất 10 ký tự").optional(),
   type: z.enum(["pdf", "video", "document"]),
   fileUrls: z.string().optional(),
   allowedRoles: z.enum(["member_free", "member_premium"]).optional(),
-  selectedDepartment: z.string().nonempty("Please select a department"),
-  selectedSemester: z.string().nonempty("Please select a semester"),
-  selectedSubject: z.string().nonempty("Please select a subject"),
+  selectedDepartment: z.string().nonempty("Vui lòng chọn ngành"),
+  selectedSemester: z.string().nonempty("Vui lòng chọn kỳ học"),
+  selectedSubject: z.string().nonempty("Vui lòng chọn môn học"),
 });
 
 type ResourceFormData = z.infer<typeof resourceSchema>;
@@ -85,16 +85,16 @@ const CreateResource: React.FC<CreateResourceProps> = ({
   };
 
   return (
-    <Modal title="Create Resource" onClose={onClose}>
+    <Modal title="Tạo Tài Liệu" onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Select Department</label>
+            <label className="text-sm font-semibold text-gray-700">Chọn Ngành</label>
             <select
               {...register("selectedDepartment")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
             >
-              <option value="">Select Department</option>
+              <option value="">Chọn Ngành</option>
               {departments.map((dept) => (
                 <option key={dept.id} value={dept.id}>
                   {dept.name}
@@ -107,13 +107,13 @@ const CreateResource: React.FC<CreateResourceProps> = ({
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Select Semester</label>
+            <label className="text-sm font-semibold text-gray-700">Chọn Kỳ Học</label>
             <select
               {...register("selectedSemester")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
               disabled={!selectedDepartment}
             >
-              <option value="">Select Semester</option>
+              <option value="">Chọn Kỳ Học</option>
               {filteredSemesters.map((sem) => (
                 <option key={sem.id} value={sem.id}>
                   {sem.name}
@@ -126,13 +126,13 @@ const CreateResource: React.FC<CreateResourceProps> = ({
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Select Subject</label>
+            <label className="text-sm font-semibold text-gray-700">Chọn Môn Học</label>
             <select
               {...register("selectedSubject")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
               disabled={!selectedSemester}
             >
-              <option value="">Select Subject</option>
+              <option value="">Chọn Môn Học</option>
               {filteredSubjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
                   {subject.name}
@@ -145,7 +145,7 @@ const CreateResource: React.FC<CreateResourceProps> = ({
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Title</label>
+            <label className="text-sm font-semibold text-gray-700">Tiêu Đề</label>
             <input
               {...register("title")}
               type="text"
@@ -155,26 +155,26 @@ const CreateResource: React.FC<CreateResourceProps> = ({
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Type</label>
+            <label className="text-sm font-semibold text-gray-700">Loại Tài Liệu</label>
             <select
               {...register("type")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
             >
               <option value="pdf">PDF</option>
               <option value="video">Video</option>
-              <option value="document">Document</option>
+              <option value="document">Tài Liệu</option>
             </select>
             {errors.type && <p className="text-red-500 text-xs">{errors.type.message}</p>}
           </div>
 
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Role</label>
+            <label className="text-sm font-semibold text-gray-700">Vai Trò</label>
             <select
               {...register("allowedRoles")}
               className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
             >
-              <option value="member_free">Member Free</option>
-              <option value="member_premium">Member Premium</option>
+              <option value="member_free">Thành Viên Miễn Phí</option>
+              <option value="member_premium">Thành Viên Cao Cấp</option>
             </select>
             {errors.allowedRoles && (
               <p className="text-red-500 text-xs">{errors.allowedRoles.message}</p>
@@ -183,7 +183,7 @@ const CreateResource: React.FC<CreateResourceProps> = ({
         </div>
 
         <div className="space-y-4">
-          <label className="text-sm font-semibold text-gray-700">Description</label>
+          <label className="text-sm font-semibold text-gray-700">Mô Tả</label>
           <textarea
             {...register("description")}
             className="p-2 border rounded-md w-full h-24 resize-none focus:border-blue-500 focus:outline-none"
@@ -194,11 +194,11 @@ const CreateResource: React.FC<CreateResourceProps> = ({
         </div>
 
         <div className="space-y-4">
-          <label className="text-sm font-semibold text-gray-700">File URLs</label>
+          <label className="text-sm font-semibold text-gray-700">Đường Dẫn Tệp</label>
           <input
             {...register("fileUrls")}
             type="text"
-            placeholder="Enter URLs separated by commas"
+            placeholder="Nhập các URL, cách nhau bằng dấu phẩy"
             className="p-2 border rounded-md w-full focus:border-blue-500 focus:outline-none"
           />
         </div>
@@ -209,13 +209,13 @@ const CreateResource: React.FC<CreateResourceProps> = ({
             className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
             onClick={onClose}
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="submit"
             className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
           >
-            Create
+            Tạo Mới
           </button>
         </div>
       </form>

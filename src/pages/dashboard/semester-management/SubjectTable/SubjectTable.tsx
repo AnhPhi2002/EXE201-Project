@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { Edit2, Trash2, Plus } from 'lucide-react';
-import CreateSubject from './CreateSubject';
-import UpdateSubject from './UpdateSubject';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '@/lib/api/store';
-import { fetchDepartments } from '@/lib/api/redux/departmentSlice';
-import { fetchSemesters } from '@/lib/api/redux/semesterSlice';
-import { fetchSubjects, createSubject, updateSubject, deleteSubject } from '@/lib/api/redux/subjectSlice';
+import React, { useState, useEffect } from "react";
+import { Edit2, Trash2, Plus } from "lucide-react";
+import CreateSubject from "./CreateSubject";
+import UpdateSubject from "./UpdateSubject";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/lib/api/store";
+import { fetchDepartments } from "@/lib/api/redux/departmentSlice";
+import { fetchSemesters } from "@/lib/api/redux/semesterSlice";
+import { fetchSubjects, createSubject, updateSubject, deleteSubject } from "@/lib/api/redux/subjectSlice";
+import { PaginationDashboardPage } from "../../pagination";
+import { toast } from "sonner";
 
 interface SubjectTableProps {
   setShowSubjectPopover: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,7 +23,7 @@ interface Subject {
   id: string;
   name: string;
   semester: string;
-  description: string; // Ensure description is included
+  description: string;
 }
 
 const SubjectTable: React.FC<SubjectTableProps> = ({
@@ -36,9 +38,11 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
   const { departments } = useSelector((state: RootState) => state.departments);
   const { semesters } = useSelector((state: RootState) => state.semesters);
   const { subjects } = useSelector((state: RootState) => state.subjects);
-  
+
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [showUpdatePopover, setShowUpdatePopover] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     dispatch(fetchDepartments());
@@ -47,51 +51,79 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
   }, [dispatch]);
 
   const handleCreateSubject = (data: { name: string; semesterId: string; description: string }) => {
-    const subjectData = { name: data.name, semester: data.semesterId, description: data.description }; // Include description
-    dispatch(createSubject(subjectData))
+    const isDuplicate = subjects.some(
+      (subject) => subject.name === data.name && subject.semester === data.semesterId
+    );
+
+    if (isDuplicate) {
+      toast.error("Môn học này đã tồn tại trong học kỳ đã chọn.");
+      return;
+    }
+
+    dispatch(createSubject({ ...data, semester: data.semesterId }))
       .unwrap()
       .then(() => {
+        toast.success("Thêm môn học thành công!");
         setShowSubjectPopover(false);
         dispatch(fetchSubjects(null));
       })
       .catch((error) => {
-        console.error('Error creating subject:', error);
+        toast.error("Thêm môn học thất bại. Vui lòng thử lại.");
+        console.error("Error creating subject:", error);
       });
   };
 
   const handleUpdateSubject = (data: { id: string; name: string; semester: string; description: string }) => {
+    const isDuplicate = subjects.some(
+      (subject) =>
+        subject.name === data.name &&
+        subject.semester === data.semester &&
+        subject.id !== data.id
+    );
+
+    if (isDuplicate) {
+      toast.error("Môn học này đã tồn tại trong học kỳ đã chọn.");
+      return;
+    }
+
     dispatch(updateSubject(data))
       .unwrap()
       .then(() => {
+        toast.success("Cập nhật môn học thành công!");
         setShowUpdatePopover(false);
         dispatch(fetchSubjects(null));
       })
       .catch((error) => {
-        console.error('Error updating subject:', error);
+        toast.error("Cập nhật môn học thất bại. Vui lòng thử lại.");
+        console.error("Error updating subject:", error);
       });
   };
 
   const handleDeleteSubject = (subjectId: string) => {
     dispatch(deleteSubject(subjectId))
       .unwrap()
-      .then(() => dispatch(fetchSubjects(null)))
+      .then(() => {
+        toast.success("Xóa môn học thành công!");
+        dispatch(fetchSubjects(null));
+      })
       .catch((error) => {
-        console.error('Error deleting subject:', error);
+        toast.error("Xóa môn học thất bại. Vui lòng thử lại.");
+        console.error("Error deleting subject:", error);
       });
   };
 
-  const getSemesterName = (semester: string) => {
-    const semesterObj = semesters.find((s) => s.id === semester);
-    return semesterObj ? semesterObj.name : 'N/A';
+  const getSemesterName = (semesterId: string) => {
+    const semester = semesters.find((s) => s.id === semesterId);
+    return semester ? semester.name : "N/A";
   };
 
-  const getDepartmentNameBySemester = (semester: string) => {
-    const semesterObj = semesters.find((s) => s.id === semester);
-    if (semesterObj) {
-      const department = departments.find((d) => d.id === semesterObj.department);
-      return department ? department.name : 'N/A';
+  const getDepartmentNameBySemester = (semesterId: string) => {
+    const semester = semesters.find((s) => s.id === semesterId);
+    if (semester) {
+      const department = departments.find((d) => d.id === semester.department);
+      return department ? department.name : "N/A";
     }
-    return 'N/A';
+    return "N/A";
   };
 
   const filteredSubjects = subjects.filter(
@@ -100,12 +132,20 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
       (!selectedDepartment || semesters.find((s) => s.id === subject.semester)?.department === selectedDepartment)
   );
 
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentSubjects = filteredSubjects.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filteredSubjects.length / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="w-full overflow-x-auto">
       <div className="flex justify-between mb-4">
         <div className="flex gap-4">
           <select className="border p-2 rounded-md" value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
-            <option value="">Select Department</option>
+            <option value="">Chọn Ngành</option>
             {departments.map((dept) => (
               <option key={dept.id} value={dept.id}>
                 {dept.name}
@@ -114,7 +154,7 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
           </select>
 
           <select className="border p-2 rounded-md" value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)}>
-            <option value="">Select Semester</option>
+            <option value="">Chọn học kỳ</option>
             {semesters
               .filter((sem) => !selectedDepartment || sem.department === selectedDepartment)
               .map((sem) => (
@@ -126,7 +166,7 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
         </div>
 
         <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2" onClick={() => setShowSubjectPopover(true)}>
-          <Plus /> Add Subject
+          <Plus /> Thêm Môn học
         </button>
       </div>
 
@@ -134,19 +174,19 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
         <thead>
           <tr className="bg-gray-50">
             <th className="px-6 py-3 border-b text-left">ID</th>
-            <th className="px-6 py-3 border-b text-left">Name</th>
-            <th className="px-6 py-3 border-b text-left">Semester</th>
-            <th className="px-6 py-3 border-b text-left">Department</th>
-            <th className="px-6 py-3 border-b text-left">Actions</th>
+            <th className="px-6 py-3 border-b text-left">Ngành</th>
+            <th className="px-6 py-3 border-b text-left">Kỳ</th>
+            <th className="px-6 py-3 border-b text-left">Môn học</th>
+            <th className="px-6 py-3 border-b text-left">Hành động</th>
           </tr>
         </thead>
         <tbody>
-          {filteredSubjects.map((subject) => (
+          {currentSubjects.map((subject) => (
             <tr key={subject.id} className="hover:bg-gray-50">
               <td className="px-6 py-4 border-b">{subject.id}</td>
-              <td className="px-6 py-4 border-b">{subject.name}</td>
-              <td className="px-6 py-4 border-b">{getSemesterName(subject.semester)}</td>
               <td className="px-6 py-4 border-b">{getDepartmentNameBySemester(subject.semester)}</td>
+              <td className="px-6 py-4 border-b">{getSemesterName(subject.semester)}</td>
+              <td className="px-6 py-4 border-b">{subject.name}</td>
               <td className="px-6 py-4 border-b">
                 <div className="flex gap-2">
                   <button
@@ -168,14 +208,22 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
         </tbody>
       </table>
 
+      <div className="flex justify-end mt-4">
+        <PaginationDashboardPage
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
+      </div>
+
       {showCreatePopover && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <CreateSubject 
-              departments={departments} 
-              semesters={semesters} 
-              onCreate={handleCreateSubject} 
-              onClose={() => setShowSubjectPopover(false)} 
+            <CreateSubject
+              departments={departments}
+              semesters={semesters}
+              onCreate={handleCreateSubject}
+              onClose={() => setShowSubjectPopover(false)}
             />
           </div>
         </div>
@@ -184,12 +232,12 @@ const SubjectTable: React.FC<SubjectTableProps> = ({
       {showUpdatePopover && selectedSubject && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-md relative">
-            <UpdateSubject 
-              subject={selectedSubject} 
-              departments={departments} 
-              semesters={semesters} 
-              onUpdate={handleUpdateSubject} 
-              onClose={() => setShowUpdatePopover(false)} 
+            <UpdateSubject
+              subject={selectedSubject}
+              departments={departments}
+              semesters={semesters}
+              onUpdate={handleUpdateSubject}
+              onClose={() => setShowUpdatePopover(false)}
             />
           </div>
         </div>

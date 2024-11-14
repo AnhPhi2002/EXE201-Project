@@ -31,23 +31,49 @@ export const PaginationDashboardPage: React.FC<PaginationDashboardPageProps> = (
     }
   };
 
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxVisiblePages = 3;
+    const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (startPage > 1) {
+      pages.push(1);
+      if (startPage > 2) pages.push(-1); // dấu "..." đại diện cho các trang không hiển thị
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) pages.push(-1);
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
   return (
-    <div className="flex justify-end items-center mb-4"> {/* Sử dụng justify-end để căn về bên phải */}
+    <div className="flex justify-end items-center mb-4">
       <Pagination>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious href="#" onClick={handlePrevious} />
           </PaginationItem>
-          {/* Render số trang */}
-          {[...Array(totalPages)].map((_, index) => (
+          {getPageNumbers().map((page, index) => (
             <PaginationItem key={index}>
-              <PaginationLink
-                href="#"
-                isActive={index + 1 === currentPage}
-                onClick={() => onPageChange(index + 1)}
-              >
-                {index + 1}
-              </PaginationLink>
+              {page === -1 ? (
+                <span className="px-2">...</span> // dấu "..." giữa các trang
+              ) : (
+                <PaginationLink
+                  href="#"
+                  isActive={page === currentPage}
+                  onClick={() => onPageChange(page)}
+                >
+                  {page}
+                </PaginationLink>
+              )}
             </PaginationItem>
           ))}
           <PaginationItem>

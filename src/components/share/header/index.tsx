@@ -53,9 +53,6 @@ const Header: React.FC = () => {
 
   return (
     <motion.header
-      initial={{ y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
       className="fixed top-0 w-full z-50 backdrop-blur-lg bg-white/40 border-b border-white/20 shadow-md"
     >
       <div className="max-w-[1920px] mx-auto px-6 sm:px-8 lg:px-12">

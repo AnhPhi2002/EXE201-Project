@@ -5,10 +5,12 @@ import { RootState, AppDispatch } from '@/lib/api/store';
 import { fetchDepartments, createDepartment, deleteDepartment, updateDepartment } from '@/lib/api/redux/departmentSlice';
 import CreateDepartment from './CreateDepartment';
 import UpdateDepartment from './UpdateDepartment';
+import { PaginationDashboardPage } from '../../pagination';
+import { toast } from 'sonner';
 
 interface DepartmentTableProps {
   setShowDepartmentPopover: React.Dispatch<React.SetStateAction<boolean>>;
-  showCreatePopover: boolean; // Add prop for visibility of CreateDepartment modal
+  showCreatePopover: boolean;
 }
 
 interface Department {
@@ -19,9 +21,13 @@ interface Department {
 
 const DepartmentTable: React.FC<DepartmentTableProps> = ({ setShowDepartmentPopover, showCreatePopover }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { departments, loading, error } = useSelector((state: RootState) => state.departments);
+  const { departments } = useSelector((state: RootState) => state.departments);
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
   const [showUpdatePopover, setShowUpdatePopover] = useState(false);
+
+  // State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     dispatch(fetchDepartments());
@@ -29,21 +35,38 @@ const DepartmentTable: React.FC<DepartmentTableProps> = ({ setShowDepartmentPopo
 
   const handleCreateDepartment = (data: { name: string; code: string }) => {
     dispatch(createDepartment(data));
-    setShowDepartmentPopover(false); // Close popover after creating department
+    setShowDepartmentPopover(false);
   };
 
   const handleDeleteDepartment = (id: string) => {
-    dispatch(deleteDepartment(id));
+    dispatch(deleteDepartment(id))
+      .unwrap()
+      .then(() => {
+        toast.success('Xóa ngành thành công!');
+      })
+      .catch((error) => {
+        toast.error('Xóa ngành thất bại. Vui lòng thử lại.');
+        console.error('Lỗi khi xóa ngành:', error);
+      });
   };
 
-  const handleUpdateDepartment = (data: { id: string; name: string; code: string }) => {
-    dispatch(updateDepartment(data));
+  const handleUpdateDepartment = async (data: { id: string; name: string; code: string }): Promise<void> => {
+    await dispatch(updateDepartment(data)).unwrap();
     setShowUpdatePopover(false);
   };
 
   const handleEditClick = (department: Department) => {
     setSelectedDepartment(department);
     setShowUpdatePopover(true);
+  };
+
+  // Tính toán departments hiện tại dựa trên trang
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentDepartments = departments.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(departments.length / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -53,24 +76,21 @@ const DepartmentTable: React.FC<DepartmentTableProps> = ({ setShowDepartmentPopo
           className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2"
           onClick={() => setShowDepartmentPopover(true)}
         >
-          <FilePlus /> Add Department
+          <FilePlus /> Thêm Ngành
         </button>
       </div>
-
-      {loading && <p>Loading...</p>}
-      {error && <p>Error: {error}</p>}
 
       <table className="min-w-full bg-white border border-gray-200">
         <thead>
           <tr className="bg-gray-50">
             <th className="px-6 py-3 border-b text-left">ID</th>
-            <th className="px-6 py-3 border-b text-left">Name</th>
-            <th className="px-6 py-3 border-b text-left">Code</th>
-            <th className="px-6 py-3 border-b text-left">Actions</th>
+            <th className="px-6 py-3 border-b text-left">Tên Ngành</th>
+            <th className="px-6 py-3 border-b text-left">Mã Ngành</th>
+            <th className="px-6 py-3 border-b text-left">Hành Động</th>
           </tr>
         </thead>
         <tbody>
-          {departments.map((dept) => (
+          {currentDepartments.map((dept) => (
             <tr key={dept.id} className="hover:bg-gray-50">
               <td className="px-6 py-4 border-b">{dept.id}</td>
               <td className="px-6 py-4 border-b">{dept.name}</td>
@@ -90,20 +110,30 @@ const DepartmentTable: React.FC<DepartmentTableProps> = ({ setShowDepartmentPopo
         </tbody>
       </table>
 
-      {/* Render CreateDepartment component when showCreatePopover is true */}
+      {/* Render PaginationDashboardPage */}
+      <div className="flex justify-end mt-4">
+        <PaginationDashboardPage
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
+      </div>
+
       {showCreatePopover && (
         <CreateDepartment
           onCreate={handleCreateDepartment}
           onClose={() => setShowDepartmentPopover(false)}
+          existingDepartmentNames={departments.map(dept => dept.name)}
+          existingDepartmentCodes={departments.map(dept => dept.code)}
         />
       )}
 
-      {/* Render UpdateDepartment component when showUpdatePopover is true */}
       {showUpdatePopover && selectedDepartment && (
         <UpdateDepartment
           department={selectedDepartment}
           onUpdate={handleUpdateDepartment}
           onClose={() => setShowUpdatePopover(false)}
+          existingDepartments={departments} // Truyền danh sách ngành hiện có
         />
       )}
     </div>

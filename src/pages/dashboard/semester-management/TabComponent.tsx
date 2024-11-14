@@ -48,7 +48,7 @@ const TabComponent: React.FC = () => {
     { id: 'departments', name: 'Ngành' },
     { id: 'semesters', name: 'Kỳ' },
     { id: 'subjects', name: 'Môn học' },
-    { id: 'resources', name: 'Resource' },
+    { id: 'resources', name: 'Tài liệu' },
   ];
 
   return (

@@ -8,6 +8,8 @@ import { fetchSubjects } from '@/lib/api/redux/subjectSlice';
 import CreateResource from './CreateResource';
 import UpdateResource from './UpdateResource';
 import { fetchAllResources, createResource, deleteResource, updateResource } from '@/lib/api/redux/resourceSlice';
+import { PaginationDashboardPage } from '../../pagination';
+import { toast } from 'sonner';
 
 interface Resource {
   id: string;
@@ -57,6 +59,8 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
 
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [showUpdatePopover, setShowUpdatePopover] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     dispatch(fetchDepartments());
@@ -66,6 +70,16 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
   }, [dispatch, selectedDepartment, selectedSemester]);
 
   const handleCreateResource = (data: ResourceFormData) => {
+    // Kiểm tra trùng lặp tài liệu
+    const isDuplicate = resources.some(
+      (resource) => resource.title === data.title && resource.subject === data.selectedSubject
+    );
+
+    if (isDuplicate) {
+      toast.error("Tài liệu này đã tồn tại trong môn học đã chọn.");
+      return;
+    }
+
     const resourceData = {
       title: data.title,
       description: data.description,
@@ -74,46 +88,70 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
       type: data.type,
       allowedRoles: data.allowedRoles ? [data.allowedRoles] : [],
     };
+
     dispatch(createResource({ subjectId: data.selectedSubject, resourceData }))
       .unwrap()
       .then(() => {
+        toast.success("Tạo tài liệu thành công!");
         setShowResourcePopover(false);
         dispatch(fetchAllResources());
       })
       .catch((error) => {
+        toast.error("Tạo tài liệu thất bại. Vui lòng thử lại.");
         console.error('Error creating resource:', error);
       });
   };
 
   const handleUpdateResource = (data: Resource) => {
+    // Kiểm tra trùng lặp tài liệu khi cập nhật
+    const isDuplicate = resources.some(
+      (resource) => resource.title === data.title && resource.subject === data.subject && resource.id !== data.id
+    );
+  
+    if (isDuplicate) {
+      toast.error("Tài liệu này đã tồn tại trong môn học đã chọn.");
+      return;
+    }
+  
     const resourceData = {
       ...data,
-      fileUrls: data.fileUrls
-        ? data.fileUrls
-            .join(', ')
-            .split(',')
-            .map((url) => url.trim())
-        : [],
+      fileUrls: data.fileUrls ? data.fileUrls.join(', ').split(',').map((url) => url.trim()) : [],
       subject: data.subject,
     };
+  
     dispatch(updateResource({ id: data.id, resourceData }))
       .unwrap()
       .then(() => {
+        toast.success("Cập nhật tài liệu thành công!");
         setShowUpdatePopover(false);
         dispatch(fetchAllResources());
       })
       .catch((error) => {
+        toast.error("Cập nhật tài liệu thất bại. Vui lòng thử lại.");
         console.error('Error updating resource:', error);
       });
   };
-
+  
   const handleDeleteResource = (resourceId: string) => {
     dispatch(deleteResource(resourceId))
       .unwrap()
-      .then(() => dispatch(fetchAllResources()))
+      .then(() => {
+        toast.success("Xóa tài liệu thành công!");
+        dispatch(fetchAllResources());
+      })
       .catch((error) => {
+        toast.error("Xóa tài liệu thất bại. Vui lòng thử lại.");
         console.error('Error deleting resource:', error);
       });
+  };
+
+  const filteredResources = resources.filter((res) => !selectedSubject || res.subject === selectedSubject);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentResources = filteredResources.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filteredResources.length / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -121,7 +159,7 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
       <div className="flex flex-wrap justify-between items-center mb-4">
         <div className="flex gap-4 flex-wrap">
           <select className="border p-2 rounded-md max-w-full" value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)}>
-            <option value="">Select Department</option>
+            <option value="">Chọn Ngành</option>
             {departments.map((dept) => (
               <option key={dept.id} value={dept.id}>
                 {dept.name}
@@ -130,7 +168,7 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
           </select>
 
           <select className="border p-2 rounded-md max-w-full" value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} disabled={!selectedDepartment}>
-            <option value="">Select Semester</option>
+            <option value="">Chọn Kỳ</option>
             {semesters
               .filter((sem) => sem.department === selectedDepartment)
               .map((sem) => (
@@ -141,7 +179,7 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
           </select>
 
           <select className="border p-2 rounded-md max-w-full" value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} disabled={!selectedSemester}>
-            <option value="">Select Subject</option>
+            <option value="">Chọn Môn Học</option>
             {subjects
               .filter((sub) => sub.semester === selectedSemester)
               .map((sub) => (
@@ -152,43 +190,49 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
           </select>
         </div>
         <button className="bg-blue-500 text-white px-4 py-2 rounded-md flex items-center gap-2 mt-2 md:mt-0" onClick={() => setShowResourcePopover(true)}>
-          <Plus /> Add Resource
+          <Plus /> Thêm Tài Liệu
         </button>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {resources
-          .filter((res) => !selectedSubject || res.subject === selectedSubject)
-          .map((resource) => (
-            <div key={resource.id} className="bg-white p-6 rounded-lg shadow-md space-y-4 max-w-sm w-full overflow-hidden">
-              <div className="flex items-center gap-3">
-                {resource.type === 'pdf' ? <File className="text-red-500 text-2xl" /> : <PlayCircle className="text-blue-500 text-2xl" />}
-                <h3 className="text-lg font-semibold">{resource.title}</h3>
-              </div>
-
-              <p className="text-gray-600 text-sm overflow-hidden overflow-ellipsis whitespace-nowrap max-w-full">{resource.description || 'No description available'}</p>
-
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{resource.type?.toUpperCase()}</span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{resource.allowedRoles?.[0] || 'N/A'}</span>
-              </div>
-
-              <div className="flex gap-2">
-                <button
-                  className="text-blue-500 hover:text-blue-700"
-                  onClick={() => {
-                    setSelectedResource({ ...resource, type: resource.type || 'pdf' });
-                    setShowUpdatePopover(true);
-                  }}
-                >
-                  <Edit2 />
-                </button>
-                <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteResource(resource.id)}>
-                  <Trash2 />
-                </button>
-              </div>
+        {currentResources.map((resource) => (
+          <div key={resource.id} className="bg-white p-6 rounded-lg shadow-md space-y-4 max-w-sm w-full overflow-hidden">
+            <div className="flex items-center gap-3">
+              {resource.type === 'pdf' ? <File className="text-red-500 text-2xl" /> : <PlayCircle className="text-blue-500 text-2xl" />}
+              <h3 className="text-lg font-semibold">{resource.title}</h3>
             </div>
-          ))}
+
+            <p className="text-gray-600 text-sm overflow-hidden overflow-ellipsis whitespace-nowrap max-w-full">{resource.description || 'Không có mô tả'}</p>
+
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{resource.type?.toUpperCase()}</span>
+              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{resource.allowedRoles?.[0] || 'N/A'}</span>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                className="text-blue-500 hover:text-blue-700"
+                onClick={() => {
+                  setSelectedResource({ ...resource, type: resource.type || 'pdf' });
+                  setShowUpdatePopover(true);
+                }}
+              >
+                <Edit2 />
+              </button>
+              <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteResource(resource.id)}>
+                <Trash2 />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex justify-end mt-4">
+        <PaginationDashboardPage
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
       </div>
 
       {showCreatePopover && (
