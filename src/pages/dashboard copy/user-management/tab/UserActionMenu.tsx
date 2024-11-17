@@ -12,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import { UserRole } from '@/lib/api/types/types';
-import UpdateUser from '../UpdateUser';
 
 interface UserActionMenuProps {
   userTypeOptions: { label: string; value: UserRole }[];
@@ -37,7 +36,6 @@ const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRole
           <DropdownMenuSubTrigger>
             <span>Change Role</span>
           </DropdownMenuSubTrigger>
-
           <DropdownMenuSubContent>
             {userTypeOptions.map((option) => (
               <DropdownMenuItem key={option.value} onClick={() => onRoleChange(option.value)}>
@@ -46,8 +44,6 @@ const UserActionMenu: React.FC<UserActionMenuProps> = ({ userTypeOptions, onRole
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
-         
-         <UpdateUser />
 
         {/* Option for Permissions (only appears if onOpenPermissions is provided) */}
         {onOpenPermissions && (
