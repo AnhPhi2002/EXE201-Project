@@ -38,7 +38,8 @@ import { Toaster } from 'sonner';
 import PricingPlanSection from './pages/pricingplans';
 import PaymentSuccess from './pages/pricingplans/PaymentSuccess';
 import PaymentFailure from './pages/pricingplans/PaymentFailure';
-
+import ProtectedRoute from './components/ProtectedRoute';
+import SubjectPage from './pages/subject-page';
 
 // Cấu hình router
 const router = createBrowserRouter([
@@ -70,23 +71,22 @@ const router = createBrowserRouter([
       {
         path: '/question',
         element: <QuestionPage />,
-      }
-      ,
+      },
       {
         path: '/question/:id',
         element: <QuestionDetailPage />,
       },
       // {
-      //   path: '/subject/:courseId', 
+      //   path: '/subject/:courseId',
       //   element: <SubjectPage />,
       // },
-      
+
       {
         path: '/profile',
         element: <ProfilePage />,
       },
       {
-        path: '/profile-detail', 
+        path: '/profile-detail',
         element: <ProfileDetail />,
       },
 
@@ -103,19 +103,20 @@ const router = createBrowserRouter([
         element: <CodingCourseSection />,
       },
       {
+        path: '/subject/:id',
+        element: <SubjectPage />,
+      },
+      {
         path: '/contact',
         element: <ContactUs />,
-        
       },
       {
         path: '/about',
         element: <AboutUs />,
-        
       },
       {
         path: '/pricing',
         element: <PricingPlanSection />,
-        
       },
       {
         path: '/payment',
@@ -130,10 +131,8 @@ const router = createBrowserRouter([
         element: <PaymentFailure />,
       },
     ],
-
-    
   },
-  // Các route bên ngoài layout chính
+
   {
     path: '/login',
     element: <LoginPage />,
@@ -152,38 +151,87 @@ const router = createBrowserRouter([
   // },
 
   {
-    path: '/dashboard', // Đường dẫn dashboard
-    element: <Dashboard />, // Layout chính cho Dashboard
+    path: '/dashboard', 
+    element: (
+      <ProtectedRoute roles={['admin']}>
+        <Dashboard />
+      </ProtectedRoute>
+    ), 
     children: [
       {
-        path: '/dashboard/home', // Đây là trang mặc định khi vào /dashboard
-        element: <HomeDashboard />, // Trang HomeDashboard mặc định
+        path: '/dashboard/',
+        element: <HomeDashboard />,
       },
       {
-        path: '/dashboard/user-management', 
-        element: <UserManagementDashboard />
+        path: '/dashboard/home', 
+        element: <HomeDashboard />, 
       },
       {
-        path: '/dashboard/post-management', 
-        element: <PostManagementDashboard />
+        path: '/dashboard/user-management',
+        element: <UserManagementDashboard />,
       },
       {
-        path: '/dashboard/comment-management', 
-        element: <CommentManagementDashboard />
+        path: '/dashboard/post-management',
+        element: <PostManagementDashboard />,
       },
       {
-        path: '/dashboard/meeting-management', 
-        element: <MeetingManagementDashboard />
+        path: '/dashboard/comment-management',
+        element: <CommentManagementDashboard />,
       },
       {
-        path: '/dashboard/permission-management', 
-        element: <PermissionManagementDashboard />
+        path: '/dashboard/meeting-management',
+        element: <MeetingManagementDashboard />,
       },
       {
-        path: '/dashboard/semester-management', 
-        element: <SemesterManagementDashboard />
+        path: '/dashboard/permission-management',
+        element: <PermissionManagementDashboard />,
       },
-      
+      {
+        path: '/dashboard/semester-management',
+        element: <SemesterManagementDashboard />,
+      },
+    ],
+  },
+  {
+    path: '/dashboard', 
+    element: (
+      <ProtectedRoute roles={['admin']}>
+        <Dashboard />
+      </ProtectedRoute>
+    ), 
+    children: [
+      {
+        path: '/dashboard/',
+        element: <HomeDashboard />,
+      },
+      {
+        path: '/dashboard/home', 
+        element: <HomeDashboard />, 
+      },
+      {
+        path: '/dashboard/user-management',
+        element: <UserManagementDashboard />,
+      },
+      {
+        path: '/dashboard/post-management',
+        element: <PostManagementDashboard />,
+      },
+      {
+        path: '/dashboard/comment-management',
+        element: <CommentManagementDashboard />,
+      },
+      {
+        path: '/dashboard/meeting-management',
+        element: <MeetingManagementDashboard />,
+      },
+      {
+        path: '/dashboard/permission-management',
+        element: <PermissionManagementDashboard />,
+      },
+      {
+        path: '/dashboard/semester-management',
+        element: <SemesterManagementDashboard />,
+      },
     ],
   },
 ]);

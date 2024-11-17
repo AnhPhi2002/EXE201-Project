@@ -54,8 +54,8 @@ const CodingCourseSection = () => {
   );
 
   const handleSubjectClick = useCallback(
-    (subjectId: string, subjectName: string) => {
-      navigate(`/subject/${subjectName}?id=${subjectId}`);
+    (subjectId: string) => {
+      navigate(`/subject/${subjectId}`);
     },
     [navigate],
   );
@@ -86,7 +86,7 @@ const CodingCourseSection = () => {
                       <SubjectItem
                         key={subject.id}
                         subject={subject}
-                        onClick={() => handleSubjectClick(subject.id, subject.name)}
+                        onClick={() => handleSubjectClick(subject.id)}
                       />
                     ))}
                 </SemesterItem>

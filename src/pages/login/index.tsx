@@ -10,58 +10,74 @@ import { toast } from 'sonner'; // Import thêm toast từ sonner
 
 // Import các thành phần từ Shadcn
 import { FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import LoginLayout from '@/layouts/LoginLayout';
+import { useAppSelector } from '@/hooks/useRedux';
+import { fetchUserInfo } from '@/lib/api/redux/userSlice';
 
-// Xác thực biểu mẫu với Zod
 const loginSchema = z.object({
   email: z.string().email({ message: 'Địa chỉ email không hợp lệ' }).nonempty({ message: 'Email là bắt buộc' }),
-  password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' })
+  password: z.string().min(6, { message: 'Mật khẩu phải có ít nhất 6 ký tự' }),
 });
 
-// Kiểu dữ liệu đầu vào của biểu mẫu dựa trên schema
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
   useEffect(() => {
-    document.title = "Đăng nhập | LearnUp"
-  }, [])
+    document.title = 'Đăng nhập | LearnUp';
+  }, []);
 
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { isAuthenticated, loading, error } = useSelector((state: RootState) => state.auth);
+  const user = useAppSelector((state: RootState) => state.user.profile);
+  const token = localStorage.getItem('token');
+  useEffect(() => {
+    if (token) {
+      dispatch(fetchUserInfo());
+    }
+    if (isAuthenticated) {
+      toast.success('Đăng nhập thành công!');
+    }
+  }, [dispatch, isAuthenticated]);
 
-  // Sử dụng useForm từ react-hook-form với zod
   const methods = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
-      password: ''
-    }
+      password: '',
+    },
   });
 
-  const { handleSubmit, formState: { errors } } = methods;
+  const {
+    handleSubmit,
+    formState: { errors },
+  } = methods;
 
-  // Xử lý submit form
   const onSubmit = (data: LoginFormInputs) => {
     dispatch(login(data));
   };
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      toast.success('Đăng nhập thành công!');
-      setTimeout(() => {
-        navigate('/');
-      }, 1000); // Trì hoãn 1 giây để toast hiển thị
-    }
-  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     if (error) {
       toast.error('Đăng nhập thất bại! Vui lòng kiểm tra lại thông tin.');
     }
   }, [error]);
+  useEffect(() => {
+    setTimeout(() => {
+      if (user && token) {
+        if (user?.role === 'admin') {
+          navigate('/dashboard');
+        } else if (user?.role === 'staff') {
+          navigate('/staff');
+        } else {
+          navigate('/');
+        }
+      }
+    }, 1000);
+   
+  }, [user]);
 
   return (
     <LoginLayout>

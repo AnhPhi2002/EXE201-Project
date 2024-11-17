@@ -1,11 +1,24 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Search, ListFilter } from 'lucide-react';
-import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Download, Search, ListFilter} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { CreateUser } from './CreateUser';
-
 
 // Định nghĩa kiểu props
 interface FliterDashboardProps {
@@ -43,7 +56,9 @@ const FliterDashboard: React.FC<FliterDashboardProps> = ({
               <DropdownMenuCheckboxItem>Archived</DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <CreateUser /> {/* Thêm component UpdateUser */}
+
+           <CreateUser /> {/* Thêm component UpdateUser */}
+           
           <Button className="flex items-center bg-green-600" onClick={onExport}>
             <Download className="h-5 w-5 mr-2" />
             <span>Export</span>
@@ -65,11 +80,10 @@ const FliterDashboard: React.FC<FliterDashboardProps> = ({
         </div>
         <Select value={selectedMetric} onValueChange={(value) => setSelectedMetric(value)}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue className="text-black" placeholder="Role" />
+            <SelectValue placeholder="Role" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="all">All</SelectItem>
               <SelectItem value="admin">Admin</SelectItem>
               <SelectItem value="staff">Staff</SelectItem>
               <SelectItem value="user">User</SelectItem>

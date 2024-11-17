@@ -3,8 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Menu, Home, Users, Moon, Sun, Newspaper, MessageCircle, Presentation, TableProperties, SquareLibrary, LogOut } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/api/store';
 
 const Dashboard: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -12,7 +10,6 @@ const Dashboard: React.FC = () => {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown
   const { pathname } = useLocation();
-  const { profile } = useSelector((state: RootState) => state.user);
 
   // Tabs list
   const tabs = [
@@ -98,8 +95,8 @@ const Dashboard: React.FC = () => {
                 className="flex items-center cursor-pointer"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
               >
-             <AvatarImage src={profile?.avatar || "https://example.com/default-avatar.jpg"} alt="User profile picture" />
-             <AvatarFallback>{profile?.name?.charAt(0) || 'U'}</AvatarFallback>
+                <AvatarImage src="https://your-avatar-url.com" alt="User Avatar" />
+                <AvatarFallback>AB</AvatarFallback>
               </Avatar>
 
               {dropdownOpen && (
