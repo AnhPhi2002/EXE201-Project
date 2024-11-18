@@ -71,12 +71,10 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
 
   const handleCreateResource = (data: ResourceFormData) => {
     // Kiểm tra trùng lặp tài liệu
-    const isDuplicate = resources.some(
-      (resource) => resource.title === data.title && resource.subject === data.selectedSubject
-    );
+    const isDuplicate = resources.some((resource) => resource.title === data.title && resource.subject === data.selectedSubject);
 
     if (isDuplicate) {
-      toast.error("Tài liệu này đã tồn tại trong môn học đã chọn.");
+      toast.error('Tài liệu này đã tồn tại trong môn học đã chọn.');
       return;
     }
 
@@ -92,55 +90,58 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
     dispatch(createResource({ subjectId: data.selectedSubject, resourceData }))
       .unwrap()
       .then(() => {
-        toast.success("Tạo tài liệu thành công!");
+        toast.success('Tạo tài liệu thành công!');
         setShowResourcePopover(false);
         dispatch(fetchAllResources());
       })
       .catch((error) => {
-        toast.error("Tạo tài liệu thất bại. Vui lòng thử lại.");
+        toast.error('Tạo tài liệu thất bại. Vui lòng thử lại.');
         console.error('Error creating resource:', error);
       });
   };
 
   const handleUpdateResource = (data: Resource) => {
     // Kiểm tra trùng lặp tài liệu khi cập nhật
-    const isDuplicate = resources.some(
-      (resource) => resource.title === data.title && resource.subject === data.subject && resource.id !== data.id
-    );
-  
+    const isDuplicate = resources.some((resource) => resource.title === data.title && resource.subject === data.subject && resource.id !== data.id);
+
     if (isDuplicate) {
-      toast.error("Tài liệu này đã tồn tại trong môn học đã chọn.");
+      toast.error('Tài liệu này đã tồn tại trong môn học đã chọn.');
       return;
     }
-  
+
     const resourceData = {
       ...data,
-      fileUrls: data.fileUrls ? data.fileUrls.join(', ').split(',').map((url) => url.trim()) : [],
+      fileUrls: data.fileUrls
+        ? data.fileUrls
+            .join(', ')
+            .split(',')
+            .map((url) => url.trim())
+        : [],
       subject: data.subject,
     };
-  
+
     dispatch(updateResource({ id: data.id, resourceData }))
       .unwrap()
       .then(() => {
-        toast.success("Cập nhật tài liệu thành công!");
+        toast.success('Cập nhật tài liệu thành công!');
         setShowUpdatePopover(false);
         dispatch(fetchAllResources());
       })
       .catch((error) => {
-        toast.error("Cập nhật tài liệu thất bại. Vui lòng thử lại.");
+        toast.error('Cập nhật tài liệu thất bại. Vui lòng thử lại.');
         console.error('Error updating resource:', error);
       });
   };
-  
+
   const handleDeleteResource = (resourceId: string) => {
     dispatch(deleteResource(resourceId))
       .unwrap()
       .then(() => {
-        toast.success("Xóa tài liệu thành công!");
+        toast.success('Xóa tài liệu thành công!');
         dispatch(fetchAllResources());
       })
       .catch((error) => {
-        toast.error("Xóa tài liệu thất bại. Vui lòng thử lại.");
+        toast.error('Xóa tài liệu thất bại. Vui lòng thử lại.');
         console.error('Error deleting resource:', error);
       });
   };
@@ -194,33 +195,41 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-20">
         {currentResources.map((resource) => (
-          <div key={resource.id} className="bg-white p-6 rounded-lg shadow-md space-y-4 max-w-sm w-full overflow-hidden">
-            <div className="flex items-center gap-3">
-              {resource.type === 'pdf' ? <File className="text-red-500 text-2xl" /> : <PlayCircle className="text-blue-500 text-2xl" />}
-              <h3 className="text-lg font-semibold">{resource.title}</h3>
+          <div key={resource.id} className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 p-6 flex flex-col justify-between">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4">
+              {resource.type === 'document' ? <File className="text-red-500 w-6 h-6" /> : <PlayCircle className="text-blue-500 w-6 h-6" />}
+              <h3 className="text-lg font-bold text-gray-800">{resource.title}</h3>
             </div>
 
-            <p className="text-gray-600 text-sm overflow-hidden overflow-ellipsis whitespace-nowrap max-w-full">{resource.description || 'Không có mô tả'}</p>
+            {/* Description */}
+            <p className="text-sm text-gray-600 mb-4 line-clamp-2">{resource.description || 'Không có mô tả'}</p>
 
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{resource.type?.toUpperCase()}</span>
-              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">{resource.allowedRoles?.[0] || 'N/A'}</span>
+            {/* Tags */}
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">{resource.type?.toUpperCase()}</span>
+              <span className={`px-2 py-1 rounded-full text-sm ${resource.allowedRoles?.[0] === 'member_premium' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                {resource.allowedRoles?.[0] === 'member_premium' ? 'Premium Member' : 'Free Member'}
+              </span>
             </div>
 
-            <div className="flex gap-2">
+            {/* Actions */}
+            <div className="flex justify-end items-center gap-4">
               <button
-                className="text-blue-500 hover:text-blue-700"
+                className="flex items-center gap-1 text-blue-500 hover:text-blue-700 transition"
                 onClick={() => {
                   setSelectedResource({ ...resource, type: resource.type || 'pdf' });
                   setShowUpdatePopover(true);
                 }}
               >
-                <Edit2 />
+                <Edit2 className="w-4 h-4" />
+                <span>Sửa</span>
               </button>
-              <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteResource(resource.id)}>
-                <Trash2 />
+              <button className="flex items-center gap-1 text-red-500 hover:text-red-700 transition" onClick={() => handleDeleteResource(resource.id)}>
+                <Trash2 className="w-4 h-4" />
+                <span>Xóa</span>
               </button>
             </div>
           </div>
@@ -228,11 +237,7 @@ const ResourceTable: React.FC<ResourceTableProps> = ({
       </div>
 
       <div className="flex justify-end mt-4">
-        <PaginationDashboardPage
-          totalPages={totalPages}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-        />
+        <PaginationDashboardPage totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
       </div>
 
       {showCreatePopover && (
