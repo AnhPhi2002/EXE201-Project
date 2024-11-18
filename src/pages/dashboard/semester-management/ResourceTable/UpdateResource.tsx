@@ -37,9 +37,6 @@ const resourceSchema = z.object({
   type: z.enum(["pdf", "video", "document"]),
   fileUrls: z.string().optional(),
   allowedRoles: z.enum(["member_free", "member_premium"]).optional(),
-  selectedDepartment: z.string().nonempty("Vui lòng chọn ngành"),
-  selectedSemester: z.string().nonempty("Vui lòng chọn kỳ học"),
-  selectedSubject: z.string().nonempty("Vui lòng chọn môn học"),
 });
 
 type ResourceFormData = z.infer<typeof resourceSchema>;
@@ -66,7 +63,6 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
   } = useForm<ResourceFormData>({
     resolver: zodResolver(resourceSchema),
     defaultValues: {
@@ -75,98 +71,72 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
       type: resource.type,
       fileUrls: resource.fileUrls ? resource.fileUrls.join(", ") : "",
       allowedRoles: resource.allowedRoles?.[0],
-      selectedDepartment: "",
-      selectedSemester: "",
-      selectedSubject: resource.subject,
     },
   });
 
-  const selectedDepartment = watch("selectedDepartment");
-  const selectedSemester = watch("selectedSemester");
-
+  // Đặt giá trị mặc định cho form
   useEffect(() => {
     setValue("title", resource.title);
     setValue("description", resource.description || "");
     setValue("type", resource.type);
     setValue("fileUrls", resource.fileUrls ? resource.fileUrls.join(", ") : "");
     setValue("allowedRoles", resource.allowedRoles?.[0] || undefined);
-    setValue("selectedSubject", resource.subject);
   }, [resource, setValue]);
-
-  const filteredSemesters = semesters.filter((sem) => sem.department === selectedDepartment);
-  const filteredSubjects = subjects.filter((sub) => sub.semester === selectedSemester);
 
   const onSubmit = (data: ResourceFormData) => {
     const updatedData = {
       ...data,
       fileUrls: data.fileUrls ? data.fileUrls.split(",").map((url) => url.trim()) : undefined,
       id: resource.id,
-      subject: data.selectedSubject,
+      subject: resource.subject,
     };
     onUpdate(updatedData as Resource);
     onClose();
   };
 
+  // Lấy Ngành, Kỳ học, và Môn học từ dữ liệu
+  const currentSubject = subjects.find((sub) => sub.id === resource.subject);
+  const currentSemester = semesters.find((sem) => sem.id === currentSubject?.semester);
+  const currentDepartment = departments.find((dept) => dept.id === currentSemester?.department);
+
   return (
     <Modal title="Cập Nhật Tài Liệu" onClose={onClose}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Department Field (Read-Only) */}
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Chọn Ngành</label>
-            <select
-              {...register("selectedDepartment")}
-              className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Chọn Ngành</option>
-              {departments.map((dept) => (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name}
-                </option>
-              ))}
-            </select>
-            {errors.selectedDepartment && (
-              <p className="text-red-500 text-xs">{errors.selectedDepartment.message}</p>
-            )}
+            <label className="text-sm font-semibold text-gray-700">Ngành</label>
+            <input
+              type="text"
+              value={currentDepartment?.name || "N/A"}
+              disabled
+              className="p-2 border rounded-md bg-gray-100 text-gray-700"
+            />
           </div>
 
+          {/* Semester Field (Read-Only) */}
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Chọn Kỳ Học</label>
-            <select
-              {...register("selectedSemester")}
-              className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
-              disabled={!selectedDepartment}
-            >
-              <option value="">Chọn Kỳ Học</option>
-              {filteredSemesters.map((sem) => (
-                <option key={sem.id} value={sem.id}>
-                  {sem.name}
-                </option>
-              ))}
-            </select>
-            {errors.selectedSemester && (
-              <p className="text-red-500 text-xs">{errors.selectedSemester.message}</p>
-            )}
+            <label className="text-sm font-semibold text-gray-700">Kỳ học</label>
+            <input
+              type="text"
+              value={currentSemester?.name || "N/A"}
+              disabled
+              className="p-2 border rounded-md bg-gray-100 text-gray-700"
+            />
           </div>
 
+          {/* Subject Field (Read-Only) */}
           <div className="flex flex-col space-y-2">
-            <label className="text-sm font-semibold text-gray-700">Chọn Môn Học</label>
-            <select
-              {...register("selectedSubject")}
-              className="p-2 border rounded-md focus:border-blue-500 focus:outline-none"
-              disabled={!selectedSemester}
-            >
-              <option value="">Chọn Môn Học</option>
-              {filteredSubjects.map((subject) => (
-                <option key={subject.id} value={subject.id}>
-                  {subject.name}
-                </option>
-              ))}
-            </select>
-            {errors.selectedSubject && (
-              <p className="text-red-500 text-xs">{errors.selectedSubject.message}</p>
-            )}
+            <label className="text-sm font-semibold text-gray-700">Môn học</label>
+            <input
+              type="text"
+              value={currentSubject?.name || "N/A"}
+              disabled
+              className="p-2 border rounded-md bg-gray-100 text-gray-700"
+            />
           </div>
 
+          {/* Title Field */}
           <div className="flex flex-col space-y-2">
             <label className="text-sm font-semibold text-gray-700">Tiêu Đề</label>
             <input
@@ -177,6 +147,7 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
             {errors.title && <p className="text-red-500 text-xs">{errors.title.message}</p>}
           </div>
 
+          {/* Type Field */}
           <div className="flex flex-col space-y-2">
             <label className="text-sm font-semibold text-gray-700">Loại Tài Liệu</label>
             <select
@@ -190,6 +161,7 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
             {errors.type && <p className="text-red-500 text-xs">{errors.type.message}</p>}
           </div>
 
+          {/* Allowed Roles Field */}
           <div className="flex flex-col space-y-2">
             <label className="text-sm font-semibold text-gray-700">Vai Trò</label>
             <select
@@ -206,6 +178,7 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
           </div>
         </div>
 
+        {/* Description Field */}
         <div className="space-y-4">
           <label className="text-sm font-semibold text-gray-700">Mô Tả</label>
           <textarea
@@ -215,6 +188,7 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
           {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
         </div>
 
+        {/* File URLs Field */}
         <div className="space-y-4">
           <label className="text-sm font-semibold text-gray-700">Đường Dẫn Tệp</label>
           <input
@@ -225,6 +199,7 @@ const UpdateResource: React.FC<UpdateResourceProps> = ({
           />
         </div>
 
+        {/* Action Buttons */}
         <div className="flex justify-end space-x-4 mt-6">
           <button
             type="button"

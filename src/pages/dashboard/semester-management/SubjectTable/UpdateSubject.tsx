@@ -23,7 +23,6 @@ interface Subject {
 
 const subjectSchema = z.object({
   name: z.string().min(1, { message: "Tên môn học không được để trống" }),
-  semester: z.string().nonempty("Vui lòng chọn học kỳ"),
   description: z.string().min(5, "Mô tả phải có ít nhất 5 ký tự"), // Added description validation
 });
 
@@ -37,28 +36,31 @@ interface UpdateSubjectProps {
   onClose: () => void;
 }
 
-const UpdateSubject: React.FC<UpdateSubjectProps> = ({ subject, departments, semesters, onUpdate, onClose }) => {
+const UpdateSubject: React.FC<UpdateSubjectProps> = ({
+  subject,
+  departments,
+  semesters,
+  onUpdate,
+  onClose,
+}) => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<SubjectFormData>({
     resolver: zodResolver(subjectSchema),
     defaultValues: {
       name: subject.name,
-      semester: subject.semester,
       description: subject.description, // Initialize description
     },
   });
 
-  // Get department ID from the current subject's semester
-  const departmentId = semesters.find((sem) => sem.id === subject.semester)?.department || "";
-  const filteredSemesters = semesters.filter((sem) => sem.department === departmentId);
+  // Lấy thông tin Kỳ học và Phòng ban
+  const currentSemester = semesters.find((sem) => sem.id === subject.semester);
+  const currentDepartment = departments.find((dept) => dept.id === currentSemester?.department);
 
   useEffect(() => {
-    // Update semester when department changes (if applicable)
-    setValue("semester", subject.semester);
     setValue("description", subject.description); // Ensure description is set
   }, [subject, setValue]);
 
   const onSubmit = (data: SubjectFormData) => {
-    onUpdate({ id: subject.id, name: data.name, semester: data.semester, description: data.description }); // Pass description
+    onUpdate({ id: subject.id, name: data.name, semester: subject.semester, description: data.description }); // Pass description
     onClose();
   };
 
@@ -78,29 +80,26 @@ const UpdateSubject: React.FC<UpdateSubjectProps> = ({ subject, departments, sem
             {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
           </div>
 
-          {/* Department Field (Disabled) */}
+          {/* Department Field (Read-Only) */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Phòng ban</label>
             <input
               type="text"
-              value={departments.find((dept) => dept.id === departmentId)?.name || "N/A"}
+              value={currentDepartment?.name || "N/A"}
               disabled
               className="mt-1 p-2 border border-gray-300 rounded-md w-full bg-gray-100"
             />
           </div>
 
-          {/* Semester Field */}
+          {/* Semester Field (Read-Only) */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Chọn học kỳ</label>
-            <select {...register("semester")} className="mt-1 p-2 border border-gray-300 rounded-md w-full">
-              <option value="">Chọn học kỳ</option>
-              {filteredSemesters.map((sem) => (
-                <option key={sem.id} value={sem.id}>
-                  {sem.name}
-                </option>
-              ))}
-            </select>
-            {errors.semester && <p className="text-red-500 text-sm">{errors.semester.message}</p>}
+            <label className="block text-sm font-medium text-gray-700">Kỳ học</label>
+            <input
+              type="text"
+              value={currentSemester?.name || "N/A"}
+              disabled
+              className="mt-1 p-2 border border-gray-300 rounded-md w-full bg-gray-100"
+            />
           </div>
 
           {/* Description Field */}

@@ -35,13 +35,11 @@ import PaymentPage from './pages/payment-page';
 import AboutUs from './pages/about-page';
 import CodingCourseSection from './pages/search-subject/CodingCourseSection';
 import { Toaster } from 'sonner';
-import PricingPlanSection from './pages/pricingplans';
 import PaymentSuccess from './pages/pricingplans/PaymentSuccess';
 import PaymentFailure from './pages/pricingplans/PaymentFailure';
 import ProtectedRoute from './components/ProtectedRoute';
 import SubjectPage from './pages/subject-page';
 
-// Cấu hình router
 const router = createBrowserRouter([
   {
     path: '/',
@@ -113,10 +111,6 @@ const router = createBrowserRouter([
       {
         path: '/about',
         element: <AboutUs />,
-      },
-      {
-        path: '/pricing',
-        element: <PricingPlanSection />,
       },
       {
         path: '/payment',
@@ -192,48 +186,48 @@ const router = createBrowserRouter([
       },
     ],
   },
-  {
-    path: '/dashboard', 
-    element: (
-      <ProtectedRoute roles={['admin']}>
-        <Dashboard />
-      </ProtectedRoute>
-    ), 
-    children: [
-      {
-        path: '/dashboard/',
-        element: <HomeDashboard />,
-      },
-      {
-        path: '/dashboard/home', 
-        element: <HomeDashboard />, 
-      },
-      {
-        path: '/dashboard/user-management',
-        element: <UserManagementDashboard />,
-      },
-      {
-        path: '/dashboard/post-management',
-        element: <PostManagementDashboard />,
-      },
-      {
-        path: '/dashboard/comment-management',
-        element: <CommentManagementDashboard />,
-      },
-      {
-        path: '/dashboard/meeting-management',
-        element: <MeetingManagementDashboard />,
-      },
-      {
-        path: '/dashboard/permission-management',
-        element: <PermissionManagementDashboard />,
-      },
-      {
-        path: '/dashboard/semester-management',
-        element: <SemesterManagementDashboard />,
-      },
-    ],
-  },
+  // {
+  //   path: '/dashboard', 
+  //   element: (
+  //     <ProtectedRoute roles={['admin']}>
+  //       <Dashboard />
+  //     </ProtectedRoute>
+  //   ), 
+  //   children: [
+  //     {
+  //       path: '/dashboard/',
+  //       element: <HomeDashboard />,
+  //     },
+  //     {
+  //       path: '/dashboard/home', 
+  //       element: <HomeDashboard />, 
+  //     },
+  //     {
+  //       path: '/dashboard/user-management',
+  //       element: <UserManagementDashboard />,
+  //     },
+  //     {
+  //       path: '/dashboard/post-management',
+  //       element: <PostManagementDashboard />,
+  //     },
+  //     {
+  //       path: '/dashboard/comment-management',
+  //       element: <CommentManagementDashboard />,
+  //     },
+  //     {
+  //       path: '/dashboard/meeting-management',
+  //       element: <MeetingManagementDashboard />,
+  //     },
+  //     {
+  //       path: '/dashboard/permission-management',
+  //       element: <PermissionManagementDashboard />,
+  //     },
+  //     {
+  //       path: '/dashboard/semester-management',
+  //       element: <SemesterManagementDashboard />,
+  //     },
+  //   ],
+  // },
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
