@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent } from 'react';
 import { FiTrash2, FiMessageCircle, FiFilter, FiRefreshCw, FiMessageSquare } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -9,7 +8,7 @@ interface Author {
   name: string;
   avatar: string;
 }
-//// 
+
 interface Reply {
   _id: string;
   content: string;
@@ -111,14 +110,7 @@ const CommentDashboard: React.FC = () => {
   const handleDeleteReply = (commentId: string, replyId: string) => {
     if (window.confirm('Are you sure you want to delete this reply?')) {
       setComments((prevComments) =>
-        prevComments.map((comment) =>
-          comment._id === commentId
-            ? {
-                ...comment,
-                replies: comment.replies.filter((reply) => reply._id !== replyId),
-              }
-            : comment,
-        ),
+        prevComments.map((comment) => (comment._id === commentId ? { ...comment, replies: comment.replies.filter((reply) => reply._id !== replyId) } : comment)),
       );
       toast.success('Reply deleted successfully!');
     }
@@ -215,90 +207,82 @@ const CommentDashboard: React.FC = () => {
 
         {/* Comments Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <AnimatePresence>
-            {filteredComments.map((comment) => (
-              <motion.div
-                key={comment._id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="bg-white rounded-xl shadow-sm p-6"
-              >
-                <div className="flex items-start space-x-4">
-                  <img
-                    src={`https://${comment.author.avatar}`}
-                    alt={comment.author.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                    onError={(e) => {
-                      e.currentTarget.src = 'https://via.placeholder.com/50'; // Fallback nếu ảnh lỗi
-                    }}
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800">{comment.author.name}</h3>
-                    <p className="text-sm text-gray-500">{formatDate(comment.createdAt)}</p>
-                    <p className="mt-2 text-gray-600">{comment.content}</p>
+          {filteredComments.map((comment) => (
+            <div key={comment._id} className="bg-white rounded-xl shadow-sm p-6 transform transition-transform duration-300 hover:scale-105 hover:shadow-lg">
+              <div className="flex items-start space-x-4">
+                <img
+                  src={`https://${comment.author.avatar}`}
+                  alt={comment.author.name}
+                  className="w-12 h-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/50';
+                  }}
+                />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-gray-800">{comment.author.name}</h3>
+                  <p className="text-sm text-gray-500">{formatDate(comment.createdAt)}</p>
+                  <p className="mt-2 text-gray-600">{comment.content}</p>
 
-                    {/* Hiển thị reply */}
-                    {comment.replies.length > 0 && (
-                      <div className="mt-4 space-y-3">
-                        {comment.replies.map((reply) => (
-                          <div key={reply._id} className="pl-4 border-l-2 border-gray-200">
-                            <div className="flex items-start space-x-3">
-                              <img
-                                src={`https://${reply.author.avatar}`}
-                                alt={reply.author.name}
-                                className="w-8 h-8 rounded-full object-cover"
-                                onError={(e) => {
-                                  e.currentTarget.src = 'https://via.placeholder.com/50'; // Fallback nếu ảnh lỗi
-                                }}
-                              />
-                              <div className="flex-1">
-                                <p className="font-medium text-gray-800">{reply.author.name}</p>
-                                <p className="text-sm text-gray-600">{reply.content}</p>
-                                <p className="text-xs text-gray-500">{formatDate(reply.createdAt)}</p>
-                              </div>
-                              <button onClick={() => handleDeleteReply(comment._id, reply._id)} className="p-1 text-gray-400 hover:text-red-500" aria-label="Delete reply">
-                                <FiTrash2 />
-                              </button>
+                  {/* Hiển thị danh sách reply */}
+                  {comment.replies.length > 0 && (
+                    <div className="mt-4 space-y-3">
+                      {comment.replies.map((reply) => (
+                        <div key={reply._id} className="pl-4 border-l-2 border-gray-200">
+                          <div className="flex items-start space-x-3">
+                            <img
+                              src={`https://${reply.author.avatar}`}
+                              alt={reply.author.name}
+                              className="w-8 h-8 rounded-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.src = 'https://via.placeholder.com/50';
+                              }}
+                            />
+                            <div className="flex-1">
+                              <p className="font-medium text-gray-800">{reply.author.name}</p>
+                              <p className="text-sm text-gray-600">{reply.content}</p>
+                              <p className="text-xs text-gray-500">{formatDate(reply.createdAt)}</p>
                             </div>
+                            <button onClick={() => handleDeleteReply(comment._id, reply._id)} className="p-1 text-gray-400 hover:text-red-500" aria-label="Delete reply">
+                              <FiTrash2 />
+                            </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Form thêm reply */}
-                    {replyingTo === comment._id && (
-                      <div className="mt-4">
-                        <textarea
-                          value={replyContent}
-                          onChange={(e) => setReplyContent(e.target.value)}
-                          className="w-full border rounded-md focus:ring-2 focus:ring-blue-500"
-                          rows={3}
-                          placeholder="Write a reply..."
-                        />
-                        <div className="mt-2 flex justify-end space-x-2">
-                          <button onClick={() => setReplyingTo(null)} className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800">
-                            Cancel
-                          </button>
-                          <button onClick={() => handleSaveReply(comment._id)} className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                            Reply
-                          </button>
                         </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Form thêm reply */}
+                  {replyingTo === comment._id && (
+                    <div className="mt-4">
+                      <textarea
+                        value={replyContent}
+                        onChange={(e) => setReplyContent(e.target.value)}
+                        className="w-full border rounded-md focus:ring-2 focus:ring-blue-500"
+                        rows={3}
+                        placeholder="Write a reply..."
+                      />
+                      <div className="mt-2 flex justify-end space-x-2">
+                        <button onClick={() => setReplyingTo(null)} className="px-3 py-1 text-sm text-gray-600 hover:text-gray-800">
+                          Cancel
+                        </button>
+                        <button onClick={() => handleSaveReply(comment._id)} className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                          Reply
+                        </button>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-                <div className="mt-4 flex justify-end items-center space-x-2">
-                  <button onClick={() => handleReply(comment._id)} className="p-2 text-gray-500 hover:text-blue-500">
-                    <FiMessageSquare />
-                  </button>
-                  <button onClick={() => handleDelete(comment._id)} className="p-2 text-gray-500 hover:text-red-500">
-                    <FiTrash2 />
-                  </button>
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              </div>
+              <div className="mt-4 flex justify-end items-center space-x-2">
+                <button onClick={() => handleReply(comment._id)} className="p-2 text-gray-500 hover:text-blue-500">
+                  <FiMessageSquare />
+                </button>
+                <button onClick={() => handleDelete(comment._id)} className="p-2 text-gray-500 hover:text-red-500">
+                  <FiTrash2 />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       <ToastContainer position="bottom-right" />
