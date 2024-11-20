@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { Post, Author } from '../types/types';
 
-interface PostState {
+// Define the state type for posts
+export interface PostState {
   posts: Post[];
   authors: Record<string, Author>;
   currentPost: Post | null;
@@ -10,6 +11,7 @@ interface PostState {
   error: string | null;
 }
 
+// Initial state
 const initialState: PostState = {
   posts: [],
   authors: {},
@@ -57,21 +59,23 @@ export const fetchAuthorById = createAsyncThunk('posts/fetchAuthorById', async (
   };
 });
 
+// Thunk for fetching related posts
 export const fetchRelatedPosts = createAsyncThunk(
-    'posts/fetchRelatedPosts',
-    async ({ tags, excludeId }: { tags: string[]; excludeId: string }) => {
-      const response = await fetch('https://learnup.work/api/posts');
-      const allPosts: Post[] = await response.json();
-  
-      // Filter related posts by tags, excluding the current post
-      const relatedPosts = allPosts.filter(
-        (post) => post._id !== excludeId && post.tags.some((tag) => tags.includes(tag))
-      );
-  
-      return relatedPosts;
-    }
-  );
+  'posts/fetchRelatedPosts',
+  async ({ tags, excludeId }: { tags: string[]; excludeId: string }) => {
+    const response = await fetch('https://learnup.work/api/posts');
+    const allPosts: Post[] = await response.json();
 
+    // Filter related posts by tags, excluding the current post
+    const relatedPosts = allPosts.filter(
+      (post) => post._id !== excludeId && post.tags.some((tag) => tags.includes(tag))
+    );
+
+    return relatedPosts;
+  }
+);
+
+// Post slice with reducers and extra reducers
 const postSlice = createSlice({
   name: 'posts',
   initialState,
@@ -124,5 +128,6 @@ const postSlice = createSlice({
   },
 });
 
+// Export actions and reducer
 export const { clearError } = postSlice.actions;
 export default postSlice.reducer;

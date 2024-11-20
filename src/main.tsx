@@ -27,7 +27,7 @@ import BlogDetail from './pages/blog/blogdetail';
 import ContactUs from './pages/contact-page';
 import PostManagementDashboard from './pages/dashboard/post-management';
 import CommentManagementDashboard from './pages/dashboard/comment-management';
-import MeetingManagementDashboard from './pages/dashboard/meeting-management';
+// import MeetingManagementDashboard from './pages/dashboard/meeting-management';
 import PermissionManagementDashboard from './pages/dashboard/permission-management';
 import SemesterManagementDashboard from './pages/dashboard/semester-management';
 import PaymentPage from './pages/payment-page';
@@ -39,6 +39,9 @@ import PaymentSuccess from './pages/pricingplans/PaymentSuccess';
 import PaymentFailure from './pages/pricingplans/PaymentFailure';
 import ProtectedRoute from './components/ProtectedRoute';
 import SubjectPage from './pages/subject-page';
+import StudyRoomPage from './pages/meeting-page/StudyRoomPage';
+
+import MeetingManagementDashboard from './pages/dashboard/meeting-management/table/page';
 
 const router = createBrowserRouter([
   {
@@ -74,11 +77,6 @@ const router = createBrowserRouter([
         path: '/question/:id',
         element: <QuestionDetailPage />,
       },
-      // {
-      //   path: '/subject/:courseId',
-      //   element: <SubjectPage />,
-      // },
-
       {
         path: '/profile',
         element: <ProfilePage />,
@@ -111,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: '/about',
         element: <AboutUs />,
+      },
+      {
+        path: '/room',
+        element: <StudyRoomPage />,
       },
       {
         path: '/payment',

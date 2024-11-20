@@ -1,18 +1,21 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-interface Department {
+// Interface cho Department
+export interface Department {
   id: string;
   name: string;
   code: string;
 }
 
-interface DepartmentState {
+// Interface cho trạng thái của slice
+export interface DepartmentState {
   departments: Department[];
   loading: boolean;
   error: string | null;
 }
 
+// Khởi tạo trạng thái ban đầu
 const initialState: DepartmentState = {
   departments: [],
   loading: false,
@@ -22,17 +25,20 @@ const initialState: DepartmentState = {
 const API_URL = 'https://learnup.work/api/departments';
 
 // Thunk để lấy danh sách phòng ban
-export const fetchDepartments = createAsyncThunk('departments/fetchDepartments', async (_, { rejectWithValue }) => {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await axios.get(API_URL, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
-  } catch (error) {
-    return rejectWithValue('Error fetching departments');
+export const fetchDepartments = createAsyncThunk(
+  'departments/fetchDepartments',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(API_URL, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error fetching departments');
+    }
   }
-});
+);
 
 // Thunk để tạo phòng ban mới
 export const createDepartment = createAsyncThunk(
@@ -46,8 +52,8 @@ export const createDepartment = createAsyncThunk(
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data;
-    } catch (error) {
-      return rejectWithValue('Error creating department');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error creating department');
     }
   }
 );
@@ -64,8 +70,8 @@ export const updateDepartment = createAsyncThunk(
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data;
-    } catch (error) {
-      return rejectWithValue('Error updating department');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error updating department');
     }
   }
 );
@@ -80,20 +86,26 @@ export const deleteDepartment = createAsyncThunk(
         headers: { Authorization: `Bearer ${token}` },
       });
       return id;
-    } catch (error) {
-      return rejectWithValue('Error deleting department');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Error deleting department');
     }
   }
 );
 
+// Tạo slice
 const departmentSlice = createSlice({
   name: 'departments',
   initialState,
-  reducers: {},
+  reducers: {
+    clearError: (state) => {
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchDepartments.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchDepartments.fulfilled, (state, action: PayloadAction<Department[]>) => {
         state.loading = false;
@@ -110,7 +122,7 @@ const departmentSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(updateDepartment.fulfilled, (state, action: PayloadAction<Department>) => {
-        const index = state.departments.findIndex(dept => dept.id === action.payload.id);
+        const index = state.departments.findIndex((dept) => dept.id === action.payload.id);
         if (index !== -1) {
           state.departments[index] = action.payload;
         }
@@ -119,7 +131,7 @@ const departmentSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(deleteDepartment.fulfilled, (state, action: PayloadAction<string>) => {
-        state.departments = state.departments.filter(dept => dept.id !== action.payload);
+        state.departments = state.departments.filter((dept) => dept.id !== action.payload);
       })
       .addCase(deleteDepartment.rejected, (state, action) => {
         state.error = action.payload as string;
@@ -127,4 +139,6 @@ const departmentSlice = createSlice({
   },
 });
 
+// Export reducer và action
+export const { clearError } = departmentSlice.actions;
 export default departmentSlice.reducer;
