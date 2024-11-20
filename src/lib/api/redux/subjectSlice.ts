@@ -1,21 +1,24 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-interface Subject {
+// Định nghĩa interface Subject
+export interface Subject {
   id: string;
   name: string;
   semester: string;
-  description: string; // Thêm trường description
+  description: string;
   resources: any[];
 }
 
-interface SubjectState {
+// Export rõ ràng SubjectState
+export interface SubjectState {
   subjects: Subject[];
   subject: Subject | null;
   loading: boolean;
   error: string | null;
 }
 
+// Khởi tạo state ban đầu
 const initialState: SubjectState = {
   subjects: [],
   subject: null,
@@ -25,30 +28,31 @@ const initialState: SubjectState = {
 
 const API_URL = 'https://learnup.work/api';
 
-// Fetch all subjects or by semester ID
-export const fetchSubjects = createAsyncThunk(
+// Thunk lấy danh sách tất cả các subject hoặc theo semester ID
+export const fetchSubjects = createAsyncThunk<Subject[], string | null, { rejectValue: string }>(
   'subjects/fetchSubjects',
-  async (semesterId: string | null, { rejectWithValue }) => {
+  async (semesterId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
-      const url = semesterId 
-        ? `${API_URL}/subjects?semester=${semesterId}` 
+      const url = semesterId
+        ? `${API_URL}/subjects?semester=${semesterId}`
         : `${API_URL}/subjects`;
-      
+
       const response = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
     } catch (error) {
+      console.error('Error fetching subjects:', error);
       return rejectWithValue('Error fetching subjects');
     }
   }
 );
 
-// Fetch subject by ID
-export const fetchSubjectById = createAsyncThunk(
+// Thunk lấy thông tin một subject theo ID
+export const fetchSubjectById = createAsyncThunk<Subject, string, { rejectValue: string }>(
   'subjects/fetchSubjectById',
-  async (subjectId: string, { rejectWithValue }) => {
+  async (subjectId, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${API_URL}/subjects/${subjectId}`, {
@@ -56,15 +60,16 @@ export const fetchSubjectById = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
+      console.error('Error fetching subject by ID:', error);
       return rejectWithValue('Error fetching subject by ID');
     }
   }
 );
 
-// Create a new subject
-export const createSubject = createAsyncThunk(
+// Thunk thêm mới một subject
+export const createSubject = createAsyncThunk<Subject, { name: string; semester: string; description: string }, { rejectValue: string }>(
   'subjects/createSubject',
-  async ({ name, semester, description }: { name: string; semester: string; description: string }, { rejectWithValue }) => {
+  async ({ name, semester, description }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
@@ -74,16 +79,16 @@ export const createSubject = createAsyncThunk(
       );
       return response.data;
     } catch (error: any) {
-      console.error("Error creating subject:", error.response?.data || error.message);
+      console.error('Error creating subject:', error.response?.data || error.message);
       return rejectWithValue(error.response?.data || 'Error creating subject');
     }
   }
 );
 
-// Update an existing subject
-export const updateSubject = createAsyncThunk(
+// Thunk cập nhật thông tin một subject
+export const updateSubject = createAsyncThunk<Subject, { id: string; name: string; semester: string; description: string }, { rejectValue: string }>(
   'subjects/updateSubject',
-  async ({ id, name, semester, description }: { id: string; name: string; semester: string; description: string }, { rejectWithValue }) => {
+  async ({ id, name, semester, description }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
@@ -93,17 +98,16 @@ export const updateSubject = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
-      console.error("Error updating subject:", error);
+      console.error('Error updating subject:', error);
       return rejectWithValue('Error updating subject');
     }
   }
 );
 
-
-// Delete a subject
-export const deleteSubject = createAsyncThunk(
+// Thunk xóa một subject
+export const deleteSubject = createAsyncThunk<string, string, { rejectValue: string }>(
   'subjects/deleteSubject',
-  async (id: string, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem('token');
       await axios.delete(`${API_URL}/subjects/${id}`, {
@@ -111,17 +115,20 @@ export const deleteSubject = createAsyncThunk(
       });
       return id;
     } catch (error) {
+      console.error('Error deleting subject:', error);
       return rejectWithValue('Error deleting subject');
     }
   }
 );
 
+// Tạo subject slice
 const subjectSlice = createSlice({
   name: 'subjects',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch subjects
       .addCase(fetchSubjects.pending, (state) => {
         state.loading = true;
       })
@@ -131,8 +138,9 @@ const subjectSlice = createSlice({
       })
       .addCase(fetchSubjects.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload || null;
       })
+      // Fetch subject by ID
       .addCase(fetchSubjectById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -143,14 +151,16 @@ const subjectSlice = createSlice({
       })
       .addCase(fetchSubjectById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload || null;
       })
+      // Create subject
       .addCase(createSubject.fulfilled, (state, action: PayloadAction<Subject>) => {
         state.subjects.push(action.payload);
       })
       .addCase(createSubject.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload || null;
       })
+      // Update subject
       .addCase(updateSubject.fulfilled, (state, action: PayloadAction<Subject>) => {
         const index = state.subjects.findIndex((sub) => sub.id === action.payload.id);
         if (index !== -1) {
@@ -158,15 +168,17 @@ const subjectSlice = createSlice({
         }
       })
       .addCase(updateSubject.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload || null;
       })
+      // Delete subject
       .addCase(deleteSubject.fulfilled, (state, action: PayloadAction<string>) => {
         state.subjects = state.subjects.filter((sub) => sub.id !== action.payload);
       })
       .addCase(deleteSubject.rejected, (state, action) => {
-        state.error = action.payload as string;
+        state.error = action.payload || null;
       });
   },
 });
 
+// Export reducer
 export default subjectSlice.reducer;

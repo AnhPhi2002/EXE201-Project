@@ -1,88 +1,111 @@
-// src/lib/api/redux/authSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
 
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { axiosClient } from '../config/axios-client';
-
-interface AuthState {
+// Định nghĩa kiểu AuthState
+export interface AuthState {
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;
+  user: {
+    name: string | null;
+    email: string | null;
+    role: string | null;
+  };
 }
 
+// Trạng thái ban đầu
 const initialState: AuthState = {
-  isAuthenticated: localStorage.getItem('token') ? true : false, // Kiểm tra token trong localStorage
+  isAuthenticated: Boolean(localStorage.getItem('token')),
   loading: false,
   error: null,
+  user: {
+    name: localStorage.getItem('name'),
+    email: null,
+    role: localStorage.getItem('role'),
+  },
 };
 
-// Hàm login
+// URL API cơ bản
+const API_URL = 'https://learnup.work/api/auth';
+
+// Async Thunk để đăng nhập
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post('/api/auth/login', credentials);
-      const { token, role, name } = response.data;
+      const response = await axios.post(`${API_URL}/login`, credentials);
+      const { token, name, role } = response.data;
+
+      // Lưu thông tin vào localStorage
       localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
       localStorage.setItem('name', name);
-      return response.data;
+      localStorage.setItem('role', role);
+
+      return { name, role };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Đăng nhập thất bại');
+      return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
   }
 );
 
-// Hàm đăng ký
+// Async Thunk để đăng ký
 export const registerUser = createAsyncThunk(
   'auth/registerUser',
-  async (userData: { email: string; name: string; password: string }, { rejectWithValue }) => {
+  async (userData: { name: string; email: string; password: string }, { rejectWithValue }) => {
     try {
-      const response = await axiosClient.post('/api/auth/register', userData);
+      const response = await axios.post(`${API_URL}/register`, userData);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Đăng ký thất bại');
+      return rejectWithValue(error.response?.data?.message || 'Registration failed');
     }
   }
 );
 
+// Slice quản lý Auth
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
     logout: (state) => {
       state.isAuthenticated = false;
-      localStorage.removeItem('token');  // Xóa token khi đăng xuất
+      state.user = { name: null, email: null, role: null };
+      localStorage.removeItem('token');
+      localStorage.removeItem('name');
       localStorage.removeItem('role');
     },
   },
   extraReducers: (builder) => {
     builder
+      // Xử lý login
       .addCase(login.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state) => {
+      .addCase(login.fulfilled, (state, action: PayloadAction<{ name: string; role: string }>) => {
         state.loading = false;
         state.isAuthenticated = true;
+        state.user = { ...state.user, name: action.payload.name, role: action.payload.role };
       })
-      .addCase(login.rejected, (state, action) => {
+      .addCase(login.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload;
       })
+      // Xử lý register
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state) => {
         state.loading = false;
-        state.isAuthenticated = false;
       })
-      .addCase(registerUser.rejected, (state, action) => {
+      .addCase(registerUser.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
-        state.error = action.payload as string;
+        state.error = action.payload;
       });
   },
 });
 
+
 export const { logout } = authSlice.actions;
+
 export default authSlice.reducer;

@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-interface Resource {
+// Define Resource and ResourceState interfaces
+export interface Resource {
   id: string;
   title: string;
   description?: string;
@@ -11,13 +12,14 @@ interface Resource {
   subject: string;
 }
 
-interface ResourceState {
+export interface ResourceState {
   resources: Resource[];
   resource: Resource | null;
   loading: boolean;
   error: string | null;
 }
 
+// Initial state
 const initialState: ResourceState = {
   resources: [],
   resource: null,
@@ -27,7 +29,7 @@ const initialState: ResourceState = {
 
 const API_URL = 'https://learnup.work/api/resources';
 
-// Fetch all resources
+// Async thunk to fetch all resources
 export const fetchAllResources = createAsyncThunk(
   'resources/fetchAllResources',
   async (_, { rejectWithValue }) => {
@@ -38,12 +40,13 @@ export const fetchAllResources = createAsyncThunk(
       });
       return response.data.resources;
     } catch (error) {
+      console.error('Error fetching all resources:', error);
       return rejectWithValue('Error fetching all resources');
     }
   }
 );
 
-// Fetch resources by subject ID
+// Async thunk to fetch resources by subject ID
 export const fetchResourcesBySubject = createAsyncThunk(
   'resources/fetchResourcesBySubject',
   async (subjectId: string, { rejectWithValue }) => {
@@ -54,12 +57,13 @@ export const fetchResourcesBySubject = createAsyncThunk(
       });
       return response.data.resources;
     } catch (error) {
+      console.error('Error fetching resources by subject:', error);
       return rejectWithValue('Error fetching resources by subject');
     }
   }
 );
 
-// Fetch a single resource by ID
+// Async thunk to fetch a single resource by ID
 export const fetchResourceById = createAsyncThunk(
   'resources/fetchResourceById',
   async (resourceId: string, { rejectWithValue }) => {
@@ -70,15 +74,19 @@ export const fetchResourceById = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
+      console.error('Error fetching resource by ID:', error);
       return rejectWithValue('Error fetching resource by ID');
     }
   }
 );
 
-// Create a new resource
+// Async thunk to create a new resource
 export const createResource = createAsyncThunk(
   'resources/createResource',
-  async ({ subjectId, resourceData }: { subjectId: string; resourceData: Omit<Resource, 'id'> }, { rejectWithValue }) => {
+  async (
+    { subjectId, resourceData }: { subjectId: string; resourceData: Omit<Resource, 'id'> },
+    { rejectWithValue }
+  ) => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(`${API_URL}/${subjectId}/resources`, resourceData, {
@@ -86,12 +94,13 @@ export const createResource = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
+      console.error('Error creating resource:', error);
       return rejectWithValue('Error creating resource');
     }
   }
 );
 
-// Update an existing resource
+// Async thunk to update an existing resource
 export const updateResource = createAsyncThunk(
   'resources/updateResource',
   async ({ id, resourceData }: { id: string; resourceData: Partial<Resource> }, { rejectWithValue }) => {
@@ -102,12 +111,13 @@ export const updateResource = createAsyncThunk(
       });
       return response.data;
     } catch (error) {
+      console.error('Error updating resource:', error);
       return rejectWithValue('Error updating resource');
     }
   }
 );
 
-// Delete a resource
+// Async thunk to delete a resource
 export const deleteResource = createAsyncThunk(
   'resources/deleteResource',
   async (id: string, { rejectWithValue }) => {
@@ -118,17 +128,20 @@ export const deleteResource = createAsyncThunk(
       });
       return id;
     } catch (error) {
+      console.error('Error deleting resource:', error);
       return rejectWithValue('Error deleting resource');
     }
   }
 );
 
+// Create the resource slice
 const resourceSlice = createSlice({
   name: 'resources',
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // Fetch all resources
       .addCase(fetchAllResources.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -141,6 +154,7 @@ const resourceSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Fetch resources by subject
       .addCase(fetchResourcesBySubject.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -153,6 +167,7 @@ const resourceSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Fetch a single resource by ID
       .addCase(fetchResourceById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -165,12 +180,14 @@ const resourceSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+      // Create a new resource
       .addCase(createResource.fulfilled, (state, action: PayloadAction<Resource>) => {
         state.resources.push(action.payload);
       })
       .addCase(createResource.rejected, (state, action) => {
         state.error = action.payload as string;
       })
+      // Update a resource
       .addCase(updateResource.fulfilled, (state, action: PayloadAction<Resource>) => {
         const index = state.resources.findIndex((res) => res.id === action.payload.id);
         if (index !== -1) {
@@ -180,6 +197,7 @@ const resourceSlice = createSlice({
       .addCase(updateResource.rejected, (state, action) => {
         state.error = action.payload as string;
       })
+      // Delete a resource
       .addCase(deleteResource.fulfilled, (state, action: PayloadAction<string>) => {
         state.resources = state.resources.filter((res) => res.id !== action.payload);
       })
@@ -189,4 +207,5 @@ const resourceSlice = createSlice({
   },
 });
 
+// Export the reducer
 export default resourceSlice.reducer;

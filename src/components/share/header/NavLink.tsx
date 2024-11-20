@@ -67,14 +67,12 @@ const NavLink: React.FC = () => {
             <Link to="/subject" className="block px-6 py-2.5 text-gray-800 hover:bg-purple-50/40 font-medium rounded-md transition duration-200">
               MÔN HỌC
             </Link>
-            <Link to="/document" className="block px-6 py-2.5 text-gray-800 hover:bg-purple-50/40 font-medium rounded-md transition duration-200">
-              TÀI LIỆU
-            </Link>
-            <Link to="/faq" className="block px-6 py-2.5 text-gray-800 hover:bg-purple-50/40 font-medium rounded-md transition duration-200">
-              GIẢI ĐÁP
-            </Link>
+            
             <Link to="/room" className="block px-6 py-2.5 text-gray-800 hover:bg-purple-50/40 font-medium rounded-md transition duration-200">
               PHÒNG
+            </Link>
+            <Link to="/payment" className="block px-6 py-2.5 text-gray-800 hover:bg-purple-50/40 font-medium rounded-md transition duration-200">
+              PREMIUM
             </Link>
           </motion.div>
         )}
