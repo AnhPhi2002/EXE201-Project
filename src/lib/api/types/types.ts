@@ -58,8 +58,15 @@ export interface PaymentState {
 export interface RootState {
   payment: PaymentState;
   user: UserState;
+  posts: PostState;
 }
 
+export interface PostState {
+  posts: Post[];
+  authors: Record<string, Author>; // Lưu thông tin author theo ID
+  loading: boolean;
+  error: string | null;
+}
 
 
 export interface UserState {

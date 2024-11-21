@@ -19,8 +19,6 @@ import {
 } from 'lucide-react';
 import { CreatePostManagement } from './CreatePostManagement';
 import UpdatePostManagement from './UpdatePostManagement';
-import { updatePostState } from '@/lib/api/redux/postSlice';
-
 
 const PostDashboard: React.FC = () => {
   const dispatch = useDispatch<any>();
@@ -37,33 +35,39 @@ const PostDashboard: React.FC = () => {
   // Fetch author if not already in authors state
   useEffect(() => {
     posts.forEach((post) => {
-      if (post.authorId?._id && !authors[post.authorId._id]) {
+      if (!authors[post.authorId._id]) {
         dispatch(fetchAuthorById(post.authorId._id));
       }
     });
   }, [posts, authors, dispatch]);
 
-  const handleCreatePost = async (newPost: Partial<Post>) => {
-    try {
-      const result = await dispatch(addPost(newPost)).unwrap();
-
-      // Fetch author info immediately after creating post
-      if (result.authorId?._id) {
-        const author = await dispatch(fetchAuthorById(result.authorId._id)).unwrap();
-
-        // Update post state with full author info
-        dispatch(
-          updatePostState({
-            id: result._id,
-            post: {
-              ...result,
-              authorId: author,
-            },
-          })
-        );
+  // Filter and sort posts
+  const filteredPosts = posts
+    .filter((post) =>
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (authors[post.authorId._id]?.name || '')
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      post.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    )
+    .sort((a, b) => {
+      if (sortBy === 'createdAt') {
+        return sortOrder === 'desc'
+          ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      } else if (sortBy === 'title') {
+        return sortOrder === 'desc'
+          ? b.title.localeCompare(a.title)
+          : a.title.localeCompare(b.title);
       }
-    } catch (error) {
-      console.error('Error creating post:', error);
+      return 0;
+    });
+
+  const handleCreatePost = async (newPost: Partial<Post>) => {
+    const result = await dispatch(addPost(newPost)).unwrap();
+    if (result.authorId) {
+      dispatch(fetchAuthorById(result.authorId._id));
     }
   };
 
@@ -83,35 +87,6 @@ const PostDashboard: React.FC = () => {
   const toggleSort = () => {
     setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc');
   };
-
-  // Filter and sort posts
-  const filteredPosts = posts
-    .filter((post) =>
-      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (authors[post.authorId?._id]?.name || '')
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      post.tags.some((tag) => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    .sort((a, b) => {
-      if (sortBy === 'createdAt') {
-        return sortOrder === 'desc'
-          ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-      } else if (sortBy === 'title') {
-        return sortOrder === 'desc'
-          ? b.title.localeCompare(a.title)
-          : a.title.localeCompare(b.title);
-      } else if (sortBy === 'tags') {
-        const aTags = a.tags.join(', ');
-        const bTags = b.tags.join(', ');
-        return sortOrder === 'desc'
-          ? bTags.localeCompare(aTags)
-          : aTags.localeCompare(bTags);
-      }
-      return 0;
-    });
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -134,6 +109,7 @@ const PostDashboard: React.FC = () => {
               </div>
             </div>
           </div>
+
           {/* Sort options */}
           <div className="flex justify-between items-center mb-6">
             <div className="flex items-center gap-4">
@@ -148,13 +124,13 @@ const PostDashboard: React.FC = () => {
               >
                 <option value="createdAt">Date</option>
                 <option value="title">Title</option>
-                <option value="tags">Tags</option>
               </select>
             </div>
             <button onClick={toggleSort} className="flex items-center focus:outline-none">
               Sort Order: {sortOrder === 'desc' ? <LucideChevronDown /> : <LucideChevronUp />}
             </button>
           </div>
+
           {/* Posts table */}
           {loading ? (
             <div className="text-center">Loading...</div>
@@ -190,19 +166,9 @@ const PostDashboard: React.FC = () => {
                             alt={post.title}
                             className="h-10 w-10 rounded-lg object-cover"
                           />
-                          <div className="ml-4 max-w-xs truncate">
-                            <div
-                              className="text-sm font-medium text-gray-900 truncate"
-                              title={post.title}
-                            >
-                              {post.title}
-                            </div>
-                            <div
-                              className="text-sm text-gray-500 truncate"
-                              title={post.content}
-                            >
-                              {post.content}
-                            </div>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">{post.title}</div>
+                            <div className="text-sm text-gray-500">{post.content}</div>
                           </div>
                         </div>
                       </td>
@@ -210,7 +176,7 @@ const PostDashboard: React.FC = () => {
                         <div className="flex items-center">
                           <LucideUser className="mr-2 text-gray-400" />
                           <span className="text-sm text-gray-900">
-                            {authors[post.authorId?._id]?.name || 'Loading...'}
+                            {authors[post.authorId._id]?.name || 'Loading...'}
                           </span>
                         </div>
                       </td>
@@ -249,6 +215,7 @@ const PostDashboard: React.FC = () => {
               </table>
             </div>
           )}
+
           {/* Edit modal */}
           {editingPost && (
             <UpdatePostManagement

@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
-
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  author: string;
-  tags: string[];
-  timestamp: string;
-  image: string;
-}
+import { Post } from '@/lib/api/types/types';
 
 interface UpdatePostManagementProps {
   post: Post;
-  onSave: (updatedPost: Post) => void;
+  onSave: (updatedPost: Partial<Post>) => void;
   onCancel: () => void;
 }
 
 const UpdatePostManagement: React.FC<UpdatePostManagementProps> = ({ post, onSave, onCancel }) => {
-  const [updatedPost, setUpdatedPost] = useState<Post>(post);
+  const [updatedPost, setUpdatedPost] = useState<Partial<Post>>(post);
   const [newTag, setNewTag] = useState<string>('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -27,7 +18,10 @@ const UpdatePostManagement: React.FC<UpdatePostManagementProps> = ({ post, onSav
 
   const handleAddTag = () => {
     if (newTag.trim()) {
-      setUpdatedPost((prev) => ({ ...prev, tags: [...prev.tags, newTag.trim()] }));
+      setUpdatedPost((prev) => ({
+        ...prev,
+        tags: [...(prev.tags || []), newTag.trim()],
+      }));
       setNewTag('');
     }
   };
@@ -35,7 +29,7 @@ const UpdatePostManagement: React.FC<UpdatePostManagementProps> = ({ post, onSav
   const handleRemoveTag = (tagToRemove: string) => {
     setUpdatedPost((prev) => ({
       ...prev,
-      tags: prev.tags.filter((tag) => tag !== tagToRemove),
+      tags: (prev.tags || []).filter((tag) => tag !== tagToRemove),
     }));
   };
 
@@ -49,6 +43,7 @@ const UpdatePostManagement: React.FC<UpdatePostManagementProps> = ({ post, onSav
       <div className="bg-white rounded-lg max-w-lg w-full p-6">
         <h2 className="text-lg font-bold mb-4">Edit Post</h2>
         <form onSubmit={handleSubmit}>
+          {/* Title */}
           <div className="mb-4">
             <label htmlFor="title" className="block text-sm font-medium text-gray-700">
               Title
@@ -57,11 +52,13 @@ const UpdatePostManagement: React.FC<UpdatePostManagementProps> = ({ post, onSav
               type="text"
               id="title"
               name="title"
-              value={updatedPost.title}
+              value={updatedPost.title || ''}
               onChange={handleInputChange}
               className="mt-1 p-2 block w-full border border-gray-300 rounded-md"
             />
           </div>
+
+          {/* Content */}
           <div className="mb-4">
             <label htmlFor="content" className="block text-sm font-medium text-gray-700">
               Content
@@ -69,31 +66,36 @@ const UpdatePostManagement: React.FC<UpdatePostManagementProps> = ({ post, onSav
             <textarea
               id="content"
               name="content"
-              value={updatedPost.content}
+              value={updatedPost.content || ''}
               onChange={handleInputChange}
               className="mt-1 p-2 block w-full border border-gray-300 rounded-md"
               rows={4}
             />
           </div>
+
+          {/* Image */}
           <div className="mb-4">
-            <label htmlFor="author" className="block text-sm font-medium text-gray-700">
-              Author
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
+              Image URL
             </label>
             <input
               type="text"
-              id="author"
-              name="author"
-              value={updatedPost.author}
+              id="image"
+              name="image"
+              value={updatedPost.image || ''}
               onChange={handleInputChange}
               className="mt-1 p-2 block w-full border border-gray-300 rounded-md"
+              placeholder="https://example.com/image.jpg"
             />
           </div>
+
+          {/* Tags */}
           <div className="mb-4">
             <label htmlFor="tags" className="block text-sm font-medium text-gray-700">
               Tags
             </label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {updatedPost.tags.map((tag, index) => (
+              {(updatedPost.tags || []).map((tag, index) => (
                 <span
                   key={index}
                   className="flex items-center bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-sm"
@@ -127,6 +129,8 @@ const UpdatePostManagement: React.FC<UpdatePostManagementProps> = ({ post, onSav
               </button>
             </div>
           </div>
+
+          {/* Actions */}
           <div className="flex justify-end gap-4">
             <button
               type="button"

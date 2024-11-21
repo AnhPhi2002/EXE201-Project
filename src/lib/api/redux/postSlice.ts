@@ -72,12 +72,59 @@ export const fetchRelatedPosts = createAsyncThunk(
     }
   );
 
+  export const addPost = createAsyncThunk('posts/addPost', async (post: Partial<Post>) => {
+    const token = localStorage.getItem('token');
+    const response = await fetch('https://learnup.work/api/posts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(post),
+    });
+    return await response.json();
+  });
+  
+  export const updatePost = createAsyncThunk(
+    'posts/updatePost',
+    async ({ id, post }: { id: string; post: Partial<Post> }) => {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://learnup.work/api/posts/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(post),
+      });
+      return await response.json();
+    }
+  );
+  
+  export const deletePost = createAsyncThunk('posts/deletePost', async (id: string) => {
+    const token = localStorage.getItem('token');
+    await fetch(`https://learnup.work/api/posts/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return id;
+  });
+  
+
 const postSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    updatePostState: (state, action: PayloadAction<{ id: string; post: Partial<Post> }>) => {
+      const index = state.posts.findIndex((post) => post._id === action.payload.id);
+      if (index !== -1) {
+        state.posts[index] = { ...state.posts[index], ...action.payload.post };
+      }
     },
   },
   extraReducers: (builder) => {
@@ -120,9 +167,33 @@ const postSlice = createSlice({
       .addCase(fetchRelatedPosts.rejected, (state, action) => {
         state.error = action.error.message || 'Failed to fetch related posts';
         state.loading = false;
+      })
+      .addCase(addPost.fulfilled, (state, action: PayloadAction<Post>) => {
+        const newPost = action.payload;
+        
+        // Thêm post mới
+        state.posts.push(newPost);
+        
+        // Nếu có authorId và chưa có trong authors, khởi tạo một object tạm
+        if (newPost.authorId?._id && !state.authors[newPost.authorId._id]) {
+          state.authors[newPost.authorId._id] = {
+            _id: newPost.authorId._id,
+            name: 'Loading...',
+            avatar: 'https://via.placeholder.com/50'
+          };
+        }
+      })
+      .addCase(updatePost.fulfilled, (state, action: PayloadAction<Post>) => {
+        const index = state.posts.findIndex((post) => post._id === action.payload._id);
+        if (index !== -1) {
+          state.posts[index] = action.payload;
+        }
+      })
+      .addCase(deletePost.fulfilled, (state, action: PayloadAction<string>) => {
+        state.posts = state.posts.filter((post) => post._id !== action.payload);
       });
   },
 });
 
-export const { clearError } = postSlice.actions;
+export const { clearError, updatePostState } = postSlice.actions;
 export default postSlice.reducer;

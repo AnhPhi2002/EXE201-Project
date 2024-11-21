@@ -22,7 +22,7 @@ import Dashboard from './pages/dashboard';
 
 import { HomeDashboard } from './pages/dashboard/home-dashboard';
 import UserManagementDashboard from './pages/dashboard/user-management/tab';
-// import BlogSection from './pages/blog/bloghome';
+import BlogSection from './pages/blog/bloghome';
 import BlogDetail from './pages/blog/blogdetail';
 import ContactUs from './pages/contact-page';
 import PostManagementDashboard from './pages/dashboard/post-management';
@@ -88,10 +88,10 @@ const router = createBrowserRouter([
         element: <ProfileDetail />,
       },
 
-      // {
-      //   path: '/blog',
-      //   element: <BlogSection />,
-      // },
+      {
+        path: '/blog',
+        element: <BlogSection />,
+      },
       {
         path: '/blog-detail/:id',
         element: <BlogDetail />,
