@@ -66,10 +66,36 @@ export const fetchRelatedPosts = createAsyncThunk(
     const response = await fetch('https://learnup.work/api/posts');
     const allPosts: Post[] = await response.json();
 
-  export const addPost = createAsyncThunk('posts/addPost', async (post: Partial<Post>) => {
+    // Filter related posts by tags, excluding the current post
+    const relatedPosts = allPosts.filter(
+      (post) => post._id !== excludeId && post.tags.some((tag) => tags.includes(tag))
+    );
+
+    return relatedPosts;
+  }
+);
+
+// Thunk for adding a new post
+export const addPost = createAsyncThunk('posts/addPost', async (post: Partial<Post>) => {
+  const token = localStorage.getItem('token');
+  const response = await fetch('https://learnup.work/api/posts', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(post),
+  });
+  return await response.json();
+});
+
+// Thunk for updating an existing post
+export const updatePost = createAsyncThunk(
+  'posts/updatePost',
+  async ({ id, post }: { id: string; post: Partial<Post> }) => {
     const token = localStorage.getItem('token');
-    const response = await fetch('https://learnup.work/api/posts', {
-      method: 'POST',
+    const response = await fetch(`https://learnup.work/api/posts/${id}`, {
+      method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
@@ -77,36 +103,22 @@ export const fetchRelatedPosts = createAsyncThunk(
       body: JSON.stringify(post),
     });
     return await response.json();
-  });
-  
-  export const updatePost = createAsyncThunk(
-    'posts/updatePost',
-    async ({ id, post }: { id: string; post: Partial<Post> }) => {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`https://learnup.work/api/posts/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(post),
-      });
-      return await response.json();
-    }
-  );
-  
-  export const deletePost = createAsyncThunk('posts/deletePost', async (id: string) => {
-    const token = localStorage.getItem('token');
-    await fetch(`https://learnup.work/api/posts/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return id;
-  });
-  
+  }
+);
 
+// Thunk for deleting a post
+export const deletePost = createAsyncThunk('posts/deletePost', async (id: string) => {
+  const token = localStorage.getItem('token');
+  await fetch(`https://learnup.work/api/posts/${id}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return id;
+});
+
+// Create slice
 const postSlice = createSlice({
   name: 'posts',
   initialState,
@@ -163,19 +175,7 @@ const postSlice = createSlice({
         state.loading = false;
       })
       .addCase(addPost.fulfilled, (state, action: PayloadAction<Post>) => {
-        const newPost = action.payload;
-        
-        // Thêm post mới
-        state.posts.push(newPost);
-        
-        // Nếu có authorId và chưa có trong authors, khởi tạo một object tạm
-        if (newPost.authorId?._id && !state.authors[newPost.authorId._id]) {
-          state.authors[newPost.authorId._id] = {
-            _id: newPost.authorId._id,
-            name: 'Loading...',
-            avatar: 'https://via.placeholder.com/50'
-          };
-        }
+        state.posts.push(action.payload);
       })
       .addCase(updatePost.fulfilled, (state, action: PayloadAction<Post>) => {
         const index = state.posts.findIndex((post) => post._id === action.payload._id);
