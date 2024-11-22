@@ -1,9 +1,12 @@
+// src/components/BlogSection/BlogSection.tsx
+
 import React, { useEffect, useState } from 'react';
 import { Search, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, fetchAuthorById } from '@/lib/api/redux/postSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
+import { PaginationBlogPage } from './pagination'; // Ensure correct path
 
 const BlogSection: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -13,6 +16,10 @@ const BlogSection: React.FC = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [showAllTags, setShowAllTags] = useState(false);
   const navigate = useNavigate();
+
+  // Pagination States
+  const [currentPage, setCurrentPage] = useState(1);
+  const postsPerPage = 5; // Number of posts per page
 
   // Fetch posts on component mount
   useEffect(() => {
@@ -28,6 +35,11 @@ const BlogSection: React.FC = () => {
     });
   }, [posts, authors, dispatch]);
 
+  // Reset currentPage when searchTerm or selectedTag changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedTag]);
+
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
   };
@@ -40,6 +52,17 @@ const BlogSection: React.FC = () => {
     return matchesSearch && matchesTag;
   });
 
+  const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
+
+  // Determine the range of posts for the current page
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   // Extract unique tags from posts
   const uniqueTags = Array.from(new Set(posts.flatMap((post) => post.tags)));
 
@@ -50,7 +73,7 @@ const BlogSection: React.FC = () => {
   return (
     <div className="container mx-auto px-[10%] py-24">
       <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Latest Blog Posts</h1>
-      
+
       {/* Search bar */}
       <div className="mb-8 relative">
         <input
@@ -99,17 +122,23 @@ const BlogSection: React.FC = () => {
 
       {/* Filtered posts */}
       <div className="space-y-8">
-        {filteredPosts.map((post) => (
+        {currentPosts.map((post) => (
           <div
             key={post._id}
             className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 flex flex-col md:flex-row cursor-pointer"
             onClick={() => navigate(`/blog-detail/${post._id}`)}
           >
-            <img src={post.image} alt={post.title} className="w-full md:w-1/3 h-48 md:h-auto object-cover" />
+            <img
+              src={post.image}
+              alt={post.title}
+              className="w-full md:w-1/3 h-48 md:h-auto object-cover"
+            />
             <div className="p-6 flex-grow flex flex-col justify-between">
               <div>
                 <h2 className="text-xl font-semibold mb-2 text-gray-800">{post.title}</h2>
-                <p className="text-gray-600 mb-4">{post.content.substring(0, 100)}...</p>
+                <p className="text-gray-600 mb-4">
+                  {post.content.length > 100 ? `${post.content.substring(0, 100)}...` : post.content}
+                </p>
               </div>
               <div className="mt-auto">
                 <div className="flex items-center mb-4">
@@ -117,11 +146,13 @@ const BlogSection: React.FC = () => {
                     <>
                       <img
                         src={authors[post.authorId._id]?.avatar || 'https://via.placeholder.com/50'}
-                        alt={authors[post.authorId._id]?.name || 'Author Ẩn danh'}
+                        alt={authors[post.authorId._id]?.name || 'Anonymous Author'}
                         className="w-10 h-10 rounded-full mr-4"
                       />
                       <div>
-                        <p className="font-medium text-gray-800">{authors[post.authorId._id]?.name || 'Author Ẩn danh'}</p>
+                        <p className="font-medium text-gray-800">
+                          {authors[post.authorId._id]?.name || 'Anonymous Author'}
+                        </p>
                         <div className="flex items-center text-sm text-gray-500">
                           <Calendar className="mr-1" />
                           <p>{new Date(post.createdAt).toLocaleDateString()}</p>
@@ -129,17 +160,28 @@ const BlogSection: React.FC = () => {
                       </div>
                     </>
                   ) : (
-                    <p className="text-gray-500">Author Ẩn danh</p>
+                    <p className="text-gray-500">Anonymous Author</p>
                   )}
                 </div>
               </div>
             </div>
           </div>
         ))}
-        {filteredPosts.length === 0 && (
-          <p className="text-center text-gray-500 mt-8">No posts found matching your search criteria.</p>
+        {currentPosts.length === 0 && (
+          <p className="text-center text-gray-500 mt-8">
+            No posts found matching your search criteria.
+          </p>
         )}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <PaginationBlogPage
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   );
 };

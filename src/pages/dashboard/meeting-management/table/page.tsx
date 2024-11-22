@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
@@ -7,14 +7,30 @@ import UpdateMeetingDialog from "../update-meeting-dialog";
 import { fetchRooms, addRoom, deleteRoom, updateRoom } from "@/lib/api/redux/roomSlice";
 import { RootState, AppDispatch } from "@/lib/api/store";
 import { Room } from "@/lib/api/types/types";
+import { PaginationDashboardPage } from "../../pagination";
 
 const MeetingManagementDashboard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { rooms, loading, error } = useSelector((state: RootState) => state.rooms);
 
+  // State cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 5; // Số item mỗi trang
+
+  // Lấy danh sách phòng học từ API và tính tổng số trang
   useEffect(() => {
-    dispatch(fetchRooms());
+    dispatch(fetchRooms()).then((response: any) => {
+      const totalRooms = response.payload.length;
+      setTotalPages(Math.ceil(totalRooms / itemsPerPage));
+    });
   }, [dispatch]);
+
+  // Lấy dữ liệu hiện tại theo trang
+  const paginatedData = rooms.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handleAddRoom = async (room: Partial<Room>) => {
     await dispatch(addRoom(room));
@@ -65,21 +81,29 @@ const MeetingManagementDashboard: React.FC = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4 md:p-8">
+    <div className=" bg-white p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800">Meeting Management</h1>
+          <CreateMeetingDialog onCreate={handleAddRoom} />
         </div>
 
         {loading && <p className="text-center text-gray-500">Loading...</p>}
         {error && <p className="text-center text-red-500">{error}</p>}
 
-        <div className="flex justify-between items-center mb-6">
-          <CreateMeetingDialog onCreate={handleAddRoom} />
-        </div>
+        {/* Phân trang nằm phía trên phải */}
+      
 
-        <DataTable data={rooms} columns={columnsWithActions} />
+        <DataTable data={paginatedData} columns={columnsWithActions} />
+       
       </div>
+      <div className="flex justify-end mb-4 mt-4">
+          <PaginationDashboardPage
+            totalPages={totalPages}
+            currentPage={currentPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
     </div>
   );
 };
