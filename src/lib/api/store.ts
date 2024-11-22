@@ -7,6 +7,7 @@ import authReducer from './redux/authSlice';
 import paymentReducer from './redux/paymentSlice';
 import { userReducer } from './redux/userSlice';
 import postReducer from './redux/postSlice';
+import roomReducer from './redux/roomSlice'
 
 
 const rootReducer = combineReducers({
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
   payment: paymentReducer,
   user: userReducer,
   posts: postReducer,
+  rooms: roomReducer,
 });
 
 export const store = configureStore({
@@ -26,3 +28,4 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
+

@@ -92,3 +92,20 @@ export interface Author {
   name: string;
   avatar: string;
 }
+
+// src/redux/types.ts
+export interface Room {
+  _id: string;
+  title: string;
+  description: string;
+  meetLink: string;
+  startTime: string;
+  endTime: string;
+}
+
+
+export interface RoomState {
+  rooms: Room[];
+  loading: boolean;
+  error: string | null;
+}
