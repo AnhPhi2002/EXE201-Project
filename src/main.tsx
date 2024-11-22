@@ -11,27 +11,21 @@ import Layout from './layouts';
 import LoginPage from './pages/login';
 import ResetPassword from './pages/reset-password';
 import RegisterPage from './pages/register';
-
 import VideoPage from './pages/video-page';
 import QuestionPage from './pages/question-page';
 import QuestionDetailPage from './pages/question-page/detail';
-// import SubjectPage from './pages/subject-page';
 import ProfilePage from './pages/profile-page';
 import ProfileDetail from './pages/profile-page/ProfileDetail';
 import Dashboard from './pages/dashboard';
-
 import { HomeDashboard } from './pages/dashboard/home-dashboard';
 import UserManagementDashboard from './pages/dashboard/user-management/tab';
-import BlogSection from './pages/blog';
 import BlogDetail from './pages/blog/blogdetail';
 import ContactUs from './pages/contact-page';
 import PostManagementDashboard from './pages/dashboard/post-management/post';
 import CommentManagementDashboard from './pages/dashboard/comment-management';
-// import MeetingManagementDashboard from './pages/dashboard/meeting-management';
 import PermissionManagementDashboard from './pages/dashboard/permission-management';
 import SemesterManagementDashboard from './pages/dashboard/semester-management';
 import PaymentPage from './pages/payment-page';
-
 import AboutUs from './pages/about-page';
 import CodingCourseSection from './pages/search-subject/CodingCourseSection';
 import { Toaster } from 'sonner';
@@ -40,8 +34,9 @@ import PaymentFailure from './pages/pricingplans/PaymentFailure';
 import ProtectedRoute from './components/ProtectedRoute';
 import SubjectPage from './pages/subject-page';
 import StudyRoomPage from './pages/meeting-page/StudyRoomPage';
-
 import MeetingManagementDashboard from './pages/dashboard/meeting-management/table/page';
+import BlogSection from './pages/blog/bloghome';
+
 
 const router = createBrowserRouter([
   {
@@ -90,6 +85,7 @@ const router = createBrowserRouter([
         path: '/blog',
         element: <BlogSection />,
       },
+   
       {
         path: '/blog-detail/:id',
         element: <BlogDetail />,
