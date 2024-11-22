@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchPostById, fetchAuthorById, fetchRelatedPosts } from '@/lib/api/redux/postSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { Post } from '@/lib/api/types/types';
+import CommentBlog from '../comment-blog/CommentBlog';
 
 
 const BlogDetail: React.FC = () => {
@@ -77,7 +78,18 @@ const BlogDetail: React.FC = () => {
           </div>
         </article>
       )}
-
+      <div> 
+      <h3 className="text-2xl font-semibold text-white mb-6">Bình luận</h3>
+      {post && (
+        <CommentBlog 
+          postId={post._id} 
+          videoId={null} 
+          currentUser={author} 
+        />
+      )}
+      
+      </div>
+   
       {relatedPosts.length > 0 && (
         <section className="mt-8">
           <h2 className="text-2xl font-bold mb-4">Related Posts</h2>
