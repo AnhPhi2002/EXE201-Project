@@ -8,6 +8,7 @@ import paymentReducer from './redux/paymentSlice';
 import { userReducer } from './redux/userSlice';
 import postReducer from './redux/postSlice';
 import roomReducer from './redux/roomSlice'
+import commentReducer from './redux/commentSlice'
 
 
 const rootReducer = combineReducers({
@@ -20,6 +21,7 @@ const rootReducer = combineReducers({
   user: userReducer,
   posts: postReducer,
   rooms: roomReducer,
+  comment: commentReducer,
 });
 
 export const store = configureStore({
