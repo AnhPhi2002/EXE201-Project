@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit2, FiTrash2, FiSend, FiMessageSquare } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiSend, FiMessageSquare, FiSmile } from "react-icons/fi";
 import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/lib/api/store";
@@ -69,15 +70,6 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
       setComments(sortedComments);
     }
   }, [commentsFromStore]);
-
-  useEffect(() => {
-    comments.forEach((comment) => {
-      const authorId = comment.authorId?._id;
-      if (authorId && !authors[authorId]) {
-        dispatch(fetchAuthorById(authorId));
-      }
-    });
-  }, [comments, authors, dispatch]);
 
   const uploadImageToCloudinary = async (file: File): Promise<string> => {
     const formData = new FormData();
@@ -193,14 +185,17 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
   };
 
   const handleEmojiSelect = (emoji: any, isReply: boolean = false) => {
+    console.log("Selected Emoji:", emoji); // Kiểm tra cấu trúc của emoji
+    const emojiNative = emoji.native || ""; // Lấy emoji ký tự từ picker
     if (isReply) {
-      setReplyContent(prev => prev + emoji.native);
+      setReplyContent((prev) => prev + emojiNative); // Cập nhật nội dung reply
       setShowReplyEmojiPicker(null);
     } else {
-      setNewComment(prev => prev + emoji.native);
+      setNewComment((prev) => prev + emojiNative); // Cập nhật nội dung comment mới
       setShowEmojiPicker(false);
     }
   };
+
 
   const handleEdit = (id: string) => {
     const comment = comments.find((c) => c._id === id);
@@ -295,155 +290,174 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
           </div>
 
           {editingId === comment._id ? (
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 space-y-2 relative">
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded-[1.5rem] focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                onPaste={(e) => handlePaste(e, true)}
+                className="w-full p-2 border border-gray-300 rounded-[1.5rem] focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black pr-12"
                 rows={3}
               />
-              <div className="flex space-x-2">
+              <div className="flex space-x-2 mt-2">
                 <button
                   onClick={() => handleUpdate(comment._id)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-[1rem] hover:bg-blue-700 transition duration-200"
-                                  >
-                                    Update
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingId(null)}
-                                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-[1rem] hover:bg-gray-400 transition duration-200"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <p className="mt-4 text-gray-700">{comment.content}</p>
-                            )}
-                  
-                            {comment.images && comment.images.length > 0 && (
-                              <div className="mt-4 flex flex-wrap gap-2">
-                                {comment.images.map((image, index) => (
-                                  <img
-                                    key={index}
-                                    src={image}
-                                    alt={`Comment image ${index + 1}`}
-                                    className="w-24 h-24 object-cover rounded-md"
-                                  />
-                                ))}
-                              </div>
-                            )}
-                  
-                            {replyingTo === comment._id && (
-                              <div className="mt-4 space-y-2">
-                                <textarea
-                                  value={replyContent}
-                                  onChange={(e) => setReplyContent(e.target.value)}
-                                  onPaste={(e) => handlePaste(e, true)}
-                                  placeholder="Write a reply..."
-                                  className="w-full p-2 border border-gray-300 rounded-[1.5rem] focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                                  rows={3}
-                                />
-                                <div className="flex justify-between items-center">
-                                  <div className="flex space-x-2">
-                                    <button
-                                      onClick={() => handleReplySubmit(comment._id)}
-                                      className="px-4 py-2 bg-blue-600 text-white rounded-[1rem] hover:bg-blue-700 transition duration-200"
-                                    >
-                                      Reply
-                                    </button>
-                                    <button
-                                      onClick={() => setReplyingTo(null)}
-                                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-[1rem] hover:bg-gray-400 transition duration-200"
-                                    >
-                                      Cancel
-                                    </button>
-                                  </div>
-                                  <button
-                                    onClick={() => setShowReplyEmojiPicker(comment._id)}
-                                    className="p-2 text-gray-600 hover:text-yellow-500 rounded-full hover:bg-yellow-50 transition duration-200"
-                                  >
-                                    😊
-                                  </button>
-                                </div>
-                                {showReplyEmojiPicker === comment._id && (
-                                  <Picker onSelect={(emoji) => handleEmojiSelect(emoji, true)} />
-                                )}
-                                {replyImages.length > 0 && (
-                                  <div className="flex flex-wrap gap-2 mt-2">
-                                    {replyImages.map((image, index) => (
-                                      <img
-                                        key={index}
-                                        src={image}
-                                        alt={`Reply image ${index + 1}`}
-                                        className="w-24 h-24 object-cover rounded-md"
-                                      />
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          {replies.map((reply) => renderComment(reply, level + 1))}
-                        </div>
-                      );
-                    };
-                  
-                    return (
-                      <div className="max-w-4xl mx-auto p-6 space-y-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Comments</h2>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                          <textarea
-                            value={newComment}
-                            onChange={(e) => setNewComment(e.target.value)}
-                            onPaste={handlePaste}
-                            placeholder="Write a comment..."
-                            className="w-full p-4 border border-gray-300 rounded-[2rem] focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-                            rows={4}
-                            maxLength={maxCharacters}
-                          />
-                          <div className="flex justify-between items-center">
-                            <div className="flex space-x-2">
-                              <button
-                                type="submit"
-                                className="px-6 py-3 bg-blue-600 text-white rounded-[1.5rem] hover:bg-blue-700 transition duration-200 flex items-center space-x-2"
-                              >
-                                <FiSend className="w-5 h-5" />
-                                <span>Post Comment</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                                className="px-4 py-2 bg-yellow-400 text-yellow-800 rounded-[1.5rem] hover:bg-yellow-500 transition duration-200"
-                              >
-                                😊 Emoji
-                              </button>
-                            </div>
-                            <span className="text-sm text-gray-500">
-                              {newComment.length}/{maxCharacters}
-                            </span>
-                          </div>
-                          {showEmojiPicker && (
-                            <Picker onSelect={(emoji) => handleEmojiSelect(emoji)} />
-                          )}
-                          {uploadedImages.length > 0 && (
-                            <div className="flex flex-wrap gap-2 mt-2">
-                              {uploadedImages.map((image, index) => (
-                                <img
-                                  key={index}
-                                  src={image}
-                                  alt={`Uploaded image ${index + 1}`}
-                                  className="w-24 h-24 object-cover rounded-md"
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </form>
-                        <div className="space-y-6">
-                          {comments.filter(comment => !comment.parentCommentId).map(comment => renderComment(comment))}
-                        </div>
-                      </div>
-                    );
-                  };
-                  
-                  export default CommentBlog;
+                  className="px-4 py-2 bg-blue-600 text-white rounded-[1rem] hover:bg-blue-700 transition duration-200"
+                >
+                  Update
+                </button>
+                <button
+                  onClick={() => setEditingId(null)}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-[1rem] hover:bg-gray-400 transition duration-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 text-gray-700">{comment.content}</p>
+          )}
+
+          {comment.images && comment.images.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {comment.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`Comment image ${index + 1}`}
+                  className="w-24 h-24 object-cover rounded-md"
+                />
+              ))}
+            </div>
+          )}
+
+          {replyingTo === comment._id && (
+            <div className="mt-4 space-y-2 relative">
+              <textarea
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                onPaste={(e) => handlePaste(e, true)}
+                placeholder="Write a reply..."
+                className="w-full p-2 border border-gray-300 rounded-[1.5rem] focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black pr-12"
+                rows={3}
+              />
+              <button
+                onClick={() => setShowReplyEmojiPicker(showReplyEmojiPicker === comment._id ? null : comment._id)}
+                className="absolute right-4 top-2 text-gray-600 hover:text-yellow-500 rounded-full hover:bg-yellow-50 transition duration-200 p-2"
+              >
+                <FiSmile className="w-5 h-5" />
+              </button>
+              {showReplyEmojiPicker === comment._id && (
+                <div className="absolute z-10 right-0 top-full mt-2">
+                  <Picker
+                    data={data}
+                    onEmojiSelect={(emoji: any) => {
+                      handleEmojiSelect(emoji, true);
+                    }}
+                    theme="light"
+                  />
+                </div>
+              )}
+              <div className="flex justify-between items-center mt-2">
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleReplySubmit(comment._id)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-[1rem] hover:bg-blue-700 transition duration-200"
+                  >
+                    Reply
+                  </button>
+                  <button
+                    onClick={() => setReplyingTo(null)}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-[1rem] hover:bg-gray-400 transition duration-200"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+              {replyImages.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {replyImages.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Reply image ${index + 1}`}
+                      className="w-24 h-24 object-cover rounded-md"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        {replies.map((reply) => renderComment(reply, level + 1))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6 space-y-8">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Comments</h2>
+      <form onSubmit={handleSubmit} className="space-y-4 relative">
+        <div className="relative">
+          <textarea
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            onPaste={handlePaste}
+            placeholder="Write a comment..."
+            className="w-full p-4 pr-12 border border-gray-300 rounded-[2rem] focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+            rows={4}
+            maxLength={maxCharacters}
+          />
+          <button
+            type="button"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-yellow-500 rounded-full hover:bg-yellow-50 transition duration-200 p-2"
+          >
+            <FiSmile className="w-5 h-5" />
+          </button>
+        </div>
+        {showEmojiPicker && (
+          <div className="absolute z-10 right-0">
+            <Picker
+              data={data}
+              onEmojiSelect={(emoji: any) => {
+                handleEmojiSelect(emoji);
+              }}
+              theme="light"
+            />
+          </div>
+        )}
+        <div className="flex justify-between items-center">
+          <div className="flex space-x-2">
+            <button
+              type="submit"
+              className="px-6 py-3 bg-blue-600 text-white rounded-[1.5rem] hover:bg-blue-700 transition duration-200 flex items-center space-x-2"
+            >
+              <FiSend className="w-5 h-5" />
+              <span>Post Comment</span>
+            </button>
+          </div>
+          <span className="text-sm text-gray-500">
+            {newComment.length}/{maxCharacters}
+          </span>
+        </div>
+        {uploadedImages.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {uploadedImages.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`Uploaded image ${index + 1}`}
+                className="w-24 h-24 object-cover rounded-md"
+              />
+            ))}
+          </div>
+        )}
+      </form>
+      <div className="space-y-6">
+        {comments.filter(comment => !comment.parentCommentId).map(comment => renderComment(comment))}
+      </div>
+    </div>
+  );
+};
+
+export default CommentBlog;
