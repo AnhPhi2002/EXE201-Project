@@ -1,45 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, GraduationCap, HelpCircle } from 'lucide-react';
-interface Resource {
-  id: number;
-  title: string;
-  description: string;
-  fileUrls: string[];
-  type: string;
-  subject: string;
-  allowedRoles: string[];
-}
-const resources: Resource[] = [
-  {
-    id: 1,
-    title: 'Bài báo nghiên cứu',
-    description: 'Truy cập hàng nghìn bài báo được đánh giá',
-    fileUrls: ['https://example.com/research-paper.pdf'],
-    type: 'pdf',
-    subject: 'subjectId1',
-    allowedRoles: ['member_free', 'member_premium'],
-  },
-  {
-    id: 2,
-    title: 'Bài giảng video',
-    description: 'Hướng dẫn và bài giảng video của chuyên gia',
-    fileUrls: ['https://example.com/video-lecture.mp4'],
-    type: 'video',
-    subject: 'subjectId2',
-    allowedRoles: ['member_premium'],
-  },
-  {
-    id: 3,
-    title: 'Bài kiểm tra thực hành',
-    description: 'Bài kiểm tra toàn diện kèm lời giải',
-    fileUrls: ['https://example.com/practice-test.pdf'],
-    type: 'quiz',
-    subject: 'subjectId3',
-    allowedRoles: ['member_free', 'member_premium'],
-  },
-];
+import { useSelector, useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from '@/lib/api/store'; // Đường dẫn tuỳ thuộc vào cấu trúc dự án của bạn
+import { fetchAllResources } from '@/lib/api/redux/resourceSlice';
+import { fetchSubjects } from '@/lib/api/redux/subjectSlice';
+import { useNavigate } from 'react-router-dom';
+import { BookOpen, CirclePlay, FileText } from 'lucide-react';
+
+// Hàm lấy ngẫu nhiên 3 tài nguyên
+const getRandomResources = (resources: any[], count: number) => {
+  if (resources.length <= count) {
+    return resources; // Nếu ít hơn hoặc bằng `count`, trả về toàn bộ
+  }
+  const shuffled = [...resources].sort(() => 0.5 - Math.random()); // Trộn ngẫu nhiên
+  return shuffled.slice(0, count); // Lấy đúng `count` phần tử
+};
+
 const ResourceCard: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+
+  const { resources, loading, error } = useSelector((state: RootState) => state.resources);
+  const { subjects } = useSelector((state: RootState) => state.subjects);
+
+  useEffect(() => {
+    dispatch(fetchAllResources());
+    dispatch(fetchSubjects(null)); // Fetch tất cả subjects
+  }, [dispatch]);
+
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -68,16 +56,32 @@ const ResourceCard: React.FC = () => {
       case 'pdf':
         return <BookOpen className="w-10 h-10 text-blue-600" />;
       case 'video':
-        return <GraduationCap className="w-10 h-10 text-green-600" />;
-      case 'quiz':
-        return <HelpCircle className="w-10 h-10 text-purple-600" />;
+        return <CirclePlay className="w-10 h-10 text-green-600" />;
+      case 'document':
+        return <FileText className="w-10 h-10 text-purple-600" />;
       default:
         return <BookOpen className="w-10 h-10 text-blue-600" />;
     }
   };
+
+  const getSubjectName = (subjectId: string) => {
+    const subject = subjects.find((sub) => sub.id === subjectId);
+    return subject ? subject.name : 'N/A'; // Nếu không tìm thấy, hiển thị "N/A"
+  };
+
+  if (loading) {
+    return <p className="text-center text-white">Loading...</p>;
+  }
+
+  if (error) {
+    return <p className="text-center text-red-500">Error: {error}</p>;
+  }
+
+  // Lấy ngẫu nhiên 3 tài nguyên
+  const displayedResources = getRandomResources(resources, 3);
+
   return (
     <div>
-      {' '}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -85,20 +89,27 @@ const ResourceCard: React.FC = () => {
         viewport={{ once: true }}
         className="bg-gradient-to-r from-purple-500/40 via-pink-500/40 to-blue-500/40 py-20 px-4 md:px-8 backdrop-blur-lg"
       >
-        <h2 className="text-4xl font-bold text-center mb-12  text-white">Tài nguyên giáo dục</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto ">
-          {resources.map((resource) => (
+        <h2 className="text-4xl font-bold text-center mb-12 text-white">Tài nguyên giáo dục</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
+          {displayedResources.map((resource) => (
             <motion.div
               key={resource.id}
               variants={itemVariants}
-              whileHover={{ scale: 1.05, boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}
+              whileHover={{
+                scale: 1.05,
+                boxShadow:
+                  '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+              }}
               className="bg-white/30 rounded-lg p-8 text-center shadow-lg backdrop-blur-md transform transition-all duration-300"
             >
-              {getResourceIcon(resource.type)}
-
+              {getResourceIcon(resource.type || '')}
               <h3 className="text-xl font-semibold mb-2 text-white">{resource.title}</h3>
-              <p className="text-gray-700 mb-4">{resource.description}</p>
+              <p className="text-gray-700 mb-4">{resource.description || 'No description available.'}</p>
+              <p className="text-sm text-gray-400 mb-4">
+                Môn: <span className="font-medium">{getSubjectName(resource.subject)}</span>
+              </p>
               <motion.button
+                onClick={() => navigate(`/subject/${resource.subject}`)} // Chuyển hướng đến subject
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="flex items-center justify-center w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-md transition duration-300"

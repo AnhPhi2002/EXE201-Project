@@ -70,13 +70,14 @@ const MeetingCard: React.FC = () => {
                 </div>
 
                 <a
-                  href={room.meetLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full py-2 text-center rounded-md transition duration-300 bg-blue-600 text-white hover:bg-blue-700"
-                >
-                  Tham gia phòng
-                </a>
+  href={room.meetLink.startsWith("http") ? room.meetLink : `http://${room.meetLink}`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="block w-full py-2 text-center rounded-md transition duration-300 bg-blue-600 text-white hover:bg-blue-700"
+>
+  Tham gia phòng
+</a>
+
               </div>
 
             ))}
