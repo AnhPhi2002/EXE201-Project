@@ -101,8 +101,6 @@ const BlogDetail: React.FC = () => {
           {post && (
             <CommentBlog
               postId={post._id}
-              videoId={null}
-              currentUser={author}
             />
           )}
         </div>
