@@ -9,7 +9,7 @@ import { fetchUserInfo } from '@/lib/api/redux/userSlice';
 import { CreateCommentData, ReplyCommentData } from '@/lib/api/redux/commentSlice';
 
 import { Comment } from '@/lib/api/redux/commentSlice';
-import { fetchAuthorById } from '@/lib/api/redux/commentSlice';
+
 
 const CLOUD_NAME = 'dbezyvjzm';
 const UPLOAD_PRESET = 'learnup';
@@ -160,7 +160,6 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
 
   const handleEmojiSelect = (emoji: any, isReply: boolean = false) => {
     console.log("Selected Emoji:", emoji); // Kiểm tra cấu trúc của emoji
-    const emojiNative = emoji.native || ""; // Lấy emoji ký tự từ picker
     if (isReply) {
       setReplyContent((prev) => prev + emoji.native);
       setShowReplyEmojiPicker(null);
