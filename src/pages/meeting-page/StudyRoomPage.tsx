@@ -7,6 +7,10 @@ import { Room } from "@/lib/api/types/types";
 import { PaginationMeetingPage } from "./pagination"; // Import pagination component
 
 const StudyRoomPage: React.FC = () => {
+  useEffect(() => {
+    document.title = 'Phòng | LearnUp';
+  }, []);
+
   const dispatch = useDispatch<AppDispatch>();
   const { rooms, loading, error } = useSelector((state: RootState) => state.rooms);
 

@@ -34,6 +34,9 @@ const PaymentPage: React.FC = () => {
       "Bản cập nhật tài liệu hàng tháng",
     ]
   };
+  useEffect(() => {
+    document.title = 'Định giá | LearnUp';
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");

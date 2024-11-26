@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, QrCode } from 'lucide-react';
 import { Plan } from '@/lib/api/types/paymentData';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,9 +17,10 @@ interface PaymentDetailProps {
 
 const PaymentDetail: React.FC<PaymentDetailProps> = ({ userName, plan, loading, error, handlePayment, setShowPayment }) => {
   const { profile } = useSelector((state: RootState) => state.user);
-
   const [open, setOpen] = useState(false);
-
+  useEffect(() => {
+    document.title = 'Thanh toán | LearnUp';
+  }, []);
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-2xl p-8 max-w-md mx-auto">
       <h2 className="text-3xl font-bold mb-6 text-center text-indigo-800">Thanh Toán Nâng Cấp</h2>

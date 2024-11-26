@@ -33,6 +33,7 @@ const PricingPlanSection: React.FC = () => {
     setShowPayment(true);
   };
 
+  
   const PaymentPage: React.FC = () => (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-2xl p-8 max-w-md mx-auto">
       <h2 className="text-3xl font-bold mb-6 text-center text-indigo-800">PayOsôi Payment</h2>

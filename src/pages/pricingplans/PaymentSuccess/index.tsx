@@ -37,7 +37,9 @@ const PaymentSuccess: React.FC = () => {
   const handleBackToDashboard = () => {
     window.location.href = "/dashboard";
   };
-
+  useEffect(() => {
+    document.title = 'Thanh toán thành công| LearnUp';
+  }, []);
   return (
     <div className="flex items-center justify-center p-[2%]">
       <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-lg p-8 text-center" id="receipt-card">

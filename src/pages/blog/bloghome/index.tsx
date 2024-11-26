@@ -18,6 +18,9 @@ const BlogSection: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = 'Blog | LearnUp';
+  }, []);
+  useEffect(() => {
     dispatch(fetchPosts());
   }, [dispatch]);
 

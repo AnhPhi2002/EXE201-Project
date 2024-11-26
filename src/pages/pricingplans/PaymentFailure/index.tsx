@@ -12,7 +12,10 @@ const PaymentFailure: React.FC = () => {
   const handleRetryPayment = () => {
     window.location.href = '/payment';
   };
-
+  
+  useEffect(() => {
+    document.title = 'Thanh toán thất bại | LearnUp';
+  }, []);
   return (
     <div className="flex items-center justify-center p-[2%]">
       <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-lg text-center p-6"> 

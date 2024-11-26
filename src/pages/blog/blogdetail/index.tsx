@@ -10,6 +10,9 @@ import { RootState, AppDispatch } from "@/lib/api/store";
 import CommentBlog from "../comment-blog/CommentBlog";
 
 const BlogDetail: React.FC = () => {
+  useEffect(() => {
+    document.title = 'Blog nội dung | LearnUp';
+  }, []);
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const dispatch: AppDispatch = useDispatch();
