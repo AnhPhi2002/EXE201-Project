@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect } from "react"; 
 import { FiCheckCircle } from "react-icons/fi";
 
 const PaymentSuccess: React.FC = () => {
@@ -10,7 +10,28 @@ const PaymentSuccess: React.FC = () => {
   const amountPaid = "50.000 VND"; // Có thể cập nhật từ dữ liệu thực nếu có
 
   const handlePrint = () => {
-    window.print();
+    const printContent = document.getElementById("receipt-card"); // Lấy phần card thanh toán
+    if (printContent) {
+      // Mở cửa sổ in mới mà không có thanh công cụ trình duyệt
+      const printWindow = window.open('', '', 'width=800,height=600');
+      printWindow?.document.write('<html><head><title>Biên lai thanh toán LearnUp</title>');
+      printWindow?.document.write('<style>body { font-family: Arial, sans-serif; margin: 0; padding: 0; }</style>'); // CSS cải thiện giao diện
+      printWindow?.document.write('<style>@media print { .no-print { display: none; } }</style>'); // Ẩn phần .no-print khi in
+      printWindow?.document.write('<style>html, body { width: 100%; height: 100%; overflow: hidden; }</style>'); // Hủy cuộn trang khi in
+      printWindow?.document.write('</head><body>');
+      printWindow?.document.write(printContent.innerHTML); // In nội dung phần card
+      printWindow?.document.write('</body></html>');
+      printWindow?.document.close();
+      printWindow?.focus(); // Đảm bảo cửa sổ in được focus
+
+      // In ra biên lai
+      printWindow?.print();
+
+      // Đảm bảo đóng cửa sổ sau khi in xong
+      printWindow?.addEventListener('afterprint', () => {
+        printWindow?.close(); // Đóng cửa sổ sau khi in xong
+      });
+    }
   };
 
   const handleBackToDashboard = () => {
@@ -18,9 +39,10 @@ const PaymentSuccess: React.FC = () => {
   };
 
   return (
-    <div className=" flex items-center justify-center p-[2%]">
-      <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-lg p-8 text-center">
-        <div className="mb-8 animate-bounce">
+    <div className="flex items-center justify-center p-[2%]">
+      <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-lg p-8 text-center" id="receipt-card">
+        {/* Phần icon này sẽ bị ẩn khi in */}
+        <div className="mb-8 animate-bounce no-print">
           <FiCheckCircle className="mx-auto h-16 w-16 text-green-500" />
         </div>
         
@@ -45,7 +67,8 @@ const PaymentSuccess: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-8 space-y-4">
+        {/* Ẩn phần này khi in */}
+        <div className="mt-8 space-y-4 no-print">
           <button
             className="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-600 transition-colors duration-200"
             onClick={handlePrint}

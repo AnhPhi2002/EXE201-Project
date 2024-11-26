@@ -13,8 +13,6 @@ const PaymentFailure: React.FC = () => {
     window.location.href = '/payment';
   };
 
-
-
   return (
     <div className="flex items-center justify-center p-[2%]">
       <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-lg text-center p-6"> 
