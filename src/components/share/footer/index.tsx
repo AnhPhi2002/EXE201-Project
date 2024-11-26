@@ -1,11 +1,11 @@
-import React from "react";
-import { Twitter, Facebook, Instagram, Linkedin, Github, ArrowUpCircle } from "lucide-react";
+import React from 'react';
+import { Twitter, Facebook, Instagram, Linkedin, Github, ArrowUpCircle } from 'lucide-react';
 
 const GlassmorphismFooter: React.FC = () => {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: "smooth",
+      behavior: 'smooth',
     });
   };
 
@@ -17,9 +17,7 @@ const GlassmorphismFooter: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-white">Về Chúng Tôi</h3>
-              <p className="text-black leading-relaxed">
-                Chúng tôi tạo ra các giải pháp đổi mới cho các doanh nghiệp hiện đại, cam kết chất lượng và sự xuất sắc trong mỗi dự án.
-              </p>
+              <p className="text-black leading-relaxed">Chúng tôi tạo ra các giải pháp đổi mới cho các doanh nghiệp hiện đại, cam kết chất lượng và sự xuất sắc trong mỗi dự án.</p>
             </div>
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-white">Liên Kết Nhanh</h3>
@@ -34,9 +32,9 @@ const GlassmorphismFooter: React.FC = () => {
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-white">Thông Tin Liên Hệ</h3>
               <ul className="space-y-2">
-                <li className="text-black">123 Đường Kinh Doanh</li>
-                <li className="text-black">New York, NY 10001</li>
-                <li className="text-black">contact@example.com</li>
+                <li className="text-black">123 Đường Vinhomes</li>
+                <li className="text-black">Quận 9, thành phố Hồ Chí Minh</li>
+                <li className="text-black">learnup@gmail.com</li>
                 <li className="text-black">+1 (555) 123-4567</li>
               </ul>
             </div>
@@ -56,18 +54,19 @@ const GlassmorphismFooter: React.FC = () => {
           </div>
           <div className="mt-12 pt-8 border-t border-white/30">
             <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-              <p className="text-black text-sm">
-                © 2024 Your Company. Bảo lưu mọi quyền.
-              </p>
+              <p className="text-black text-sm">© 2024 Your Company. Bảo lưu mọi quyền.</p>
               <div className="flex space-x-6">
-                {[Twitter, Facebook, Instagram, Linkedin, Github].map((Icon, index) => (
-                  <button
+                {[Facebook, Instagram].map((Icon, index) => (
+                  <a
                     key={index}
+                    href={index === 0 ? 'https://www.facebook.com/learnup297' : 'https://www.instagram.com/learnupn/'} // Add the appropriate social media link
+                    target="_blank" // Opens in a new tab
+                    rel="noopener noreferrer" // Security best practices
                     aria-label={Icon.name}
                     className="text-white hover:text-purple-400 transform hover:scale-110 transition-all duration-300"
                   >
                     <Icon size={24} />
-                  </button>
+                  </a>
                 ))}
               </div>
             </div>

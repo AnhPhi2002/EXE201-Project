@@ -102,11 +102,12 @@ const ContactUs: React.FC = () => {
             </div>
             <div className="flex items-center text-indigo-100">
               <Mail className="w-6 h-6 mr-3" />
-              <span>contact@example.com</span>
+              <span>learnup@gmail.com</span>
             </div>
             <div className="flex items-start text-indigo-100">
               <MapPin className="w-6 h-6 mr-3 mt-1" />
-              <span>123 Business Avenue, Suite 456, Cityville, ST 78901</span>
+              <span>123 Đường Vinhomes
+              Quận 9, thành phố Hồ Chí Minh</span>
             </div>
           </div>
         </motion.div>

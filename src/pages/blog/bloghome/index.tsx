@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts, fetchAuthorById } from '@/lib/api/redux/postSlice';
 import { RootState, AppDispatch } from '@/lib/api/store';
+import { PaginationBlogPage } from '../pagination'; // Import the Pagination component
 
 const BlogSection: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -11,7 +12,9 @@ const BlogSection: React.FC = () => {
   const authors = useSelector((state: RootState) => state.posts.authors);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [showAllPosts, setShowAllPosts] = useState<boolean>(false); // Thêm trạng thái showAllPosts
+  const [showAllPosts, setShowAllPosts] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1); // Current page state
+  const postsPerPage = 3; // Define how many posts per page you want
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,31 +31,35 @@ const BlogSection: React.FC = () => {
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-    setShowAllPosts(false); // Khi tìm kiếm, bỏ trạng thái "Show All Posts"
+    setShowAllPosts(false);
+    setCurrentPage(1);
   };
 
   const handleShowAllPosts = () => {
     setShowAllPosts(true);
-    setSearchTerm(''); // Xóa từ khóa tìm kiếm
-    setSelectedTag(null); // Xóa tag được chọn
+    setSearchTerm('');
+    setSelectedTag(null);
+    setCurrentPage(1);
   };
 
-  // Cập nhật logic lọc bài viết
   const filteredPosts = showAllPosts
     ? posts
     : posts.filter((post) => {
-        const matchesSearch =
-          post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.content.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) || post.content.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesTag = !selectedTag || post.tags.includes(selectedTag);
         return matchesSearch && matchesTag;
       });
 
+  const totalPosts = filteredPosts.length;
+  const totalPages = Math.ceil(totalPosts / postsPerPage);
+
+  const paginatePosts = filteredPosts.slice((currentPage - 1) * postsPerPage, currentPage * postsPerPage);
+
   const uniqueTags = Array.from(new Set(posts.flatMap((post) => post.tags)));
 
   return (
-    <div className="container mx-auto px-[10%] py-24">
-      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Latest Blog Posts</h1>
+    <div className="container mx-auto px-[10%] pt-12 ">
+      <h1 className="text-4xl font-bold mb-8 text-center text-gray-800">Bài Blog mới nhất</h1>
 
       {/* Search bar */}
       <div className="mb-8 relative">
@@ -74,7 +81,7 @@ const BlogSection: React.FC = () => {
             key={tag}
             onClick={() => {
               setSelectedTag(tag === selectedTag ? null : tag);
-              setShowAllPosts(false); // Khi chọn tag, bỏ trạng thái "Show All Posts"
+              setShowAllPosts(false); // When selecting a tag, reset "Show All Posts"
             }}
             className={`px-4 py-2 rounded-full text-sm font-medium ${
               selectedTag === tag ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-200'
@@ -95,13 +102,13 @@ const BlogSection: React.FC = () => {
 
       {/* Posts Grid */}
       <div className="space-y-8">
-        {filteredPosts.map((post) => (
+        {paginatePosts.map((post) => (
           <div
             key={post._id}
             className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 flex flex-col md:flex-row cursor-pointer"
             onClick={() => navigate(`/blog-detail/${post._id}`)}
           >
-            {/* Hình ảnh */}
+            {/* Image */}
             <div className="relative w-full md:w-1/3 h-[220px]">
               <img
                 src={post.image}
@@ -113,7 +120,7 @@ const BlogSection: React.FC = () => {
               />
             </div>
 
-            {/* Nội dung */}
+            {/* Content */}
             <div className="p-4 md:p-6 flex-grow flex flex-col bg-gray-50 justify-between max-w-[66%]">
               <div>
                 <h2 className="text-xl font-semibold mb-2 text-gray-800">{post.title}</h2>
@@ -139,9 +146,12 @@ const BlogSection: React.FC = () => {
         ))}
       </div>
 
-      {filteredPosts.length === 0 && (
-        <p className="text-center text-gray-500 mt-8">No posts found matching your search criteria.</p>
-      )}
+      {filteredPosts.length === 0 && <p className="text-center text-gray-500 mt-8">No posts found matching your search criteria.</p>}
+
+      {/* Pagination */}
+     <div className='py-[2%]'>
+     <PaginationBlogPage totalPages={totalPages} currentPage={currentPage} onPageChange={(page: number) => setCurrentPage(page)} />
+     </div>
     </div>
   );
 };
