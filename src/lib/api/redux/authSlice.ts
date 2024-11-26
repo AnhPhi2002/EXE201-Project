@@ -29,37 +29,31 @@ const initialState: AuthState = {
 const API_URL = 'https://learnup.work/api/auth';
 
 // Async Thunk để đăng nhập
-export const login = createAsyncThunk(
-  'auth/login',
-  async (credentials: { email: string; password: string }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${API_URL}/login`, credentials);
-      const { token, name, role } = response.data;
+export const login = createAsyncThunk('auth/login', async (credentials: { email: string; password: string }, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(`${API_URL}/login`, credentials);
+    const { token, name, role } = response.data;
 
-      // Lưu thông tin vào localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('name', name);
-      localStorage.setItem('role', role);
+    // Lưu thông tin vào localStorage
+    localStorage.setItem('token', token);
+    localStorage.setItem('name', name);
+    localStorage.setItem('role', role);
 
-      return { name, role };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Login failed');
-    }
+    return { name, role };
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Login failed');
   }
-);
+});
 
 // Async Thunk để đăng ký
-export const registerUser = createAsyncThunk(
-  'auth/registerUser',
-  async (userData: { name: string; email: string; password: string }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`${API_URL}/register`, userData);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
-    }
+export const registerUser = createAsyncThunk('auth/registerUser', async (userData: { name: string; email: string; password: string }, { rejectWithValue }) => {
+  try {
+    const response = await axios.post(`${API_URL}/register`, userData);
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Registration failed');
   }
-);
+});
 
 // Slice quản lý Auth
 const authSlice = createSlice({
@@ -104,7 +98,6 @@ const authSlice = createSlice({
       });
   },
 });
-
 
 export const { logout } = authSlice.actions;
 
