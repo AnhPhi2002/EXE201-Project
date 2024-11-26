@@ -39,11 +39,14 @@ const BlogDetail: React.FC = () => {
           dispatch(fetchAuthorById(postData.authorId._id));
           dispatch(
             fetchRelatedPosts({ tags: postData.tags, excludeId: postData._id })
-          );
+          ).then((relatedResult) => {
+            console.log("Related Posts:", relatedResult.payload); // Log dữ liệu bài viết liên quan
+          });
         }
       });
     }
   }, [id, dispatch, navigate]);
+
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
@@ -116,16 +119,26 @@ const BlogDetail: React.FC = () => {
                   onClick={() => navigate(`/blog-detail/${relatedPost._id}`)}
                 >
                   <img
-                    src={relatedPost.image || "https://via.placeholder.com/300"}
+                    src={relatedPost.image || "https://via.placeholder.com/800x300"}
                     alt={relatedPost.title}
                     className="w-full h-52 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://via.placeholder.com/700x300";
+                      e.currentTarget.style.objectFit = "contain";
+                    }}
                   />
                   <div className="p-4">
-                    <h3 className="font-bold text-lg mb-2">
+                    <h3 className="font-bold text-lg mb-2  text-gray-800">
                       {relatedPost.title}
                     </h3>
+                    <p
+                      className="text-sm text-gray-500 overflow-hidden text-ellipsis whitespace-nowrap"
+                    >
+                      {relatedPost.content}
+                    </p>
+
                     <p className="text-sm text-gray-500">
-                      {new Date(relatedPost.createdAt).toLocaleDateString()}
+                      CreateAt: {new Date(relatedPost.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
