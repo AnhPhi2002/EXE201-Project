@@ -97,7 +97,7 @@ const BlogDetail: React.FC = () => {
         )}
 
         <div className="mt-12">
-          <h3 className="text-3xl font-semibold mb-6">Bình luận</h3>
+          
           {post && (
             <CommentBlog
               postId={post._id}
