@@ -9,7 +9,7 @@ type LoginLayoutProps = {
 const LoginLayout = ({ children }: LoginLayoutProps) => {
   return (
     <div className="font-geist w-screen h-screen flex">
-      {/* Phần hình ảnh bên trái với hiệu ứng motion */}
+  
       <motion.div
         className="flex-1 bg-violet-200 hidden md:block"
         initial={{ opacity: 0 }} // Bắt đầu với độ mờ 0
@@ -19,7 +19,7 @@ const LoginLayout = ({ children }: LoginLayoutProps) => {
         <img src={LoginBackgroundImage} alt="auth-background" className="w-full h-full object-cover" />
       </motion.div>
 
-      {/* Phần form đăng nhập bên phải với hiệu ứng motion */}
+    
       <motion.div
         className="flex-1 flex items-center justify-center bg-gradient-to-r from-purple-400 to-pink-300 p-8"
         initial={{ opacity: 0,  }} // Bắt đầu với độ mờ 0 và dịch chuyển xuống
