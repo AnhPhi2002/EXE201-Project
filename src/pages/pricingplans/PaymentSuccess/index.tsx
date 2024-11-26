@@ -18,7 +18,7 @@ const PaymentSuccess: React.FC = () => {
   };
 
   return (
-    <div className=" flex items-center justify-center p-[4%]">
+    <div className=" flex items-center justify-center p-[2%]">
       <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-lg p-8 text-center">
         <div className="mb-8 animate-bounce">
           <FiCheckCircle className="mx-auto h-16 w-16 text-green-500" />

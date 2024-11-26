@@ -16,7 +16,7 @@ const PaymentFailure: React.FC = () => {
 
 
   return (
-    <div className="flex items-center justify-center py-10">
+    <div className="flex items-center justify-center p-[2%]">
       <div className="max-w-md w-full bg-white/80 rounded-2xl shadow-lg text-center p-6"> 
         <div className="mb-8 animate-bounce">
           <FiXCircle className="mx-auto h-16 w-16 text-red-500" />
