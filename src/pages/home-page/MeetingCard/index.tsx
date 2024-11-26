@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchRooms } from "@/lib/api/redux/roomSlice";
-import { RootState, AppDispatch } from "@/lib/api/store";
-import { motion } from "framer-motion";
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRooms } from '@/lib/api/redux/roomSlice';
+import { RootState, AppDispatch } from '@/lib/api/store';
+import { motion } from 'framer-motion';
 
 const MeetingCard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -26,13 +26,7 @@ const MeetingCard: React.FC = () => {
 
   return (
     <div>
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        className="py-20 px-4 md:px-8"
-      >
+      <motion.div variants={containerVariants} initial="hidden" whileInView="visible" viewport={{ once: true }} className="py-20 px-4 md:px-8">
         <h2 className="text-4xl font-bold text-center mb-12 text-white">Phòng học trực tuyến</h2>
         {loading && <div className="text-center text-gray-600">Đang tải dữ liệu...</div>}
         {error && <div className="text-center text-red-600">Lỗi: {error}</div>}
@@ -49,7 +43,7 @@ const MeetingCard: React.FC = () => {
                 <div className="flex items-center justify-between mb-4">
                   {/* Title giới hạn */}
                   <h3
-                    className="text-xl font-semibold text-white truncate"
+                    className="text-xl font-semibold text-white truncate line-clamp-2"
                     title={room.title} // Tooltip hiển thị đầy đủ khi hover
                   >
                     {room.title}
@@ -70,16 +64,14 @@ const MeetingCard: React.FC = () => {
                 </div>
 
                 <a
-  href={room.meetLink.startsWith("http") ? room.meetLink : `http://${room.meetLink}`}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="block w-full py-2 text-center rounded-md transition duration-300 bg-blue-600 text-white hover:bg-blue-700"
->
-  Tham gia phòng
-</a>
-
+                  href={room.meetLink.startsWith('http') ? room.meetLink : `http://${room.meetLink}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full py-2 text-center rounded-md transition duration-300 bg-blue-600 text-white hover:bg-blue-700"
+                >
+                  Tham gia phòng
+                </a>
               </div>
-
             ))}
         </div>
       </motion.div>

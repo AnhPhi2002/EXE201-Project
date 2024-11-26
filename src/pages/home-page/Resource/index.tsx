@@ -104,8 +104,8 @@ const ResourceCard: React.FC = () => {
             >
               {getResourceIcon(resource.type || '')}
               <h3 className="text-xl font-semibold mb-2 text-white">{resource.title}</h3>
-              <p className="text-gray-700 mb-4">{resource.description || 'No description available.'}</p>
-              <p className="text-sm text-gray-400 mb-4">
+              <p className="text-gray-700 mb-4 line-clamp-2">{resource.description || 'No description available.'}</p>
+              <p className="text-sm text-gray-500 mb-4">
                 Môn: <span className="font-medium">{getSubjectName(resource.subject)}</span>
               </p>
               <motion.button
