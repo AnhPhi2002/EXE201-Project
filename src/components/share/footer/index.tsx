@@ -1,5 +1,5 @@
 import React from 'react';
-import { Twitter, Facebook, Instagram, Linkedin, Github, ArrowUpCircle } from 'lucide-react';
+import {Facebook, Instagram, ArrowUpCircle } from 'lucide-react';
 
 const GlassmorphismFooter: React.FC = () => {
   const scrollToTop = () => {
