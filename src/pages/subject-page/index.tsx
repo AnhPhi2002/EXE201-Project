@@ -1,5 +1,6 @@
+// SubjectPage.tsx
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { FaStar, FaHome, FaChevronRight, FaHeart } from 'react-icons/fa';
@@ -9,9 +10,23 @@ import { fetchResourcesBySubject } from '@/lib/api/redux/resourceSlice';
 import { fetchSubjectById } from '@/lib/api/redux/subjectSlice';
 import CommentSection from './CommentSubject';
 
+
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '@/components/ui/alert-dialog';
+
 const SubjectPage: React.FC = () => {
   const { id: subjectId } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate(); // Initialize navigate
 
   const { resources, loading, error } = useSelector((state: RootState) => state.resources);
   const subject = useSelector((state: RootState) => state.subjects.subject);
@@ -42,23 +57,27 @@ const SubjectPage: React.FC = () => {
   };
 
   const canAccessResource = (allowedRoles: string[]): boolean => {
-    return userRole === 'admin' || userRole === 'staff' || userRole === 'member_premium' || allowedRoles.includes(userRole);
+    return (
+      userRole === 'admin' ||
+      userRole === 'staff' ||
+      userRole === 'member_premium' ||
+      allowedRoles.includes(userRole)
+    );
   };
 
   if (subjectId === undefined) {
     return <p className="text-red-500">No subject found.</p>;
   }
+
   return (
     <div className="min-h-screen ">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
         {/* Breadcrumb Navigation */}
         <nav className="text-sm 0">
           <div className="flex items-center space-x-3">
-            {' '}
-            {/* Tăng spacing */}
-            <FaHome className="text-black text-lg" /> {/* Tăng kích thước biểu tượng */}
+            <FaHome className="text-black text-lg" />
             <FaChevronRight className="text-black text-lg" />
-            <span className="font-medium text-black text-lg">Môn học</span> {/* Tăng kích thước chữ */}
+            <span className="font-medium text-black text-lg">Môn học</span>
             <FaChevronRight className="text-black text-lg" />
             <span className="font-medium text-black text-lg">{subject ? subject.name : 'Loading...'}</span>
           </div>
@@ -113,7 +132,29 @@ const SubjectPage: React.FC = () => {
                       </div>
                     )
                   ) : (
-                    <p className="text-red-400 mt-4">Nâng cấp Premium để xem tài liệu này</p>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button className="text-red-400 mt-4 hover:underline focus:outline-none">Nâng cấp Premium để xem tài liệu này</button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Yêu cầu Nâng cấp Premium</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Bạn cần nâng cấp lên tài khoản Premium để truy cập tài liệu này. Bạn có muốn nâng cấp ngay bây giờ?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Hủy</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => {
+                              navigate('/payment');
+                            }}
+                          >
+                            Nâng cấp
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   )}
                 </div>
               ))}

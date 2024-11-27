@@ -93,7 +93,7 @@ const CommentForm: React.FC<CommentFormProps> = ({
           toast.error('Failed to upload image.');
         }
       }
-      // Reset giá trị của input để cho phép upload lại cùng một file nếu cần
+
       e.target.value = '';
     }
   };

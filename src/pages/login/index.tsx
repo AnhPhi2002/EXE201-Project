@@ -130,7 +130,7 @@ const LoginPage: React.FC = () => {
 
             {/* Liên kết Quên mật khẩu */}
             <div className="text-right mt-2">
-              <Link to="/reset-password" className="text-sm text-white hover:text-blue-400">
+              <Link to="/reset-password" className="text-sm text-white hover:text-blue-500">
                 Quên mật khẩu?
               </Link>
             </div>
@@ -149,7 +149,7 @@ const LoginPage: React.FC = () => {
 
         <p className="mt-6 text-center text-sm text-gray-200">
           Bạn chưa có tài khoản?{' '}
-          <Link to="/register" className="text-blue-400 hover:text-blue-500">
+          <Link to="/register" className="text-blue-700 hover:text-blue-500">
             Đăng ký ngay.
           </Link>
         </p>
