@@ -1,5 +1,8 @@
 import React from 'react';
 import { Check } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { useAppSelector } from '@/hooks/useRedux';
 import { Plan } from '@/lib/api/types/paymentData';
 
 interface PlanCardProps {
@@ -8,10 +11,24 @@ interface PlanCardProps {
 }
 
 const PlanCard: React.FC<PlanCardProps> = ({ plan, onSelectPlan }) => {
+  const navigate = useNavigate();
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
+
+  const handleSelectPlan = () => {
+    if (!isAuthenticated) {
+      toast.error('Bạn cần đăng nhập để mua gói Premium!');
+      navigate('/login');
+    } else {
+      onSelectPlan();
+    }
+  };
+
   return (
     <section className="bg-gradient-to-r from-blue-100 via-indigo-100 to-purple-100 pb-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-4xl font-extrabold text-indigo-900 text-center mb-4">Nâng cấp để mở khóa tài liệu cao cấp</h2>
+        <h2 className="text-4xl font-extrabold text-indigo-900 text-center mb-4">
+          Nâng cấp để mở khóa tài liệu cao cấp
+        </h2>
         <p className="text-xl text-indigo-700 text-center mb-12 max-w-3xl mx-auto">
           Hãy nâng cấp lên thành viên Premium để tận hưởng các tài nguyên học tập độc quyền và các tính năng bổ trợ cho việc học.
         </p>
@@ -32,7 +49,10 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onSelectPlan }) => {
                   </li>
                 ))}
               </ul>
-              <button className="w-full py-3 px-4 rounded-lg font-semibold text-white transition duration-300 bg-indigo-600 hover:bg-indigo-700 shadow-lg" onClick={onSelectPlan}>
+              <button
+                className="w-full py-3 px-4 rounded-lg font-semibold text-white transition duration-300 bg-indigo-600 hover:bg-indigo-700 shadow-lg"
+                onClick={handleSelectPlan}
+              >
                 Chọn gói
               </button>
             </div>

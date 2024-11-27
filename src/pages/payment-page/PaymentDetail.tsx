@@ -21,6 +21,7 @@ const PaymentDetail: React.FC<PaymentDetailProps> = ({ userName, plan, loading, 
   useEffect(() => {
     document.title = 'Thanh toán | LearnUp';
   }, []);
+
   return (
     <div className="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-2xl p-8 max-w-md mx-auto">
       <h2 className="text-3xl font-bold mb-6 text-center text-indigo-800">Thanh Toán Nâng Cấp</h2>
@@ -42,21 +43,20 @@ const PaymentDetail: React.FC<PaymentDetailProps> = ({ userName, plan, loading, 
           <QrCode className="mr-2" /> Quét mã QR
         </button>
         <Dialog open={open} onOpenChange={setOpen}>
-  <DialogTrigger className="bg-white hover:bg-gray-200 text-indigo-600 font-semibold py-3 px-4 rounded-lg shadow transition duration-300 flex items-center justify-center whitespace-nowrap">
-     Thanh toán PayPal
-  </DialogTrigger>
+          <DialogTrigger className="bg-white hover:bg-gray-200 text-indigo-600 font-semibold py-3 px-4 rounded-lg shadow transition duration-300 flex items-center justify-center whitespace-nowrap">
+            Thanh toán PayPal
+          </DialogTrigger>
 
-  <DialogContent className="p-6 rounded-lg shadow-lg max-w-md mx-auto bg-white">
-    <DialogTitle className="text-xl font-semibold mb-4 text-center text-gray-800">Thanh toán PayPal (Đang phát triển)</DialogTitle>
-    <DialogDescription className="text-center text-gray-600 mb-4">Bạn vừa lòng chọn phương thức thanh toán quét mã QR</DialogDescription>
-    <div className="flex justify-center space-x-4">
-      <DialogClose asChild>
-        <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Hủy bỏ</button>
-      </DialogClose>
-    </div>
-  </DialogContent>
-</Dialog>
-
+          <DialogContent className="p-6 rounded-lg shadow-lg max-w-md mx-auto bg-white">
+            <DialogTitle className="text-xl font-semibold mb-4 text-center text-gray-800">Thanh toán PayPal (Đang phát triển)</DialogTitle>
+            <DialogDescription className="text-center text-gray-600 mb-4">Bạn vừa lòng chọn phương thức thanh toán quét mã QR</DialogDescription>
+            <div className="flex justify-center space-x-4">
+              <DialogClose asChild>
+                <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">Hủy bỏ</button>
+              </DialogClose>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-inner mb-6">
