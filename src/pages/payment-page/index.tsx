@@ -6,6 +6,7 @@ import { RootState } from "@/lib/api/types/types";
 import { AppDispatch } from "@/lib/api/store";
 import PlanCard from "./PlanCard";
 import PaymentDetail from "./PaymentDetail";
+import { toast } from "sonner"; // Import toast từ sonner
 
 interface Plan {
   name: string;
@@ -32,39 +33,62 @@ const PaymentPage: React.FC = () => {
       "Tài liệu độc quyền dành riêng cho thành viên Premium",
       "Các khóa học bổ trợ miễn phí",
       "Bản cập nhật tài liệu hàng tháng",
-    ]
+    ],
   };
-  useEffect(() => {
-    document.title = 'Định giá | LearnUp';
-  }, []);
 
-  useEffect(() => {
+  // Hàm kiểm tra người dùng
+  const validateUser = () => {
     const token = localStorage.getItem("token");
     const name = localStorage.getItem("name");
 
     if (!token) {
-      alert("Bạn cần đăng nhập để có thể thực hiện thanh toán");
+      toast.error("Bạn cần đăng nhập để thực hiện thanh toán.");
       navigate("/login");
-      return;
+      return false; 
     }
 
-    if (name) {
-      setUserName(name);
-    } else {
-      alert("Thông tin người dùng không hợp lệ, vui lòng đăng nhập lại");
+    if (!name) {
+      toast.error("Thông tin người dùng không hợp lệ, vui lòng đăng nhập lại.");
       localStorage.removeItem("token");
       navigate("/login");
+      return false;
     }
+
+    setUserName(name); 
+    return true; 
+  };
+
+  useEffect(() => {
+    document.title = "Định giá | LearnUp";
+  }, []);
+
+  useEffect(() => {
+    validateUser(); 
   }, [navigate]);
 
   useEffect(() => {
     if (checkoutUrl) {
+      toast.success("Đang chuyển hướng đến trang thanh toán...");
       window.location.href = checkoutUrl;
     }
   }, [checkoutUrl]);
 
-  const handlePayment = () => {
-    dispatch(createPayment());
+  useEffect(() => {
+    if (error) {
+      toast.error("Đã xảy ra lỗi khi tải trang thanh toán, vui lòng thử lại.");
+    }
+  }, [error]);
+
+  const handlePayment = async () => {
+    if (!validateUser()) return; // Kiểm tra người dùng trước khi thực hiện thanh toán
+
+    try {
+      toast("Đang khởi tạo thanh toán, vui lòng chờ...");
+      await dispatch(createPayment()).unwrap();
+      toast.success("Khởi tạo thanh toán thành công, bạn sẽ được chuyển hướng!");
+    } catch (err) {
+      toast.error("Không thể khởi tạo thanh toán, vui lòng thử lại.");
+    }
   };
 
   return (
