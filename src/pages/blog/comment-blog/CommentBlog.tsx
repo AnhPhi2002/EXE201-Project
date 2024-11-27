@@ -73,7 +73,7 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
     <div className="max-w-4xl mx-auto p-6 space-y-8">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Comments</h2>
       <CommentForm onSubmit={handleAddComment} />
-      <div className="space-y-6">
+      <div className="space-y-6 text-black">
         {rootComments.map((comment) => (
           <CommentItem key={comment._id} comment={comment} comments={comments} currentUser={currentUser} postId={postId} />
         ))}

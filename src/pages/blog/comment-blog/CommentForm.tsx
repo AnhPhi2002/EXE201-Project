@@ -187,10 +187,10 @@ const CommentForm: React.FC<CommentFormProps> = ({
       <div className="flex justify-between items-center">
         <button
           type="submit"
-          className="px-6 py-3 bg-blue-600 text-white rounded-[1.5rem] hover:bg-blue-700 transition duration-200 flex items-center space-x-2"
+          className="px-6 py-3 bg-blue-600 text-black rounded-[1.5rem] hover:bg-blue-700 transition duration-200 flex items-center space-x-2"
         >
-          <FiSend className="w-5 h-5" />
-          <span>Post Comment</span>
+          <FiSend className="w-5 h-5 text-white" />
+          <span className='text-white'>Post Comment</span>
         </button>
         <span className="text-sm text-gray-500">
           {content.length}/{maxCharacters}

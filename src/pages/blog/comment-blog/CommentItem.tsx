@@ -6,6 +6,7 @@ import { deleteComment, updateComment, replyToComment, fetchCommentsByPostId } f
 
 import CommentForm from './CommentForm';
 import { toast } from 'sonner';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface Author {
   _id: string;
@@ -36,7 +37,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, comments, currentUse
     member_free: 'text-blue-700',
     staff: 'text-green-700',
     admin: 'text-red-700',
-    default: 'text-gray-700',
   };
 
   const roleLabels = {
@@ -44,11 +44,10 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, comments, currentUse
     member_free: 'Member',
     staff: 'Culi không công',
     admin: 'Admin',
-    default: 'Unknown Role',
   };
 
-  const roleClass = author?.role ? roleColors[author.role] : roleColors.default;
-  const roleLabel = author?.role ? roleLabels[author.role] : roleLabels.default;
+  const roleClass = author?.role ? roleColors[author.role] : '';
+  const roleLabel = author?.role ? roleLabels[author.role] : '';
 
   const handleDelete = async () => {
     try {
@@ -59,7 +58,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, comments, currentUse
       toast.error('Không thể xóa bình luận.');
     }
   };
-  
+
   const handleUpdate = async () => {
     if (editContent.trim()) {
       try {
@@ -72,20 +71,20 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, comments, currentUse
       }
     }
   };
-  
+
   const handleReplySubmit = async (content: string, images: string[]) => {
     if (!content.trim() && images.length === 0) {
       toast.error('Vui lòng thêm nội dung hoặc hình ảnh.');
       return;
     }
-  
+
     const replyData = {
       postId: postId || '',
       parentCommentId: comment._id,
       content,
       images,
     };
-  
+
     try {
       const resultAction = await dispatch(replyToComment(replyData));
       if (replyToComment.fulfilled.match(resultAction)) {
@@ -99,7 +98,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, comments, currentUse
       toast.error('Không thể thêm trả lời.');
     }
   };
-  
 
   const childComments = comments.filter((c) => c.parentCommentId === comment._id);
 
@@ -112,7 +110,10 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, comments, currentUse
       <div className="bg-white p-6 rounded-[2rem] shadow-md transition duration-300 hover:shadow-lg">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-4">
-            <img src={author?.avatar || 'https://via.placeholder.com/50'} alt={author?.name || 'Unknown'} className="w-12 h-12 rounded-full object-cover" />
+            <Avatar className="w-12 h-12">
+              <AvatarImage src={author?.avatar || 'https://via.placeholder.com/50'} alt={author?.name || 'Unknown'} />
+              <AvatarFallback>{author?.name?.charAt(0) || 'UnKown'}</AvatarFallback>
+            </Avatar>
             <div>
               <h3 className="font-semibold text-gray-800">
                 {author?.name || 'Unknown'}
@@ -154,7 +155,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment, comments, currentUse
         )}
 
         {comment.images && comment.images.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2 text-white">
             {comment.images.map((image: string, index: number) => (
               <img key={index} src={image} alt={`Comment image ${index + 1}`} className="w-24 h-24 object-cover rounded-md" />
             ))}
