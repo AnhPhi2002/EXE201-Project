@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useSelector, useDispatch } from 'react-redux';
-import { AppDispatch, RootState } from '@/lib/api/store'; // Đường dẫn tuỳ thuộc vào cấu trúc dự án của bạn
+import { AppDispatch, RootState } from '@/lib/api/store'; // Đảm bảo đường dẫn chính xác
 import { fetchAllResources } from '@/lib/api/redux/resourceSlice';
 import { fetchSubjects } from '@/lib/api/redux/subjectSlice';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, CirclePlay, FileText } from 'lucide-react';
+import { login, logout } from '@/lib/api/redux/authSlice'; // Đảm bảo bạn có redux quản lý auth
+import { toast } from 'sonner';
 
 // Hàm lấy ngẫu nhiên 3 tài nguyên
 const getRandomResources = (resources: any[], count: number) => {
@@ -20,14 +22,18 @@ const ResourceCard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
+  // Lấy dữ liệu từ redux store
   const { resources, loading, error } = useSelector((state: RootState) => state.resources);
   const { subjects } = useSelector((state: RootState) => state.subjects);
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth); // Kiểm tra xác thực
 
+  // Fetch tài nguyên và subjects khi component mount
   useEffect(() => {
     dispatch(fetchAllResources());
     dispatch(fetchSubjects(null)); // Fetch tất cả subjects
   }, [dispatch]);
 
+  // Animated container và item variants
   const containerVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: {
@@ -51,6 +57,7 @@ const ResourceCard: React.FC = () => {
     },
   };
 
+  // Hàm chọn icon dựa trên loại tài nguyên
   const getResourceIcon = (type: string) => {
     switch (type) {
       case 'pdf':
@@ -64,9 +71,20 @@ const ResourceCard: React.FC = () => {
     }
   };
 
+  // Lấy tên môn học từ subjectId
   const getSubjectName = (subjectId: string) => {
     const subject = subjects.find((sub) => sub.id === subjectId);
     return subject ? subject.name : 'N/A'; // Nếu không tìm thấy, hiển thị "N/A"
+  };
+
+  // Kiểm tra trạng thái xác thực và xử lý đăng nhập nếu cần
+  const handleClickViewContent = (resource: any) => {
+    if (!isAuthenticated) {
+      toast.error('Bạn cần đăng nhập để xem nội dung.'); // Hiển thị thông báo khi chưa đăng nhập
+      navigate('/login'); // Chuyển hướng tới trang đăng nhập nếu chưa đăng nhập
+    } else {
+      navigate(`/subject/${resource.subject}`); // Chuyển hướng đến trang subject
+    }
   };
 
   if (loading) {
@@ -97,8 +115,7 @@ const ResourceCard: React.FC = () => {
               variants={itemVariants}
               whileHover={{
                 scale: 1.05,
-                boxShadow:
-                  '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
               }}
               className="bg-white/30 rounded-lg p-8 text-center shadow-lg backdrop-blur-md transform transition-all duration-300"
             >
@@ -109,7 +126,7 @@ const ResourceCard: React.FC = () => {
                 Môn: <span className="font-medium">{getSubjectName(resource.subject)}</span>
               </p>
               <motion.button
-                onClick={() => navigate(`/subject/${resource.subject}`)} // Chuyển hướng đến subject
+                onClick={() => handleClickViewContent(resource)} // Kiểm tra xác thực trước khi chuyển hướng
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="flex items-center justify-center w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white px-4 py-2 rounded-md transition duration-300"

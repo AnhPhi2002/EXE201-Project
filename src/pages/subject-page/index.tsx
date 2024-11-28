@@ -156,7 +156,6 @@ const SubjectPage: React.FC = () => {
             <p className="text-gray-400">No resources available for this subject.</p>
           )}
         </section>
-        {/* Rating and Like Section */}
         <div className="border-t border-gray-700 pt-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
