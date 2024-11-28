@@ -67,7 +67,11 @@ const Header: React.FC = () => {
             {/* Search bar */}
             <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 backdrop-blur-md shadow-md">
               <Search className="text-gray-500 w-5 h-5" />
-              <input type="text" placeholder="Tìm kiếm..." className="bg-transparent border-none focus:outline-none ml-3 w-48 text-base text-gray-700 placeholder-gray-500" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                className="bg-transparent border-none focus:outline-none ml-3 w-48 text-base text-gray-700 placeholder-gray-500 max-w-xs sm:max-w-md"
+              />
             </div>
 
             {/* User Profile or Login/Register */}
@@ -83,7 +87,10 @@ const Header: React.FC = () => {
                     className="absolute right-0 mt-3 w-40 backdrop-blur-md bg-gradient-to-br from-purple-200 via-pink-100 to-blue-100 rounded-xl shadow-lg py-2 z-50 border border-white/20"
                     onMouseLeave={() => setIsProfileDropdownOpen(false)}
                   >
-                    <Link to="/profile" className="block px-6 py-2.5 text-gray-800 hover:bg-purple-50/50 font-medium text-base rounded-md transition duration-200">
+                    <Link
+                      to="/profile"
+                      className="block px-6 py-2.5 text-gray-800 hover:bg-purple-50/50 font-medium text-base rounded-md transition duration-200"
+                    >
                       Profile
                     </Link>
                     <button
@@ -99,11 +106,14 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => navigate('/login')}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-full hover:opacity-90 font-medium shadow-md backdrop-blur-md"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-1 rounded-full hover:opacity-90 font-medium shadow-md backdrop-blur-md"
                 >
                   ĐĂNG NHẬP
                 </button>
-                <Link to="/register" className="border-2 border-pink-500 text-pink-500 px-6 py-2 rounded-full hover:bg-pink-500/10 font-medium backdrop-blur-md">
+                <Link
+                  to="/register"
+                  className="border-2 border-pink-500 text-pink-500 px-4 py-1 rounded-full hover:bg-pink-500/10 font-medium backdrop-blur-md"
+                >
                   ĐĂNG KÝ
                 </Link>
               </div>
@@ -116,18 +126,28 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden py-4 space-y-3 bg-white rounded-xl shadow-lg mt-3 border border-gray-100">
           {/* Search bar */}
           <div className="px-6 pb-3 border-b border-gray-100">
             <div className="flex items-center bg-gray-100 rounded-full px-4 py-2">
               <Search className="text-gray-500 w-5 h-5" />
-              <input type="text" placeholder="Tìm kiếm..." className="bg-transparent border-none focus:outline-none ml-3 w-full text-base" />
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                className="bg-transparent border-none focus:outline-none ml-3 w-full text-base"
+              />
             </div>
           </div>
 
           {/* Navigation Links */}
-          <Link to="/" onClick={closeDropdown} className="block px-6 py-2 text-black hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base">
+          <Link
+            to="/"
+            onClick={closeDropdown}
+            className="block px-6 py-2 text-black hover:bg-purple-50 hover:text-purple-800 transition-colors duration-200 font-medium text-base"
+          >
             TRANG CHỦ
           </Link>
           <Link
