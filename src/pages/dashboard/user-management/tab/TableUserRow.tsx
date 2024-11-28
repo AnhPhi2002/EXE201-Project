@@ -25,6 +25,15 @@ const userTypeOptions = [
   { label: 'Member Premium', value: 'member_premium' as UserRole },
 ];
 
+const roleColors = {
+  admin: 'bg-red-100 text-red-800 border-red-200',
+  staff: 'bg-green-100 text-green-800 border-green-200',
+  member_free: 'bg-blue-100 text-blue-800 border-blue-200',
+  member_premium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+};
+
+const defaultBadgeColor = 'bg-gray-200 text-gray-700 border-gray-200';  // Default badge color for 'N/A' values
+
 const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [isPermissionModalOpen, setPermissionModalOpen] = useState(false);
@@ -83,6 +92,10 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
     setPermissionModalOpen(false);
   };
 
+  const renderDefaultBadge = (value: string | null | undefined) => {
+    return value ? value : <Badge variant="outline" className={defaultBadgeColor}>Default</Badge>;
+  };
+
   return (
     <TableRow>
       <TableCell className="hidden sm:table-cell">
@@ -93,16 +106,16 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
       </TableCell>
       <TableCell className="font-medium">{user.name || 'N/A'}</TableCell>
       <TableCell>
-        <Badge variant="outline" className="bg-blue-100 text-blue-800 font-semibold rounded-full border-2 border-blue-200">
-          {userRole}
+        <Badge variant="outline" className={`font-semibold rounded-full border-2 ${roleColors[userRole]}`}>
+          {userRole.charAt(0).toUpperCase() + userRole.slice(1).replace('_', ' ')}
         </Badge>
       </TableCell>
       <TableCell>{user.email}</TableCell>
-      <TableCell>{user.phone || 'N/A'}</TableCell>
-      <TableCell>{user.address || 'N/A'}</TableCell>
-      <TableCell>{user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : 'N/A'}</TableCell>
+      <TableCell>{renderDefaultBadge(user.phone)}</TableCell>
+      <TableCell>{renderDefaultBadge(user.address)}</TableCell>
+      <TableCell>{renderDefaultBadge(user.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : null)}</TableCell>
       <TableCell className="hidden md:table-cell">
-        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : renderDefaultBadge(null)}
       </TableCell>
       <TableCell>
         <UserActionMenu 
