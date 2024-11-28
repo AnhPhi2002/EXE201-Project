@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// const API_URL = 'https://learnup.work/api';
-const API_URL = 'http://localhost:8080/api';
+const API_URL = 'https://learnup.work/api';
+// const API_URL = 'http://localhost:8080/api';
 
 // Interfaces
 export interface Author {
