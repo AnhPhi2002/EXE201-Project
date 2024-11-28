@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'https://learnup.work/api';
-// const API_URL = 'http://localhost:8080/api';
+// const API_URL = 'https://learnup.work/api';
+const API_URL = 'http://localhost:8080/api';
 
 // Interfaces
 export interface Author {
@@ -12,13 +12,13 @@ export interface Author {
 }
 
 export interface CreateCommentData {
-  postId: string;
+  subjectId: string;
   content: string;
   images: string[];
 }
 
 export interface ReplyCommentData {
-  postId: string;
+  subjectId: string;
   parentCommentId: string;
   content: string;
   images: string[];
@@ -26,7 +26,7 @@ export interface ReplyCommentData {
 
 export interface Comment {
   _id: string;
-  postId: string;
+  subjectId: string;
   authorId: {
     _id: string;
     name: string;
@@ -67,11 +67,12 @@ export const fetchAuthorById = createAsyncThunk('posts/fetchAuthorById', async (
   };
 });
 
-export const fetchCommentsByPostId = createAsyncThunk<Comment[], string, { rejectValue: string }>(
-  'comments/fetchCommentsByPostId',
-  async (postId, { rejectWithValue, dispatch }) => {
+export const fetchCommentsBySubjectId = createAsyncThunk<Comment[], string, { rejectValue: string }>(
+  'comments/fetchCommentsBySubjectId',
+  async (subjectId, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.get(`${API_URL}/comments/posts/${postId}/comments`);
+      const response = await axios.get(`${API_URL}/comments/subjects/${subjectId}/comments`);
+      console.log('API Response:', response.data);  // Kiểm tra dữ liệu trả về từ API
       const comments = response.data;
 
       const uniqueAuthorIds = Array.from(new Set(comments.map((comment: Comment) => comment.authorId._id)));
@@ -84,10 +85,12 @@ export const fetchCommentsByPostId = createAsyncThunk<Comment[], string, { rejec
 
       return comments;
     } catch (error) {
+      console.error('Fetch Comments Error:', error);
       return rejectWithValue('Failed to fetch comments');
     }
   }
 );
+
 
 export const addAuthorToCache = createAsyncThunk<Author, Author>('comments/addAuthorToCache', async (author) => author);
 
@@ -97,7 +100,7 @@ export const addComment = createAsyncThunk<Comment, CreateCommentData, { rejectV
     const token = localStorage.getItem('token');
     try {
       const response = await axios.post(
-        `${API_URL}/comments/posts/${commentData.postId}/comments`,
+        `${API_URL}/comments/subjects/${commentData.subjectId}/comments`,
         commentData,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -125,11 +128,11 @@ export const addComment = createAsyncThunk<Comment, CreateCommentData, { rejectV
 
 export const replyToComment = createAsyncThunk<Comment, ReplyCommentData, { rejectValue: string; state: any }>(
   'comments/replyToComment',
-  async ({ postId, parentCommentId, content, images }, { rejectWithValue, getState }) => {
+  async ({ subjectId, parentCommentId, content, images }, { rejectWithValue, getState }) => {
     const token = localStorage.getItem('token');
     try {
       const response = await axios.post(
-        `${API_URL}/comments/posts/${postId}/comments/${parentCommentId}/reply`,
+        `${API_URL}/comments/subjects/${subjectId}/comments/${parentCommentId}/replies`,
         { content, images },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -196,17 +199,19 @@ const commentSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(fetchCommentsByPostId.fulfilled, (state, action: PayloadAction<Comment[]>) => {
-        state.comments = action.payload;
-        const newAuthors = action.payload.reduce((acc, comment) => {
-          if (!state.authors[comment.authorId._id]) {
-            acc[comment.authorId._id] = comment.authorId;
-          }
-          return acc;
-        }, {} as Record<string, Author>);
-        state.authors = { ...state.authors, ...newAuthors }; // Cache authors
-      })
-      .addCase(fetchCommentsByPostId.rejected, (state, action) => {
+    .addCase(fetchCommentsBySubjectId.fulfilled, (state, action: PayloadAction<Comment[]>) => {
+      console.log('Fetched Comments:', action.payload);  // Kiểm tra dữ liệu đã được lưu vào store chưa
+      state.comments = action.payload;
+      const newAuthors = action.payload.reduce((acc, comment) => {
+        if (!state.authors[comment.authorId._id]) {
+          acc[comment.authorId._id] = comment.authorId;
+        }
+        return acc;
+      }, {} as Record<string, Author>);
+      state.authors = { ...state.authors, ...newAuthors }; // Cache authors
+    })
+    
+      .addCase(fetchCommentsBySubjectId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to fetch comments';
       })

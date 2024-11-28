@@ -8,8 +8,7 @@ import { FaStar, FaHome, FaChevronRight, FaHeart } from 'react-icons/fa';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import { fetchResourcesBySubject } from '@/lib/api/redux/resourceSlice';
 import { fetchSubjectById } from '@/lib/api/redux/subjectSlice';
-import CommentSection from './CommentSubject';
-
+import CommentSubject from './comment-blog/CommentSubject';
 
 import {
   AlertDialog,
@@ -36,12 +35,6 @@ const SubjectPage: React.FC = () => {
   const [isLiked, setIsLiked] = useState<boolean>(false);
 
   const userRole = localStorage.getItem('role') || 'member_free';
-
-  const currentUser = {
-    _id: 'currentUserId',
-    name: 'John Doe',
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-  };
 
   useEffect(() => {
     if (subjectId) {
@@ -185,7 +178,7 @@ const SubjectPage: React.FC = () => {
         </div>
         {/* Comment Section */}
         <h3 className="text-2xl font-semibold text-white mb-6">Bình luận</h3>
-        <CommentSection postId={subjectId} videoId={null} currentUser={currentUser} />
+        <CommentSubject subjectId={subjectId}/>
       </main>
     </div>
   );
