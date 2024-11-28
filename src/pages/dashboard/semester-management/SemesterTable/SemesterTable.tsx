@@ -7,6 +7,7 @@ import { fetchDepartments } from '@/lib/api/redux/departmentSlice';
 import { toast } from 'sonner';
 import CreateSemester from './CreateSemester';
 import UpdateSemester from './UpdateSemester';
+import { PaginationDashboardPage } from '../../pagination';  // Ensure to import your pagination component
 
 interface SemesterTableProps {
   setShowSemesterPopover: React.Dispatch<React.SetStateAction<boolean>>;
@@ -28,6 +29,10 @@ const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, s
 
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
   const [showUpdatePopover, setShowUpdatePopover] = useState<boolean>(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5; // You can change this to the number of items you want per page
 
   useEffect(() => {
     dispatch(fetchDepartments());
@@ -96,6 +101,18 @@ const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, s
       });
   };
 
+  // Filtered and paginated semesters
+  const filteredSemesters = semesters.filter((semester) => !selectedDepartment || semester.department === selectedDepartment);
+  
+  // Pagination logic
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentSemesters = filteredSemesters.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = Math.ceil(filteredSemesters.length / itemsPerPage);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="w-full overflow-x-auto">
       <div className="flex justify-between mb-4">
@@ -122,36 +139,42 @@ const SemesterTable: React.FC<SemesterTableProps> = ({ setShowSemesterPopover, s
           </tr>
         </thead>
         <tbody>
-          {semesters
-            .filter((semester) => (selectedDepartment ? semester.department === selectedDepartment : true))
-            .map((semester) => {
-              const departmentName = departments.find((dept) => dept.id === semester.department)?.name || 'N/A';
-              return (
-                <tr key={semester.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 border-b">{semester.id}</td>
-                  <td className="px-6 py-4 border-b">{departmentName}</td>
-                  <td className="px-6 py-4 border-b">{semester.name}</td>
-                  <td className="px-6 py-4 border-b">
-                    <div className="flex gap-2">
-                      <button
-                        className="text-blue-500 hover:text-blue-700"
-                        onClick={() => {
-                          setSelectedSemester(semester);
-                          setShowUpdatePopover(true);
-                        }}
-                      >
-                        <Edit2 />
-                      </button>
-                      <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteSemester(semester.id)}>
-                        <Trash2 />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+          {currentSemesters.map((semester) => {
+            const departmentName = departments.find((dept) => dept.id === semester.department)?.name || 'N/A';
+            return (
+              <tr key={semester.id} className="hover:bg-gray-50">
+                <td className="px-6 py-4 border-b">{semester.id}</td>
+                <td className="px-6 py-4 border-b">{departmentName}</td>
+                <td className="px-6 py-4 border-b">{semester.name}</td>
+                <td className="px-6 py-4 border-b">
+                  <div className="flex gap-2">
+                    <button
+                      className="text-blue-500 hover:text-blue-700"
+                      onClick={() => {
+                        setSelectedSemester(semester);
+                        setShowUpdatePopover(true);
+                      }}
+                    >
+                      <Edit2 />
+                    </button>
+                    <button className="text-red-500 hover:text-red-700" onClick={() => handleDeleteSemester(semester.id)}>
+                      <Trash2 />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
+
+      <div className="flex justify-end mt-4">
+        <PaginationDashboardPage
+          totalPages={totalPages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
+      </div>
 
       {showCreatePopover && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center">

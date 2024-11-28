@@ -1,27 +1,13 @@
-// PostDashboard.tsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  fetchPosts, 
-  addPost, 
-  updatePost, 
-  deletePost, 
-  fetchAuthorById 
-} from '@/lib/api/redux/postSlice';
+import { fetchPosts, addPost, updatePost, deletePost, fetchAuthorById } from '@/lib/api/redux/postSlice';
 import { RootState, Post } from '@/lib/api/types/types';
-import { 
-  LucideSearch, 
-  LucideChevronDown, 
-  LucideChevronUp, 
-  LucideUser, 
-  LucideCalendar, 
-  LucideTrash2, 
-  LucideEdit 
-} from 'lucide-react';
+import { LucideSearch, LucideChevronDown, LucideChevronUp, LucideTrash2, LucideEdit } from 'lucide-react';
 import { CreatePostManagement } from '../CreatePostManagement';
 import UpdatePostManagement from '../UpdatePostManagement';
 import { updatePostState } from '@/lib/api/redux/postSlice';
-import { PaginationDashboardPage } from '../../pagination'; 
+import { PaginationDashboardPage } from '../../pagination';
+import { Badge } from '@/components/ui/badge'; // Assuming you have a Badge component in your UI components
 
 const PostDashboard: React.FC = () => {
   const dispatch = useDispatch<any>();
@@ -100,29 +86,20 @@ const PostDashboard: React.FC = () => {
     )
     .sort((a, b) => {
       if (sortBy === 'createdAt') {
-        return sortOrder === 'desc' 
-          ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() 
-          : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        return sortOrder === 'desc' ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
       } else if (sortBy === 'title') {
-        return sortOrder === 'desc' 
-          ? b.title.localeCompare(a.title) 
-          : a.title.localeCompare(b.title);
+        return sortOrder === 'desc' ? b.title.localeCompare(a.title) : a.title.localeCompare(b.title);
       } else if (sortBy === 'tags') {
         const aTags = a.tags.join(', ');
         const bTags = b.tags.join(', ');
-        return sortOrder === 'desc' 
-          ? bTags.localeCompare(aTags) 
-          : aTags.localeCompare(bTags);
+        return sortOrder === 'desc' ? bTags.localeCompare(aTags) : aTags.localeCompare(bTags);
       }
       return 0;
     });
 
   // Tính toán phân trang
   const totalPages = Math.ceil(filteredPosts.length / itemsPerPage);
-  const currentPosts = filteredPosts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const currentPosts = filteredPosts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -162,12 +139,7 @@ const PostDashboard: React.FC = () => {
               <label htmlFor="sortBy" className="text-gray-700 font-medium">
                 Sort By:
               </label>
-              <select 
-                id="sortBy" 
-                value={sortBy} 
-                onChange={(e) => setSortBy(e.target.value)} 
-                className="border border-gray-300 rounded-lg p-2"
-              >
+              <select id="sortBy" value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="border border-gray-300 rounded-lg p-2">
                 <option value="createdAt">Date</option>
                 <option value="title">Title</option>
                 <option value="tags">Tags</option>
@@ -186,11 +158,11 @@ const PostDashboard: React.FC = () => {
                 <table className="min-w-full bg-white">
                   <thead>
                     <tr className="bg-gray-50">
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Post</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Author</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tags</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">Post</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">Author</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">Tags</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-black uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -199,13 +171,7 @@ const PostDashboard: React.FC = () => {
                         <tr key={post._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4">
                             <div className="flex items-center">
-                              {post.image && (
-                                <img 
-                                  src={post.image} 
-                                  alt={post.title} 
-                                  className="h-10 w-10 rounded-lg object-cover" 
-                                />
-                              )}
+                              {post.image && <img src={post.image} alt={post.title} className="h-10 w-10 rounded-lg object-cover" />}
                               <div className="ml-4 max-w-xs truncate">
                                 <div className="text-sm font-medium text-gray-900 truncate" title={post.title}>
                                   {post.title}
@@ -218,35 +184,29 @@ const PostDashboard: React.FC = () => {
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center">
-                              <LucideUser className="mr-2 text-gray-400" />
-                              <span className="text-sm text-gray-900">
-                                {authors[post.authorId?._id]?.name || 'Loading...'}
-                              </span>
+                              <span className="text-sm text-gray-900">{authors[post.authorId?._id]?.name || 'Loading...'}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <div className="text-sm text-gray-900">{(post.tags || []).join(', ')}</div>
+                            <div className="flex flex-wrap gap-2">
+                              {(post.tags || []).map((tag, index) => (
+                                <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 rounded-full text-sm py-1 px-3">
+                                  {tag}
+                                </Badge>
+                              ))}
+                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center">
-                              <LucideCalendar className="mr-2 text-gray-400" />
-                              <span className="text-sm text-gray-900">
-                                {new Date(post.createdAt).toLocaleDateString()}
-                              </span>
+                              <span className="text-sm text-gray-900">{new Date(post.createdAt).toLocaleDateString()}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-2">
-                              <button 
-                                onClick={() => setEditingPost(post)} 
-                                className="text-blue-600 hover:text-blue-800"
-                              >
+                              <button onClick={() => setEditingPost(post)} className="text-blue-600 hover:text-blue-800">
                                 <LucideEdit />
                               </button>
-                              <button 
-                                onClick={() => handleDeletePost(post._id)} 
-                                className="text-red-600 hover:text-red-800"
-                              >
+                              <button onClick={() => handleDeletePost(post._id)} className="text-red-600 hover:text-red-800">
                                 <LucideTrash2 />
                               </button>
                             </div>
@@ -263,24 +223,14 @@ const PostDashboard: React.FC = () => {
                   </tbody>
                 </table>
               </div>
-              {/* Phân trang */}
+              
               <div className="flex justify-end items-center mt-5">
-                <PaginationDashboardPage
-                  totalPages={totalPages}
-                  currentPage={currentPage}
-                  onPageChange={handlePageChange}
-                />
+                <PaginationDashboardPage totalPages={totalPages} currentPage={currentPage} onPageChange={handlePageChange} />
               </div>
             </>
           )}
           {/* Modal chỉnh sửa */}
-          {editingPost && (
-            <UpdatePostManagement 
-              post={editingPost} 
-              onSave={handleEditPost} 
-              onCancel={() => setEditingPost(null)} 
-            />
-          )}
+          {editingPost && <UpdatePostManagement post={editingPost} onSave={handleEditPost} onCancel={() => setEditingPost(null)} />}
         </div>
       </div>
     </div>

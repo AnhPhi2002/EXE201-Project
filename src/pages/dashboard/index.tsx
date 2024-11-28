@@ -13,8 +13,7 @@ const Dashboard: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown
   const { pathname } = useLocation();
   const { profile } = useSelector((state: RootState) => state.user);
-
-  // Tabs list
+  // Tabs list 
   const tabs = [
     { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
     { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management' },
@@ -24,6 +23,9 @@ const Dashboard: React.FC = () => {
     { name: 'Meeting Management', icon: <Presentation className="h-5 w-5 mr-3 ml-2" />, path: 'meeting-management' },
     { name: 'Permission Management', icon: <TableProperties className="h-5 w-5 mr-3 ml-2" />, path: 'permission-management' },
   ];
+  useEffect(() => {
+    document.title = 'Dashboard | LearnUp';
+  }, []); 
 
   useEffect(() => {
     const currentTab = pathname.split('/').pop() || 'home';
@@ -94,20 +96,14 @@ const Dashboard: React.FC = () => {
             </Button>
 
             <div className="relative">
-              <Avatar
-                className="flex items-center cursor-pointer"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-             <AvatarImage src={profile?.avatar || "https://example.com/default-avatar.jpg"} alt="User profile picture" />
-             <AvatarFallback>{profile?.name?.charAt(0) || 'U'}</AvatarFallback>
+              <Avatar className="flex items-center cursor-pointer" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                <AvatarImage src={profile?.avatar || 'https://example.com/default-avatar.jpg'} alt="User profile picture" />
+                <AvatarFallback>{profile?.name?.charAt(0) || 'U'}</AvatarFallback>
               </Avatar>
 
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md shadow-md w-40">
-                  <button
-                    className="block px-4 py-2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left"
-                    onClick={handleLogout}
-                  >
+                  <button className="block px-4 py-2 text-gray-800 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-600 w-full text-left" onClick={handleLogout}>
                     <LogOut className="inline-block h-4 w-4 mr-2" />
                     Logout
                   </button>
