@@ -10,13 +10,13 @@ interface EmojiPickerButtonProps {
 }
 
 const EmojiPickerButton = forwardRef<HTMLButtonElement, EmojiPickerButtonProps>(
-  ({ showEmojiPicker, setShowEmojiPicker, buttonRef }) => {
+  ({ showEmojiPicker, setShowEmojiPicker, buttonRef }, ref) => {
     return (
       <button
         type="button"
         onClick={() => setShowEmojiPicker(!showEmojiPicker)}
         className="text-gray-600 hover:text-yellow-500 rounded-full hover:bg-yellow-50 transition duration-200 p-2"
-        ref={buttonRef}
+        ref={buttonRef || ref}  // Sử dụng ref nếu buttonRef không được cung cấp
       >
         <FiSmile className="w-5 h-5" />
       </button>
