@@ -6,7 +6,6 @@ import { fetchAllResources } from '@/lib/api/redux/resourceSlice';
 import { fetchSubjects } from '@/lib/api/redux/subjectSlice';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, CirclePlay, FileText } from 'lucide-react';
-import { login, logout } from '@/lib/api/redux/authSlice'; // Đảm bảo bạn có redux quản lý auth
 import { toast } from 'sonner';
 
 // Hàm lấy ngẫu nhiên 3 tài nguyên
@@ -25,7 +24,7 @@ const ResourceCard: React.FC = () => {
   // Lấy dữ liệu từ redux store
   const { resources, loading, error } = useSelector((state: RootState) => state.resources);
   const { subjects } = useSelector((state: RootState) => state.subjects);
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth); // Kiểm tra xác thực
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth); // Kiểm tra xác thực
 
   // Fetch tài nguyên và subjects khi component mount
   useEffect(() => {
