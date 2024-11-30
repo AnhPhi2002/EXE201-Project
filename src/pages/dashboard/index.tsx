@@ -15,24 +15,22 @@ const Dashboard: React.FC = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { pathname } = useLocation();
   const { profile } = useSelector((state: RootState) => state.user);
-  
+
   const tabs = [
     { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
     { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management' },
-    { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management',  permission: 'manage_posts' },
+    { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management', permission: 'manage_posts' },
     { name: 'Comment Management', icon: <MessageCircle className="h-5 w-5 mr-3 ml-2" />, path: 'comment-management' },
     { name: 'Meeting Management', icon: <Presentation className="h-5 w-5 mr-3 ml-2" />, path: 'meeting-management', permission: 'manage_meetings' },
-    // { name: 'Permission Management', icon: <TableProperties className="h-5 w-5 mr-3 ml-2" />, path: 'permission-management' },
   ];
 
-  // Chỉ thêm tab 'User Management' nếu là admin
   if (profile?.role === 'admin') {
-    tabs.push({ name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' });
+    tabs.splice(1, 0, { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' });
   }
 
   useEffect(() => {
     document.title = 'Dashboard | LearnUp';
-  }, []); 
+  }, []);
 
   useEffect(() => {
     const currentTab = pathname.split('/').pop() || 'home';
@@ -81,10 +79,8 @@ const Dashboard: React.FC = () => {
           <ul>
             {tabs.map((tab) => {
               // Always allow Semester Management, or check other permissions
-              const hasPermission = 
-                tab.name === 'Semester Management' || tab.name === 'Home' ||
-                profile?.role === 'admin' || 
-                (tab.permission && profile?.permissions?.includes(tab.permission));
+              const hasPermission =
+                tab.name === 'Semester Management' || tab.name === 'Home' || profile?.role === 'admin' || (tab.permission && profile?.permissions?.includes(tab.permission));
 
               return (
                 <li className="mb-2" key={tab.path}>

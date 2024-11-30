@@ -43,7 +43,12 @@ const ProfileDetail: React.FC = () => {
       avatar: '',
     },
   });
-  const { handleSubmit, control, setValue, formState: { errors } } = methods;
+  const {
+    handleSubmit,
+    control,
+    setValue,
+    formState: { errors },
+  } = methods;
   const [profilePicture, setProfilePicture] = useState(profile?.avatar || '');
 
   useEffect(() => {
@@ -66,23 +71,23 @@ const ProfileDetail: React.FC = () => {
     if ((window as any).cloudinary) {
       (window as any).cloudinary.openUploadWidget(
         {
-          cloudName: "dbezyvjzm",
-          uploadPreset: "learnup",
-          sources: ["local", "camera"],
+          cloudName: 'dbezyvjzm',
+          uploadPreset: 'learnup',
+          sources: ['local', 'camera'],
           cropping: true,
           multiple: false,
-          defaultSource: "local",
+          defaultSource: 'local',
         },
         (error: any, result: any) => {
-          if (!error && result && result.event === "success") {
+          if (!error && result && result.event === 'success') {
             const uploadedUrl = result.info.secure_url;
             setProfilePicture(uploadedUrl);
             setValue('avatar', uploadedUrl);
           }
-        }
+        },
       );
     } else {
-      console.error("Cloudinary Widget script not loaded.");
+      console.error('Cloudinary Widget script not loaded.');
     }
   };
 
@@ -90,14 +95,14 @@ const ProfileDetail: React.FC = () => {
     if (profile?._id) {
       dispatch(updateUserProfile({ ...data, _id: profile._id })).then((action) => {
         if (updateUserProfile.fulfilled.match(action)) {
-          toast.success("Cập nhật hồ sơ thành công!");
+          toast.success('Cập nhật hồ sơ thành công!');
           navigate('/profile');
         } else {
-          toast.error("Cập nhật hồ sơ thất bại.");
+          toast.error('Cập nhật hồ sơ thất bại.');
         }
       });
     } else {
-      toast.error("Không tìm thấy ID người dùng.");
+      toast.error('Không tìm thấy ID người dùng.');
     }
   };
 
@@ -110,7 +115,7 @@ const ProfileDetail: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center">
             <Avatar className="w-20 h-20 mr-4 border-4 border-indigo-500 shadow-lg">
-              <AvatarImage src={profilePicture || "https://example.com/default-avatar.jpg"} alt="Ảnh đại diện" />
+              <AvatarImage src={profilePicture || 'https://example.com/default-avatar.jpg'} alt="Ảnh đại diện" />
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
             <h1 className="text-3xl font-bold text-gray-900 flex items-center">
@@ -155,7 +160,12 @@ const ProfileDetail: React.FC = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="you@example.com" />
+                    <Input
+                      {...field}
+                      placeholder="you@example.com"
+                      readOnly
+                      className="bg-gray-100 cursor-not-allowed" // Custom style to make it look uneditable
+                    />
                   </FormControl>
                   {errors.email && <FormMessage>{errors.email.message}</FormMessage>}
                 </FormItem>
@@ -183,10 +193,7 @@ const ProfileDetail: React.FC = () => {
                 <FormItem>
                   <FormLabel>Giới tính</FormLabel>
                   <FormControl>
-                    <select
-                      {...field}
-                      className="block w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500"
-                    >
+                    <select {...field} className="block w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500">
                       <option value="male">Nam</option>
                       <option value="female">Nữ</option>
                       <option value="other">Khác</option>
