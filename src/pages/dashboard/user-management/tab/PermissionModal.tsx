@@ -13,8 +13,9 @@ const permissionsOptions = [
   { label: 'Manage Departments', value: 'manage_departments' },
   { label: 'Manage Resources', value: 'manage_resources' },
   { label: 'Manage Semesters', value: 'manage_semesters' },
-  { label: 'Manage Subject', value: 'manage_subject' },
+  { label: 'Manage Subject', value: 'manage_subjects' },
   { label: 'Manage Meetings', value: 'manage_meetings' },
+  { label: 'Manage Posts', value: 'manage_posts' },
 ];
 
 const PermissionModal: React.FC<PermissionModalProps> = ({ initialPermissions, onClose, onSave }) => {

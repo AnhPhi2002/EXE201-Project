@@ -3,6 +3,8 @@ import DepartmentTable from './DepartmentTable/DepartmentTable';
 import SemesterTable from './SemesterTable/SemesterTable';
 import SubjectTable from './SubjectTable/SubjectTable';
 import ResourceTable from './ResourceTable/ResourceTable';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/api/store';
 
 // Define interfaces for data structures
 export interface Department {
@@ -33,37 +35,50 @@ export interface Resource {
 }
 
 const TabComponent: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('departments');
-  const [showDepartmentPopover, setShowDepartmentPopover] = useState(false);
-  const [showSemesterPopover, setShowSemesterPopover] = useState(false);
-  const [showSubjectPopover, setShowSubjectPopover] = useState(false);
-  const [showResourcePopover, setShowResourcePopover] = useState(false); // New state for resource popover
-  const [selectedDepartment, setSelectedDepartment] = useState('');
-  const [selectedSemester, setSelectedSemester] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
+  const { profile } = useSelector((state: RootState) => state.user);
+  const [activeTab, setActiveTab] = useState<string>('departments');
+  const [showDepartmentPopover, setShowDepartmentPopover] = useState<boolean>(false);
+  const [showSemesterPopover, setShowSemesterPopover] = useState<boolean>(false);
+  const [showSubjectPopover, setShowSubjectPopover] = useState<boolean>(false);
+  const [showResourcePopover, setShowResourcePopover] = useState<boolean>(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>('');
+  const [selectedSemester, setSelectedSemester] = useState<string>('');
+  const [selectedSubject, setSelectedSubject] = useState<string>('');
 
-
-
+  // Define tabs with corresponding permissions
   const tabs = [
-    { id: 'departments', name: 'Ngành' },
-    { id: 'semesters', name: 'Kỳ' },
-    { id: 'subjects', name: 'Môn học' },
-    { id: 'resources', name: 'Tài liệu' },
+    { id: 'departments', name: 'Ngành', permission: 'manage_departments' },
+    { id: 'semesters', name: 'Kỳ', permission: 'manage_semesters' },
+    { id: 'subjects', name: 'Môn học', permission: 'manage_subjects' },
+    { id: 'resources', name: 'Tài liệu', permission: 'manage_resources' },
   ];
+
+  // Filter tabs that user can access based on permissions
+  const allowedTabs = tabs.map((tab) => ({
+    ...tab,
+    disabled: profile?.role !== 'admin' && !profile?.permissions?.includes(tab.permission),
+  }));
+
+  const handleTabClick = (tabId: string) => {
+    if (!allowedTabs.find(tab => tab.id === tabId)?.disabled) {
+      setActiveTab(tabId);
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
+      {/* Tab navigation */}
       <div className="mb-6 border-b">
         <div className="flex flex-wrap -mb-px">
-          {tabs.map((tab) => (
+          {allowedTabs.map((tab) => (
             <button
               key={tab.id}
-              className={`inline-block p-4 rounded-t-lg ${
-                activeTab === tab.id
-                  ? 'border-b-2 border-blue-500 text-blue-500'
-                  : 'hover:border-gray-300 hover:text-gray-600'
-              }`}
-              onClick={() => setActiveTab(tab.id)}
+              className={`inline-block p-4 rounded-t-lg ${activeTab === tab.id
+                ? 'border-b-2 border-blue-500 text-blue-500'
+                : 'hover:border-gray-300 hover:text-gray-600'
+              } ${tab.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => handleTabClick(tab.id)}
+              disabled={tab.disabled} // Disable tab if the user does not have permission
             >
               {tab.name}
             </button>
@@ -71,8 +86,9 @@ const TabComponent: React.FC = () => {
         </div>
       </div>
 
+      {/* Tab content */}
       <div className="mt-6">
-      {activeTab === 'departments' && (
+        {activeTab === 'departments' && (
           <DepartmentTable
             setShowDepartmentPopover={setShowDepartmentPopover}
             showCreatePopover={showDepartmentPopover}
@@ -104,8 +120,8 @@ const TabComponent: React.FC = () => {
             setSelectedDepartment={setSelectedDepartment}
             setSelectedSemester={setSelectedSemester}
             setSelectedSubject={setSelectedSubject}
-            setShowResourcePopover={setShowResourcePopover} // Add missing prop
-            showCreatePopover={showResourcePopover} // Add missing prop
+            setShowResourcePopover={setShowResourcePopover}
+            showCreatePopover={showResourcePopover}
           />
         )}
       </div>

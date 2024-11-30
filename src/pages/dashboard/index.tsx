@@ -1,28 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, Home, Users, Moon, Sun, Newspaper, MessageCircle, Presentation, TableProperties, SquareLibrary, LogOut } from 'lucide-react';
+import { Menu, Home, Users, Moon, Sun, Newspaper, MessageCircle, Presentation, SquareLibrary, LogOut } from 'lucide-react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/lib/api/store';
 
+// , TableProperties
+
 const Dashboard: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [activeTab, setActiveTab] = useState<string | null>(null);
   const [darkMode, setDarkMode] = useState<boolean>(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false); // State for dropdown
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { pathname } = useLocation();
   const { profile } = useSelector((state: RootState) => state.user);
-  // Tabs list 
+  
   const tabs = [
     { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
     { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management' },
-    { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' },
-    { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management' },
+    { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management',  permission: 'manage_posts' },
     { name: 'Comment Management', icon: <MessageCircle className="h-5 w-5 mr-3 ml-2" />, path: 'comment-management' },
-    { name: 'Meeting Management', icon: <Presentation className="h-5 w-5 mr-3 ml-2" />, path: 'meeting-management' },
-    { name: 'Permission Management', icon: <TableProperties className="h-5 w-5 mr-3 ml-2" />, path: 'permission-management' },
+    { name: 'Meeting Management', icon: <Presentation className="h-5 w-5 mr-3 ml-2" />, path: 'meeting-management', permission: 'manage_meetings' },
+    // { name: 'Permission Management', icon: <TableProperties className="h-5 w-5 mr-3 ml-2" />, path: 'permission-management' },
   ];
+
+  // Chỉ thêm tab 'User Management' nếu là admin
+  if (profile?.role === 'admin') {
+    tabs.push({ name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' });
+  }
+
   useEffect(() => {
     document.title = 'Dashboard | LearnUp';
   }, []); 
@@ -57,8 +64,8 @@ const Dashboard: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token'); // Remove token
-    window.location.href = '/login'; // Redirect to login
+    localStorage.removeItem('token');
+    window.location.href = '/login';
   };
 
   return (
@@ -72,17 +79,26 @@ const Dashboard: React.FC = () => {
         </div>
         <nav className="mt-11">
           <ul>
-            {tabs.map((tab) => (
-              <li className="mb-2" key={tab.path}>
-                <Link
-                  to={`/dashboard/${tab.path}`}
-                  className={`flex items-center p-2 py-3 w-full ${activeTab === tab.path ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
-                >
-                  {tab.icon}
-                  {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">{tab.name}</span>}
-                </Link>
-              </li>
-            ))}
+            {tabs.map((tab) => {
+              // Always allow Semester Management, or check other permissions
+              const hasPermission = 
+                tab.name === 'Semester Management' || tab.name === 'Home' ||
+                profile?.role === 'admin' || 
+                (tab.permission && profile?.permissions?.includes(tab.permission));
+
+              return (
+                <li className="mb-2" key={tab.path}>
+                  <Link
+                    to={`/dashboard/${tab.path}`}
+                    className={`flex items-center p-2 py-3 w-full ${activeTab === tab.path ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200 ${!hasPermission ? 'cursor-not-allowed opacity-50' : ''}`}
+                    onClick={(e) => !hasPermission && e.preventDefault()}
+                  >
+                    {tab.icon}
+                    {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">{tab.name}</span>}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </aside>
