@@ -14,7 +14,7 @@ const ProtectedRoute = ({ roles, children }: ProtectedRouteProps) => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: RootState) => state.user.profile);
-  const isLoading = useAppSelector((state: RootState) => state.user.loading);
+  // const isLoading = useAppSelector((state: RootState) => state.user.loading);
   const token = localStorage.getItem('token');
   const [isInitialCheck, setIsInitialCheck] = useState(true);
 

@@ -1,4 +1,3 @@
-// UserManagementDashboard.tsx
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,9 +13,7 @@ const UserManagementDashboard: React.FC = () => {
   const dispatch = useDispatch();
   const { users, loading } = useSelector((state: RootState) => state.user);
 
-  const [currentUserRole] = useState<UserRole>(
-    (localStorage.getItem('role') as UserRole) || 'admin'
-  );
+  const [currentUserRole] = useState<UserRole>((localStorage.getItem('role') as UserRole) || 'admin');
   const [currentUserId] = useState<string>(localStorage.getItem('userId') || '');
   const [selectedMetric, setSelectedMetric] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -25,7 +22,7 @@ const UserManagementDashboard: React.FC = () => {
 
   useEffect(() => {
     dispatch(fetchAllUsers() as any); // Type assertion to resolve dispatch type error
-    toast.success('Success fetch userlist')
+    toast.success('Success fetch userlist');
   }, [dispatch]);
 
   const exportToExcel = (data: User[]) => {

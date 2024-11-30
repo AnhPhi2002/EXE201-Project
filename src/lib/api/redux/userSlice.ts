@@ -49,6 +49,7 @@
             Authorization: `Bearer ${token}`,
           },
         });
+        console.log('User Info:', response.data); // Xem dữ liệu trả về từ API
         return response.data;
       } catch (error) {
         console.error('Failed to fetch user info:', error);
