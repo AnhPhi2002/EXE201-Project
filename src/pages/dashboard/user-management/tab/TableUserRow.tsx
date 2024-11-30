@@ -100,7 +100,7 @@ const TableUserRow: React.FC<TableUserRowProps> = ({ user }) => {
     <TableRow>
       <TableCell className="hidden sm:table-cell">
         <Avatar>
-          <AvatarImage src={user.avatar || 'https://example.com/default-avatar.jpg'} />
+          <AvatarImage src={user?.avatar || 'https://example.com/default-avatar.jpg'} />
           <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
         </Avatar>
       </TableCell>

@@ -70,7 +70,7 @@ const LoginPage: React.FC = () => {
         if (user?.role === 'admin') {
           navigate('/dashboard');
         } else if (user?.role === 'staff') {
-          navigate('/staff');
+          navigate('/dashboard');
         } else {
           navigate('/');
         }
