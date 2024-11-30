@@ -62,16 +62,30 @@
     'user/fetchAllUsers',
     async (_, { rejectWithValue }) => {
       const token = localStorage.getItem('token');
+      
+      if (!token) {
+        return rejectWithValue('No authentication token found');
+      }
+  
       try {
         const response = await axios.get(`${API_URL}/admin/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
+        
         return response.data.users;
       } catch (error) {
-        console.error('Failed to fetch users:', error);
-        return rejectWithValue('Failed to fetch users');
+        if (axios.isAxiosError(error)) {
+          // Xử lý lỗi từ server
+          const errorMessage = error.response?.data?.message || 'Failed to fetch users';
+          console.error('Fetch users error:', errorMessage);
+          return rejectWithValue(errorMessage);
+        }
+        
+        // Xử lý lỗi không phải từ Axios
+        console.error('Unexpected error:', error);
+        return rejectWithValue('An unexpected error occurred');
       }
     }
   );
