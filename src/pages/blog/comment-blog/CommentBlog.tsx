@@ -1,15 +1,12 @@
-// src/components/CommentBlog.tsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '@/lib/api/store';
 import {
   fetchCommentsByPostId,
   addComment,
-
 } from '@/lib/api/redux/commentSlice';
 import { fetchUserInfo } from '@/lib/api/redux/userSlice';
 import { toast } from 'react-toastify';
-
 import { Comment } from '@/lib/api/redux/commentSlice';
 import CommentForm from './CommentForm';
 import CommentItem from './CommentItem';
@@ -17,7 +14,6 @@ import CommentItem from './CommentItem';
 interface CommentBlogProps {
   postId: string | null;
 }
-
 
 const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -44,7 +40,7 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
 
   const handleAddComment = async (content: string, images: string[]) => {
     if (!content.trim() && images.length === 0) {
-      toast.error('Please add some text or an image.');
+      toast.error('Vui lòng thêm nội dung hoặc hình ảnh.');
       return;
     }
 
@@ -57,13 +53,13 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
     try {
       const resultAction = await dispatch(addComment(commentData));
       if (addComment.fulfilled.match(resultAction)) {
-        toast.success('Comment added successfully!');
+        toast.success('Thêm bình luận thành công!');
       } else {
-        toast.error('Failed to add comment');
+        toast.error('Không thể thêm bình luận.');
       }
     } catch (error) {
-      console.error('Error submitting comment:', error);
-      toast.error('Failed to add comment.');
+      console.error('Lỗi khi gửi bình luận:', error);
+      toast.error('Không thể thêm bình luận.');
     }
   };
 
@@ -71,7 +67,7 @@ const CommentBlog: React.FC<CommentBlogProps> = ({ postId }) => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Comments</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Bình luận</h2>
       <CommentForm onSubmit={handleAddComment} />
       <div className="space-y-6 text-black">
         {rootComments.map((comment) => (

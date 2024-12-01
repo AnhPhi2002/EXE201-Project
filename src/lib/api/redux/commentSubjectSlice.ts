@@ -75,7 +75,13 @@ export const fetchCommentsBySubjectId = createAsyncThunk<Comment[], string, { re
       console.log('API Response:', response.data);  // Kiểm tra dữ liệu trả về từ API
       const comments = response.data;
 
-      const uniqueAuthorIds = Array.from(new Set(comments.map((comment: Comment) => comment.authorId._id)));
+      // Lọc các bình luận có authorId hợp lệ (không phải null hoặc undefined)
+      const validComments = comments.filter((comment: Comment) => comment.authorId && comment.authorId._id);
+
+      // Lấy danh sách các authorId duy nhất từ các bình luận hợp lệ
+      const uniqueAuthorIds = Array.from(new Set(validComments.map((comment: Comment) => comment.authorId._id)));
+
+      // Fetch dữ liệu tác giả cho mỗi authorId duy nhất
       await Promise.all(
         uniqueAuthorIds.map(async (authorId) => {
           const authorResponse = await axios.get(`${API_URL}/auth/user/${authorId}`);
@@ -83,10 +89,10 @@ export const fetchCommentsBySubjectId = createAsyncThunk<Comment[], string, { re
         })
       );
 
-      return comments;
+      return validComments;
     } catch (error) {
       console.error('Fetch Comments Error:', error);
-      return rejectWithValue('Failed to fetch comments');
+      return rejectWithValue('Lỗi khi tải bình luận');
     }
   }
 );
