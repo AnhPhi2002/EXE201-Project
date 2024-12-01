@@ -23,7 +23,7 @@ import BlogDetail from './pages/blog/blogdetail';
 import ContactUs from './pages/contact-page';
 import PostManagementDashboard from './pages/dashboard/post-management/post';
 import CommentManagementDashboard from './pages/dashboard/comment-management';
-import PermissionManagementDashboard from './pages/dashboard/permission-management';
+
 import SemesterManagementDashboard from './pages/dashboard/semester-management';
 import PaymentPage from './pages/payment-page';
 import AboutUs from './pages/about-page';
@@ -36,7 +36,6 @@ import SubjectPage from './pages/subject-page';
 import StudyRoomPage from './pages/meeting-page/StudyRoomPage';
 import MeetingManagementDashboard from './pages/dashboard/meeting-management/table/page';
 import BlogSection from './pages/blog/bloghome';
-
 
 const router = createBrowserRouter([
   {
@@ -85,7 +84,7 @@ const router = createBrowserRouter([
         path: '/blog',
         element: <BlogSection />,
       },
-   
+
       {
         path: '/blog-detail/:id',
         element: <BlogDetail />,
@@ -122,7 +121,6 @@ const router = createBrowserRouter([
         path: '/payment/failure',
         element: <PaymentFailure />,
       },
- 
     ],
   },
 
@@ -138,23 +136,22 @@ const router = createBrowserRouter([
     path: '/reset-password',
     element: <ResetPassword />,
   },
- 
 
   {
-    path: '/dashboard', 
+    path: '/dashboard',
     element: (
       <ProtectedRoute roles={['admin', 'staff']}>
         <Dashboard />
       </ProtectedRoute>
-    ), 
+    ),
     children: [
       {
         path: '/dashboard/',
         element: <HomeDashboard />,
       },
       {
-        path: '/dashboard/home', 
-        element: <HomeDashboard />, 
+        path: '/dashboard/home',
+        element: <HomeDashboard />,
       },
       {
         path: '/dashboard/user-management',
@@ -172,58 +169,14 @@ const router = createBrowserRouter([
         path: '/dashboard/meeting-management',
         element: <MeetingManagementDashboard />,
       },
-      {
-        path: '/dashboard/permission-management',
-        element: <PermissionManagementDashboard />,
-      },
+
       {
         path: '/dashboard/semester-management',
         element: <SemesterManagementDashboard />,
       },
     ],
   },
-  // {
-  //   path: '/dashboard', 
-  //   element: (
-  //     <ProtectedRoute roles={['admin']}>
-  //       <Dashboard />
-  //     </ProtectedRoute>
-  //   ), 
-  //   children: [
-  //     {
-  //       path: '/dashboard/',
-  //       element: <HomeDashboard />,
-  //     },
-  //     {
-  //       path: '/dashboard/home', 
-  //       element: <HomeDashboard />, 
-  //     },
-  //     {
-  //       path: '/dashboard/user-management',
-  //       element: <UserManagementDashboard />,
-  //     },
-  //     {
-  //       path: '/dashboard/post-management',
-  //       element: <PostManagementDashboard />,
-  //     },
-  //     {
-  //       path: '/dashboard/comment-management',
-  //       element: <CommentManagementDashboard />,
-  //     },
-  //     {
-  //       path: '/dashboard/meeting-management',
-  //       element: <MeetingManagementDashboard />,
-  //     },
-  //     {
-  //       path: '/dashboard/permission-management',
-  //       element: <PermissionManagementDashboard />,
-  //     },
-  //     {
-  //       path: '/dashboard/semester-management',
-  //       element: <SemesterManagementDashboard />,
-  //     },
-  //   ],
-  // },
+  
 ]);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

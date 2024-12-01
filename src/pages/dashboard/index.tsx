@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Menu, Home, Users, Moon, Sun, Newspaper, MessageCircle, Presentation, SquareLibrary, LogOut } from 'lucide-react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Link, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/api/store';
 
-// , TableProperties
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Menu, Sun, Moon, LogOut, Home, SquareLibrary, Newspaper, MessageCircle, Presentation, Users } from 'lucide-react';
+import { Outlet } from 'react-router-dom';
+import { RootState } from '@/lib/api/store';
 
 const Dashboard: React.FC = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -14,19 +14,43 @@ const Dashboard: React.FC = () => {
   const [darkMode, setDarkMode] = useState<boolean>(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { pathname } = useLocation();
-  const { profile } = useSelector((state: RootState) => state.user);
+  const { profile } = useSelector((state: RootState) => state.user); // Assuming profile is stored in Redux
 
+  // List of tabs that will be shown
   const tabs = [
     { name: 'Home', icon: <Home className="h-5 w-5 mr-3 ml-2" />, path: 'home' },
-    { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management' },
+    { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management', permission: 'manage_semesters' },
     { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management', permission: 'manage_posts' },
-    { name: 'Comment Management', icon: <MessageCircle className="h-5 w-5 mr-3 ml-2" />, path: 'comment-management' },
+    { name: 'Comment Management', icon: <MessageCircle className="h-5 w-5 mr-3 ml-2" />, path: 'comment-management', permission: 'manage_comments' },
     { name: 'Meeting Management', icon: <Presentation className="h-5 w-5 mr-3 ml-2" />, path: 'meeting-management', permission: 'manage_meetings' },
   ];
 
+  // Add "User Management" tab if the user is an admin
   if (profile?.role === 'admin') {
-    tabs.splice(1, 0, { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' });
+    tabs.splice(
+      1,
+      0,
+      { name: 'User Management', icon: <Users className="h-5 w-5 mr-3 ml-2" />, path: 'user-management' },
+      { name: 'Semester Management', icon: <SquareLibrary className="h-5 w-5 mr-3 ml-2" />, path: 'semester-management' },
+      { name: 'Post Management', icon: <Newspaper className="h-5 w-5 mr-3 ml-2" />, path: 'post-management' },
+      { name: 'Comment Management', icon: <MessageCircle className="h-5 w-5 mr-3 ml-2" />, path: 'comment-management' },
+      { name: 'Meeting Management', icon: <Presentation className="h-5 w-5 mr-3 ml-2" />, path: 'meeting-management' },
+    );
   }
+
+  // Check user permissions
+  const hasManageSemestersPermission = profile?.permissions?.includes('manage_semesters');
+  const hasManageMeetingsPermission = profile?.permissions?.includes('manage_meetings');
+  const hasManagePostsPermission = profile?.permissions?.includes('manage_posts');
+
+  // Filter the tabs based on user permissions
+  const filteredTabs = tabs.filter((tab) => {
+    if (tab.permission === 'manage_semesters' && hasManageSemestersPermission) return true;
+    if (tab.permission === 'manage_meetings' && hasManageMeetingsPermission) return true;
+    if (tab.permission === 'manage_posts' && hasManagePostsPermission) return true;
+    if (!tab.permission) return true; // Tabs without a permission requirement
+    return false;
+  });
 
   useEffect(() => {
     document.title = 'Dashboard | LearnUp';
@@ -77,17 +101,12 @@ const Dashboard: React.FC = () => {
         </div>
         <nav className="mt-11">
           <ul>
-            {tabs.map((tab) => {
-              // Always allow Semester Management, or check other permissions
-              const hasPermission =
-                tab.name === 'Semester Management' || tab.name === 'Home' || profile?.role === 'admin' || (tab.permission && profile?.permissions?.includes(tab.permission));
-
+            {filteredTabs.map((tab) => {
               return (
                 <li className="mb-2" key={tab.path}>
                   <Link
                     to={`/dashboard/${tab.path}`}
-                    className={`flex items-center p-2 py-3 w-full ${activeTab === tab.path ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200 ${!hasPermission ? 'cursor-not-allowed opacity-50' : ''}`}
-                    onClick={(e) => !hasPermission && e.preventDefault()}
+                    className={`flex items-center p-2 py-3 w-full ${activeTab === tab.path ? 'bg-gray-700' : 'hover:bg-gray-700'} rounded transition-colors duration-200`}
                   >
                     {tab.icon}
                     {!sidebarCollapsed && <span className="whitespace-nowrap overflow-hidden">{tab.name}</span>}
@@ -101,7 +120,7 @@ const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white dark:bg-gray-800 shadow-md ">
+        <header className="bg-white dark:bg-gray-800 shadow-md">
           <div className="flex items-center justify-end p-4 relative">
             <Button className="mr-4" onClick={toggleDarkMode}>
               {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
