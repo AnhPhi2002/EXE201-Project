@@ -58,7 +58,7 @@ export const fetchResourcesBySubject = createAsyncThunk(
       return response.data.resources;
     } catch (error) {
       console.error('Error fetching resources by subject:', error);
-      return rejectWithValue('Error fetching resources by subject');
+      return rejectWithValue('Bạn cần đăng nhập để xem tài liệu');
     }
   }
 );
